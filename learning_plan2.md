@@ -232,3 +232,8 @@ GPU拓扑感知调度
 技术栈：Python, CUDA, Pytorch, profiling(nsys)
 ```
 ### 项目2：大模型推理性能自动化分析工具
+```
+- 开发端到端prefiling工具，支持vLLM/TensorRT/ONNX Runtime
+- 自动生成性能报告（latency P50/p99, gpu利用率，memory）
+- 帮助团队将平均推理延迟从150ms降至80ms
+```
