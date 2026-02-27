@@ -1,34 +1,35 @@
 # 阶段1:1-6周-推理全栈认知
 **week1:ONNX + TensorRT**  
 Day 1–2  
-PyTorch 模型导出 ONNX  
+PyTorch 模型导出 ONNX（ResNet50）  
 理解 graph structure  
 用 Netron 可视化  
 输出：  
-画出模型 graph 流程图  
-Day 3–4  
-ONNX → TensorRT engine  
-跑 FP32 / FP16  
-比较 latency  
+画出模型 graph 流程图，一份ONNX格式笔记    
+Day 3–4：ONNX Runtime实践  
+ONNX Runtime推理（CPU + GPU）  
+性能对比实验（pytorch vs onnx runtime）  
+只跑resnet50 
 输出：  
-一份性能对比表  
-Day 5–7  
-读 TensorRT engine 构建流程：  
-重点理解：  
-layer fusion  
-tactic selection  
-kernel autotune  
+一份性能对比数据  
+Day 5–7：TensorRT基础  
+阅读TensorRT文档，重点理解优化原理  
+理解layer fusion/tactic selection概念  
+onnx -> TensorRT转换 （ResNet50）  
+FP32 VS FP16对比    
 能回答：  
 TensorRT 为什么比 PyTorch inference 快？  
-完成性能对比实验:    
-```
-models = ["ResNet50","BERT-base","Llama-7B"]
-frameworks = ["PyTorch","ONNX Runtime","TensorRT"]
-```
+Day 8-10：完整benchmark  
+Llama-7B在3个框架下的测试：  
+pytorch/ONNX Runtime/TensorRT（llama-7B的tensorRT转换很复杂，不一定成功）  
+输出报告：  
+性能对比表格；  
+为什么不同框架有差异；  
+撰写一份完整benchmark报告  
 **week2:vLLM**  
-Day 1–3  
+Day 1–2：pagedattention原理  
 paged attention  
-block manager  
+block manager    
 必须搞懂：  
 为什么不用连续内存？  
 KV cache 如何分页？  
