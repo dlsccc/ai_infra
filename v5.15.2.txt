@@ -398,3 +398,203 @@ createApp({
                 return Number.isInteger(parseFloat(sample)) ? 'INT' : 'DECIMAL';
             }
             const pattern = /^\d{4}-\d{2}-\d{2}/;
+            if (pattern.test(sample)) return 'DATE';
+            return 'STRING';
+        };
+
+        const processGridContainer = ref(null);
+        const showRawPreview = ref(false);
+
+        const updateHeaderStickyOffset = () => {
+            if (!processGridContainer.value) return;
+            const firstRow = processGridContainer.value.querySelector('thead tr:first-child');
+            if (!firstRow) return;
+            const h = firstRow.getBoundingClientRect().height;
+            processGridContainer.value.style.setProperty('--header-row-1-height', h + 'px');
+        };
+
+        // 焦点管理：保存之前聚焦的元素
+        const previousFocus = ref(null);
+
+        // 键盘导航处理
+        const handleKeyDown = (e) => {
+            // Escape 关闭所有弹窗
+            if (e.key === 'Escape') {
+                if (transformModal.show) {
+                    closeTransformModal();
+                    e.preventDefault();
+                } else if (applyModal.show) {
+                    closeApplyModal();
+                    e.preventDefault();
+                } else if (columnPopover.show) {
+                    columnPopover.show = false;
+                    e.preventDefault();
+                } else if (successModal.show) {
+                    successModal.show = false;
+                    e.preventDefault();
+                }
+            }
+            // Tab 键在步骤间导航
+            if (e.key === 'Tab' && !transformModal.show && !applyModal.show && !columnPopover.show && !successModal.show) {
+                // 允许默认 Tab 行为
+            }
+        };
+
+        onMounted(() => {
+            updateHeaderStickyOffset();
+            document.addEventListener('keydown', handleKeyDown);
+        });
+
+        // 清理键盘事件监听
+
+        watch([currentStep, showRawPreview], async () => {
+            if (currentStep.value !== 2) return;
+            await nextTick();
+            updateHeaderStickyOffset();
+        });
+
+        watch(fileData, async (newFileData) => {
+            if (newFileData && newFileData.length > 0) {
+                // 清理配置
+                mappings.value = {};
+                Object.keys(filterConfigs).forEach(k => delete filterConfigs[k]);
+                Object.keys(transforms).forEach(k => delete transforms[k]);
+                sortConfig.field = '';
+                sortConfig.order = 'asc';
+
+                // 如果已有模型选择，应用预设
+                if (selectedModel.value && !demoInitialized.value) {
+                    await applyPresets(selectedModel.value);
+                }
+            }
+        }, { deep: true });
+
+        const addTransformRule = () => {
+            transformModal.rules.push({
+                operator: '', value: '', type: 'set_value', delimiter: '',
+                fixedValue: '', search: '', replace: '', formula: ''
+            });
+        };
+
+        const removeTransformRule = (index) => {
+            transformModal.rules.splice(index, 1);
+        };
+
+        const addChainStep = () => {
+            if (!transformModal.chain) {
+                transformModal.chain = [];
+            }
+            transformModal.chain.push({
+                type: 'trim',
+                delimiter: '',
+                fixedValue: '',
+                search: '',
+                replace: '',
+                formula: ''
+            });
+        };
+
+        const removeChainStep = (index) => {
+            if (transformModal.chain) {
+                transformModal.chain.splice(index, 1);
+            }
+        };
+
+        const moveChainStep = (index, direction) => {
+            if (!transformModal.chain || index < 0 || index >= transformModal.chain.length) return;
+            const newIndex = index + direction;
+            if (newIndex < 0 || newIndex >= transformModal.chain.length) return;
+            const temp = transformModal.chain[index];
+            transformModal.chain[index] = transformModal.chain[newIndex];
+            transformModal.chain[newIndex] = temp;
+        };
+
+        const targetModelFields = computed(() => {
+            const models = {
+                'HW_4G_COUNTER': [
+                    { name: 'SITE_ID', type: 'STRING', required: true, description: '站点ID', sampleValue: 'SITE001', aliases: ['站点编号', '站点标识', 'SITE_NO'] },
+                    { name: 'SITE_NAME', type: 'STRING', required: true, description: '站点名称', sampleValue: '北京朝阳基站', aliases: ['基站名称', '站点名'] },
+                    { name: 'TIME_DATE', type: 'DATE', required: true, description: '日期', sampleValue: '2025-01-15', aliases: ['统计日期', 'DATA_DATE', '日期'] },
+                    { name: 'TIME_YEAR', type: 'INT', required: false, description: '年份', sampleValue: '2025', aliases: ['年', 'YEAR'] },
+                    { name: 'TIME_WEEK', type: 'INT', required: false, description: '周数', sampleValue: '3', aliases: ['周', 'WEEK'] },
+                    { name: 'TIME_DAY', type: 'INT', required: false, description: '日', sampleValue: '15', aliases: ['天', 'DAY', '日期_数字'] },
+                    { name: 'TIME_TIME', type: 'STRING', required: false, description: '时间', sampleValue: '08:00:00', aliases: ['时间点', 'TIME_HOUR'] },
+                    { name: 'CLUSTER', type: 'STRING', required: false, description: '集群', sampleValue: 'CLUSTER_A', aliases: ['集群名称', 'CLUSTER_NAME'] },
+                    { name: 'COMMON4', type: 'STRING', required: false, description: '通用字段4', sampleValue: 'aa', aliases: ['EXT4', 'COL4'] },
+                    { name: 'COMMON5', type: 'STRING', required: false, description: '通用字段5', sampleValue: '12.5', aliases: ['EXT5', 'COL5', '补充字段5'] },
+                    { name: 'FIELD0001', type: 'DECIMAL', required: false, description: '数值字段1', sampleValue: '100.2', aliases: ['指标A', 'FIELD1', '流量指标1'] },
+                    { name: 'FIELD0002', type: 'DECIMAL', required: false, description: '数值字段2', sampleValue: '50.3', aliases: ['指标B', 'FIELD2', '流量指标2'] },
+                    { name: 'FIELD0003', type: 'DECIMAL', required: false, description: '数值字段3', sampleValue: '25.8', aliases: ['指标C', 'FIELD3', '流量指标3'] }
+                ],
+                'HW_5G_COUNTER': [
+                    { name: 'SITE_ID', type: 'STRING', required: true, description: '5G站点ID', sampleValue: '5G_SITE_001', aliases: ['基站ID', '5G站点编号'] },
+                    { name: 'SITE_NAME', type: 'STRING', required: true, description: '5G站点名称', sampleValue: '北京国贸5G', aliases: ['5G基站名称'] },
+                    { name: 'TIME_DATE', type: 'DATE', required: true, description: '日期', sampleValue: '2025-01-15', aliases: ['统计日期'] },
+                    { name: 'TIME_HOUR', type: 'INT', required: false, description: '小时', sampleValue: '8', aliases: ['小时', 'hour'] },
+                    { name: 'CELL_ID', type: 'STRING', required: false, description: '小区ID', sampleValue: 'CELL_001_1', aliases: ['小区编号'] },
+                    { name: 'CELL_NAME', type: 'STRING', required: false, description: '小区名称', sampleValue: '国贸中心-小区1', aliases: [] },
+                    { name: 'DL_PRB', type: 'DECIMAL', required: false, description: '下行PRB利用率(%)', sampleValue: '45.2', aliases: ['下行PRB'] },
+                    { name: 'UL_PRB', type: 'DECIMAL', required: false, description: '上行PRB利用率(%)', sampleValue: '32.5', aliases: ['上行PRB'] },
+                    { name: 'DL_THROUGHPUT', type: 'DECIMAL', required: false, description: '下行吞吐量(Mbps)', sampleValue: '520.3', aliases: ['下行吞吐量'] },
+                    { name: 'UL_THROUGHPUT', type: 'DECIMAL', required: false, description: '上行吞吐量(Mbps)', sampleValue: '125.6', aliases: ['上行吞吐量'] },
+                    { name: 'MAX_USERS', type: 'INT', required: false, description: '最大并发用户数', sampleValue: '850', aliases: ['最大用户数'] },
+                    { name: 'AVG_USERS', type: 'DECIMAL', required: false, description: '平均用户数', sampleValue: '620', aliases: ['平均用户'] },
+                    { name: 'RRC_CONNECTED', type: 'INT', required: false, description: 'RRC连接数', sampleValue: '720', aliases: ['RRC连接'] }
+                ],
+                'NETWORK_PERFORMANCE': [
+                    { name: 'PROVINCE', type: 'STRING', required: true, description: '省份', sampleValue: '广东省', aliases: ['省'] },
+                    { name: 'CITY', type: 'STRING', required: true, description: '城市', sampleValue: '深圳市', aliases: ['市'] },
+                    { name: 'DISTRICT', type: 'STRING', required: false, description: '区县', sampleValue: '南山区', aliases: ['区'] },
+                    { name: 'TIME_DATE', type: 'DATE', required: true, description: '统计日期', sampleValue: '2025-01-15', aliases: ['日期'] },
+                    { name: 'NET_TYPE', type: 'STRING', required: false, description: '网络制式(4G/5G)', sampleValue: '4G', aliases: ['网络类型', '制式'] },
+                    { name: 'KPI_NAME', type: 'STRING', required: false, description: 'KPI指标名称', sampleValue: '覆盖率', aliases: ['指标名称'] },
+                    { name: 'KPI_VALUE', type: 'DECIMAL', required: false, description: 'KPI指标值', sampleValue: '98.5', aliases: ['指标值', '实际值'] },
+                    { name: 'KPI_TARGET', type: 'DECIMAL', required: false, description: 'KPI目标值', sampleValue: '95', aliases: ['目标值'] },
+                    { name: 'ACHIEVEMENT_RATE', type: 'DECIMAL', required: false, description: '完成率(%)', sampleValue: '103.7', aliases: ['完成率'] },
+                    { name: 'RANKING', type: 'INT', required: false, description: '排名', sampleValue: '1', aliases: ['名次'] }
+                ],
+                'USER_BEHAVIOR': [
+                    { name: 'USER_ID', type: 'STRING', required: true, description: '用户ID', sampleValue: 'USER_10001', aliases: ['用户编号'] },
+                    { name: 'IMEI', type: 'STRING', required: false, description: '设备标识', sampleValue: 'IMEI_863295', aliases: ['设备ID', '手机IMEI'] },
+                    { name: 'TIME_DATE', type: 'DATE', required: true, description: '日期', sampleValue: '2025-01-15', aliases: ['统计日期'] },
+                    { name: 'TIME_HOUR', type: 'INT', required: false, description: '小时', sampleValue: '8', aliases: ['小时'] },
+                    { name: 'APP_TYPE', type: 'STRING', required: false, description: '业务类型', sampleValue: '视频', aliases: ['业务类型'] },
+                    { name: 'APP_NAME', type: 'STRING', required: false, description: '应用名称', sampleValue: '抖音', aliases: ['应用'] },
+                    { name: 'DL_VOLUME', type: 'DECIMAL', required: false, description: '下行流量(MB)', sampleValue: '1250.5', aliases: ['下行流量'] },
+                    { name: 'UL_VOLUME', type: 'DECIMAL', required: false, description: '上行流量(MB)', sampleValue: '85.2', aliases: ['上行流量'] },
+                    { name: 'DL_SPEED', type: 'DECIMAL', required: false, description: '平均下载速率(Mbps)', sampleValue: '25.5', aliases: ['下载速率'] },
+                    { name: 'UL_SPEED', type: 'DECIMAL', required: false, description: '平均上传速率(Mbps)', sampleValue: '5.2', aliases: ['上传速率'] },
+                    { name: 'LATENCY', type: 'DECIMAL', required: false, description: '时延(ms)', sampleValue: '35', aliases: ['延迟', '时延'] },
+                    { name: 'PAGE_VIEW', type: 'INT', required: false, description: '页面浏览量', sampleValue: '50', aliases: ['浏览量', 'PV'] },
+                    { name: 'SESSION_CNT', type: 'INT', required: false, description: '会话次数', sampleValue: '25', aliases: ['会话数'] }
+                ],
+                'IOT_DEVICE_DATA': [
+                    { name: 'DEVICE_ID', type: 'STRING', required: true, description: '设备ID', sampleValue: 'IOT_001', aliases: ['设备编号'] },
+                    { name: 'DEVICE_TYPE', type: 'STRING', required: true, description: '设备类型', sampleValue: '温湿度传感器', aliases: ['类型'] },
+                    { name: 'MANUFACTURER', type: 'STRING', required: false, description: '厂商', sampleValue: '华为', aliases: ['厂家', '品牌'] },
+                    { name: 'TIME_DATE', type: 'DATE', required: true, description: '日期', sampleValue: '2025-01-15', aliases: ['统计日期'] },
+                    { name: 'TIME_HOUR', type: 'INT', required: false, description: '小时', sampleValue: '8', aliases: [] },
+                    { name: 'LONGITUDE', type: 'DECIMAL', required: false, description: '经度', sampleValue: '116.397', aliases: ['经度坐标'] },
+                    { name: 'LATITUDE', type: 'DECIMAL', required: false, description: '纬度', sampleValue: '39.909', aliases: ['纬度坐标'] },
+                    { name: 'LOCATION', type: 'STRING', required: false, description: '位置描述', sampleValue: '北京市朝阳区某园区', aliases: ['位置', '地址'] },
+                    { name: 'SENSOR_TEMP', type: 'DECIMAL', required: false, description: '温度传感器(℃)', sampleValue: '22.5', aliases: ['温度', '气温'] },
+                    { name: 'SENSOR_HUMIDITY', type: 'DECIMAL', required: false, description: '湿度传感器(%)', sampleValue: '65.2', aliases: ['湿度'] },
+                    { name: 'SENSOR_VOLTAGE', type: 'DECIMAL', required: false, description: '电压(V)', sampleValue: '3.8', aliases: ['电压'] },
+                    { name: 'SENSOR_BATTERY', type: 'DECIMAL', required: false, description: '电池电量(%)', sampleValue: '85', aliases: ['电量', '电池'] },
+                    { name: 'SIGNAL_STRENGTH', type: 'INT', required: false, description: '信号强度(dBm)', sampleValue: '-75', aliases: ['信号强度'] },
+                    { name: 'ONLINE_STATUS', type: 'STRING', required: false, description: '在线状态', sampleValue: '在线', aliases: ['状态'] }
+                ],
+                'CRM_ORDER': [
+                    { name: 'ORDER_ID', type: 'STRING', required: true, description: '订单ID', sampleValue: 'ORD_20250115001', aliases: ['订单ID'] },
+                    { name: 'ORDER_NO', type: 'STRING', required: true, description: '订单编号', sampleValue: 'SO20250115001', aliases: ['订单号'] },
+                    { name: 'TIME_DATE', type: 'DATE', required: true, description: '下单日期', sampleValue: '2025-01-15', aliases: ['日期', '下单日期'] },
+                    { name: 'CUST_ID', type: 'STRING', required: true, description: '客户ID', sampleValue: 'C_1001', aliases: ['客户编号'] },
+                    { name: 'CUST_NAME', type: 'STRING', required: true, description: '客户名称', sampleValue: '北京科技有限公司', aliases: ['客户名'] },
+                    { name: 'PRODUCT_ID', type: 'STRING', required: false, description: '产品ID', sampleValue: 'P_001', aliases: ['产品编号'] },
+                    { name: 'PRODUCT_NAME', type: 'STRING', required: false, description: '产品名称', sampleValue: '企业宽带-100M', aliases: ['产品名'] },
+                    { name: 'PRODUCT_TYPE', type: 'STRING', required: false, description: '产品类型', sampleValue: '宽带产品', aliases: [] },
+                    { name: 'ORDER_AMOUNT', type: 'DECIMAL', required: false, description: '订单金额(元)', sampleValue: '1200', aliases: ['金额'] },
+                    { name: 'DISCOUNT_AMOUNT', type: 'DECIMAL', required: false, description: '优惠金额(元)', sampleValue: '100', aliases: ['优惠'] },
+                    { name: 'ACTUAL_AMOUNT', type: 'DECIMAL', required: false, description: '实付金额(元)', sampleValue: '1100', aliases: ['实付'] },
+                    { name: 'PAY_METHOD', type: 'STRING', required: false, description: '支付方式', sampleValue: '微信支付', aliases: ['支付方式'] },
+                    { name: 'ORDER_STATUS', type: 'STRING', required: false, description: '订单状态', sampleValue: '已完成', aliases: ['状态'] },
