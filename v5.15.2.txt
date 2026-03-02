@@ -1398,3 +1398,203 @@ createApp({
                     groups[key] = {};
                     groupByFields.value.forEach(f => groups[key][f] = getFieldValue(row, f));
                     aggregationFields.value.forEach(agg => {
+                        groups[key][`${agg.field}_${agg.method}`] = 0;
+                        groups[key][`${agg.field}_sum`] = 0;
+                        groups[key][`${agg.field}_count`] = 0;
+                    });
+                }
+                aggregationFields.value.forEach(agg => {
+                    const val = Number(getFieldValue(row, agg.field)) || 0;
+                    switch (agg.method) {
+                        case 'sum':
+                            groups[key][`${agg.field}_sum`] += val;
+                            groups[key][`${agg.field}_${agg.method}`] = groups[key][`${agg.field}_sum`];
+                            break;
+                        case 'avg':
+                            groups[key][`${agg.field}_sum`] += val;
+                            groups[key][`${agg.field}_count`]++;
+                            groups[key][`${agg.field}_${agg.method}`] = groups[key][`${agg.field}_sum`] / groups[key][`${agg.field}_count`];
+                            break;
+                        case 'count':
+                            groups[key][`${agg.field}_count`]++;
+                            groups[key][`${agg.field}_${agg.method}`] = groups[key][`${agg.field}_count`];
+                            break;
+                        case 'max':
+                            groups[key][`${agg.field}_${agg.method}`] = Math.max(groups[key][`${agg.field}_${agg.method}`] || 0, val);
+                            break;
+                        case 'min':
+                            groups[key][`${agg.field}_${agg.method}`] = Math.min(groups[key][`${agg.field}_${agg.method}`] || Infinity, val);
+                            break;
+                    }
+                });
+            });
+
+            return Object.values(groups);
+        });
+
+        const writeConfig = reactive({ mode: 'append', deduplication: false, dedupFields: [], conflictStrategy: 'keep_old' });
+
+        const columnPopover = reactive({ show: false, x: 0, y: 0, field: '', type: '' });
+
+        const transformModal = reactive({
+            show: false,
+            field: '',
+            rules: [],
+            chain: []
+        });
+
+        const copiedConfig = ref(null);
+
+        const applyModal = reactive({
+            show: false,
+            sourceField: '',
+            search: '',
+            selected: [],
+            applyFilter: true,
+            applyTransform: true,
+            applySort: false,
+            override: false
+        });
+
+        const filteredApplyTargets = computed(() => {
+            const keyword = applyModal.search.trim().toLowerCase();
+            return targetModelFields.value
+                .filter(f => f.name !== applyModal.sourceField)
+                .filter(f => !keyword || f.name.toLowerCase().includes(keyword));
+        });
+
+        const copyColumnConfig = (field) => {
+            copiedConfig.value = {
+                field,
+                filter: JSON.parse(JSON.stringify(filterConfigs[field] || null)),
+                transform: JSON.parse(JSON.stringify(transforms[field] || null)),
+                sort: sortConfig.field === field ? { ...sortConfig } : null
+            };
+            applyModal.sourceField = field;
+        };
+
+        const openApplyModal = (field) => {
+            previousFocus.value = document.activeElement;
+            if (!copiedConfig.value || copiedConfig.value.field !== field) {
+                copyColumnConfig(field);
+            }
+            applyModal.show = true;
+            applyModal.selected = [];
+            applyModal.search = '';
+            applyModal.applyFilter = true;
+            applyModal.applyTransform = true;
+            applyModal.applySort = false;
+            applyModal.override = false;
+
+            // 自动聚焦到弹窗
+            nextTick(() => {
+                const modal = document.querySelector('.modal');
+                if (modal) modal.focus();
+            });
+        };
+
+        const closeApplyModal = () => {
+            applyModal.show = false;
+            // 恢复之前焦点
+            nextTick(() => {
+                if (previousFocus.value && previousFocus.value.focus) {
+                    previousFocus.value.focus();
+                    previousFocus.value = null;
+                }
+            });
+        };
+
+        const selectAll = () => {
+            applyModal.selected = filteredApplyTargets.value.map(f => f.name);
+        };
+
+        const clearAll = () => { applyModal.selected = []; };
+
+        const selectByPrefix = () => {
+            const src = applyModal.sourceField || '';
+            const prefix = src.match(/^[A-Z_]+/)?.[0] || src;
+            applyModal.selected = filteredApplyTargets.value
+                .filter(f => f.name.startsWith(prefix))
+                .map(f => f.name);
+        };
+
+        const selectByType = () => {
+            const src = targetModelFields.value.find(f => f.name === applyModal.sourceField);
+            if (!src) return;
+            applyModal.selected = filteredApplyTargets.value
+                .filter(f => f.type === src.type)
+                .map(f => f.name);
+        };
+
+        const applyColumnConfig = () => {
+            if (!copiedConfig.value) return;
+
+            applyModal.selected.forEach(target => {
+                if (applyModal.applyFilter && copiedConfig.value.filter) {
+                    if (applyModal.override || !isFilterActive(target)) {
+                        filterConfigs[target] = JSON.parse(JSON.stringify(copiedConfig.value.filter));
+                        addHistory('filter', '筛选', `${target} 复制筛选配置`, target);
+                    }
+                }
+
+                if (applyModal.applyTransform && copiedConfig.value.transform) {
+                    if (applyModal.override || !transforms[target]) {
+                        transforms[target] = JSON.parse(JSON.stringify(copiedConfig.value.transform));
+                        addHistory('transform', '数据转换', `${target} 复制转换配置`, target);
+                    }
+                }
+
+                if (applyModal.applySort && copiedConfig.value.sort) {
+                    sortConfig.field = target;
+                    sortConfig.order = copiedConfig.value.sort.order || 'asc';
+                    addHistory('sort', '排序', `${target} ${sortConfig.order === 'asc' ? '升序' : '降序'}`, target);
+                }
+            });
+
+            closeApplyModal();
+        };
+
+        const successModal = reactive({ show: false });
+
+        const goToStep = (index) => {
+            if (index <= currentStep.value || canProceed.value) currentStep.value = index;
+        };
+        const prevStep = () => { if (currentStep.value > 0) currentStep.value--; };
+        const nextStep = () => { if (currentStep.value < steps.length - 1 && canProceed.value) currentStep.value++; };
+
+        const canProceed = computed(() => {
+            switch (currentStep.value) {
+                case 0: return selectedModel.value && uploadedFiles.value.length > 0;
+                case 1: return Object.keys(mappings.value).length > 0;
+                default: return true;
+            }
+        });
+
+        const triggerFileInput = () => { fileInput.value.click(); };
+        const handleFileSelect = (e) => { if (e.target.files.length > 0) addFiles(e.target.files); };
+        const handleDrop = (e) => { dragOver.value = false; if (e.dataTransfer.files.length > 0) addFiles(e.dataTransfer.files); };
+
+        const addFiles = (files) => {
+            for (let i = 0; i < files.length; i++) {
+                if (uploadedFiles.value.length >= 2) break;
+                const file = files[i];
+                const sourceId = uploadedFiles.value.length === 0 ? 'table_a' : 'table_b';
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const text = e.target.result;
+                    const { headers, data } = parseCSV(text);
+
+                    const fields = headers.map(h => ({
+                        key: `${sourceId}_${h}`,
+                        sourceId: sourceId,
+                        name: h,
+                        sampleValue: data[0]?.[h] || ''
+                    }));
+
+                    fileData.value.push({
+                        name: file.name,
+                        sourceId: sourceId,
+                        headers: headers,
+                        fields: fields,
+                        data: data,
