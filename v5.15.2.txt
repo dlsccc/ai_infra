@@ -1,0 +1,100 @@
+                                <option value="">请选择</option>
+                                <option value="equals">等于</option>
+                                <option value="not_equals">不等于</option>
+                                <option value="contains">包含</option>
+                                <option value="is_empty">为空</option>
+                                <option value="is_not_empty">不为空</option>
+                                <option value="greater_than">大于</option>
+                                <option value="less_than">小于</option>
+                            </select>
+                            <input v-if="!['is_empty', 'is_not_empty'].includes(cond.operator)"
+                                   v-model="cond.value"
+                                   class="form-input"
+                                   placeholder="值"
+                                   style="flex: 1;">
+                            <button class="btn btn-danger btn-sm" @click="removeFilterCondition(columnPopover.field, idx)"
+                                    style="padding: 4px 8px; min-width: auto;">
+                                <span class="material-icons" style="font-size: 16px;">delete</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-default btn-sm" @click="addFilterCondition(columnPopover.field)"
+                            style="width: 100%; margin-top: 5px;">
+                        <span class="material-icons" style="font-size: 16px; vertical-align: middle;">add</span> 添加条件
+                    </button>
+                </div>
+                <div v-else style="text-align: center; padding: 20px; color: var(--text-secondary);">
+                    <div>暂无条件</div>
+                    <button class="btn btn-default btn-sm" @click="addFilterCondition(columnPopover.field)" style="margin-top: 10px;">
+                        <span class="material-icons" style="font-size: 16px; vertical-align: middle;">add</span> 添加筛选条件
+                    </button>
+                </div>
+            </div>
+
+            <div v-if="filterConfigs[columnPopover.field].mode === 'formula'">
+                <label class="form-label" style="font-size: 13px;">公式</label>
+                <input v-model="filterConfigs[columnPopover.field].formula"
+                       class="form-input"
+                       placeholder="例如：=value>15 或 =NOT(ISBLANK(value))">
+                <div class="popover-muted" style="margin-top: 8px;">
+                    支持 <code>value</code>、<code>row</code>、<code>S('字段名')</code>、<code>T('目标字段')</code>
+                </div>
+            </div>
+
+            <div class="popover-actions">
+                <button class="btn btn-default btn-sm" @click="clearFilter(columnPopover.field)">清除</button>
+                <button class="btn btn-primary btn-sm" @click="applyFilterConfig(columnPopover.field)">应用</button>
+            </div>
+        </div>
+
+        <div v-if="columnPopover.type === 'sort'">
+            <button class="btn btn-default btn-sm" style="width: 100%; margin-bottom: 10px;" @click="applySort(columnPopover.field, 'asc')">
+                <span class="material-icons" style="font-size: 16px; vertical-align: middle;">arrow_upward</span> 升序
+            </button>
+            <button class="btn btn-default btn-sm" style="width: 100%; margin-bottom: 10px;" @click="applySort(columnPopover.field, 'desc')">
+                <span class="material-icons" style="font-size: 16px; vertical-align: middle;">arrow_downward</span> 降序
+            </button>
+            <button class="btn btn-danger btn-sm" style="width: 100%;" @click="clearSort()">
+                <span class="material-icons" style="font-size: 16px; vertical-align: middle;">clear</span> 清除排序
+            </button>
+        </div>
+    </div>
+
+    <!-- Transform Modal -->
+    <div v-if="transformModal.show" class="modal-overlay" @click="closeTransformModal" role="presentation">
+        <div class="modal" @click.stop role="dialog" aria-modal="true" aria-labelledby="transform-modal-title" tabindex="-1">
+            <div class="modal-header">
+                <span id="transform-modal-title"><span class="material-icons" style="font-size: 20px; vertical-align: middle; margin-right: 8px; color: var(--primary);">transform</span>配置转换 - {{ transformModal.field }}</span>
+                <span class="modal-close" @click="closeTransformModal" @keydown.enter="closeTransformModal" role="button" aria-label="关闭弹窗" tabindex="0"><span class="material-icons">close</span></span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label"><span class="material-icons" style="font-size: 16px; vertical-align: middle; margin-right: 4px;">link</span>转换链（按顺序执行）</label>
+                    <div class="popover-muted" style="margin-bottom: 12px; padding: 10px; background: #fafafa; border-radius: 6px;">
+                        多个转换步骤按顺序执行，前一步的输出作为后一步的输入
+                    </div>
+
+                    <div v-if="transformModal.chain && transformModal.chain.length > 0">
+                        <div v-for="(step, index) in transformModal.chain" :key="index"
+                             style="border: 1px solid var(--border); padding: 12px; border-radius: 8px; margin-bottom: 8px; background: #fafafa;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="font-size: 12px; color: var(--text-secondary);">步骤 {{ index + 1 }}</span>
+                                <div style="display: flex; gap: 4px;">
+                                    <button class="btn btn-default btn-sm" @click="moveChainStep(index, -1)" v-if="index > 0"
+                                            style="padding: 2px 6px; min-width: auto;" title="上移">
+                                        <span class="material-icons" style="font-size: 14px;">arrow_upward</span>
+                                    </button>
+                                    <button class="btn btn-default btn-sm" @click="moveChainStep(index, 1)" v-if="index < transformModal.chain.length - 1"
+                                            style="padding: 2px 6px; min-width: auto;" title="下移">
+                                        <span class="material-icons" style="font-size: 14px;">arrow_downward</span>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" @click="removeChainStep(index)"
+                                            style="padding: 2px 6px; min-width: auto;" title="删除">
+                                        <span class="material-icons" style="font-size: 14px;">delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <select v-model="step.type" class="form-select" style="font-size: 13px;">
+                                <option value="uppercase">转换为大写</option>
+                                <option value="lowercase">转换为小写</option>
