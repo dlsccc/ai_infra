@@ -198,3 +198,203 @@
 
                         <div v-if="rule.type === 'formula'" class="form-group">
                             <label class="form-label" style="font-size: 12px;">公式</label>
+                            <input v-model="rule.formula" class="form-input" placeholder="例如：=value*2">
+                        </div>
+
+                        <button class="btn btn-danger btn-sm" @click="removeTransformRule(index)">
+                            <span class="material-icons" style="font-size: 14px;">delete</span> 删除此条件转换
+                        </button>
+                    </div>
+
+                    <button class="btn btn-default btn-sm" @click="addTransformRule">
+                        <span class="material-icons" style="font-size: 14px;">add</span> 添加条件转换
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" @click="closeTransformModal">取消</button>
+                <button class="btn btn-primary" @click="confirmTransform">确认转换</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Apply Config Modal -->
+    <div v-if="applyModal.show" class="modal-overlay" @click="closeApplyModal" role="presentation">
+        <div class="modal" @click.stop role="dialog" aria-modal="true" aria-labelledby="apply-modal-title" tabindex="-1">
+            <div class="modal-header">
+                <span id="apply-modal-title"><span class="material-icons" style="font-size: 20px; vertical-align: middle; margin-right: 8px; color: var(--primary);">content_paste</span>应用配置 - 来源列 {{ applyModal.sourceField }}</span>
+                <span class="modal-close" @click="closeApplyModal" @keydown.enter="closeApplyModal" role="button" aria-label="关闭弹窗" tabindex="0"><span class="material-icons">close</span></span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">搜索字段</label>
+                    <input v-model="applyModal.search" class="form-input" placeholder="输入字段名关键字">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">快捷规则</label>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <button class="btn btn-default btn-sm" @click="selectByPrefix">同前缀</button>
+                        <button class="btn btn-default btn-sm" @click="selectByType">同类型</button>
+                        <button class="btn btn-default btn-sm" @click="selectAll">全选</button>
+                        <button class="btn btn-default btn-sm" @click="clearAll">清空</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">选择目标列</label>
+                    <div style="max-height: 240px; overflow:auto; border:1px solid var(--border); border-radius:8px; padding:12px;">
+                        <div v-for="f in filteredApplyTargets" :key="f.name" style="margin-bottom:8px;">
+                            <label style="display:flex; align-items:center; gap:10px; cursor: pointer; padding: 6px; border-radius: 4px; transition: background 0.2s;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='transparent'">
+                                <input type="checkbox" v-model="applyModal.selected" :value="f.name" style="width: 16px; height: 16px;">
+                                <span style="flex: 1;">{{ f.name }}</span>
+                                <span class="tag" :class="f.type === 'STRING' ? 'tag-primary' : 'tag-warning'">{{ f.type }}</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">应用内容</label>
+                    <div style="padding: 12px; background: #fafafa; border-radius: 8px;">
+                        <label style="display:block; font-size:13px; margin-bottom:10px; cursor: pointer;">
+                            <input type="checkbox" v-model="applyModal.applyFilter" style="margin-right: 8px;"> 筛选
+                        </label>
+                        <label style="display:block; font-size:13px; margin-bottom:10px; cursor: pointer;">
+                            <input type="checkbox" v-model="applyModal.applyTransform" style="margin-right: 8px;"> 转换
+                        </label>
+                        <label style="display:block; font-size:13px; margin-bottom:0; cursor: pointer;">
+                            <input type="checkbox" v-model="applyModal.applySort" style="margin-right: 8px;"> 排序
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label style="display:block; font-size:13px; cursor: pointer;">
+                        <input type="checkbox" v-model="applyModal.override" style="margin-right: 8px;"> 覆盖已有配置
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" @click="closeApplyModal">取消</button>
+                <button class="btn btn-primary" @click="applyColumnConfig">应用</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div v-if="successModal.show" class="modal-overlay" role="presentation">
+        <div class="modal success-modal" style="text-align: center; padding: 40px; max-width: 420px;" role="dialog" aria-modal="true" aria-labelledby="success-title" tabindex="-1">
+            <div class="success-icon"><span class="material-icons" style="font-size: 72px; color: var(--success);" aria-hidden="true">check_circle</span></div>
+            <div id="success-title" style="font-size: 22px; font-weight: 600; margin-bottom: 12px;">执行成功</div>
+            <div style="color: var(--text-secondary); margin-bottom: 28px; line-height: 1.8;">
+                数据已成功写入到 <strong>{{ selectedModel }}</strong> 表<br>
+                共写入 <strong>{{ processedData.length }}</strong> 条数据
+            </div>
+            <button class="btn btn-primary" @click="successModal.show = false" style="min-width: 120px;" autofocus>
+                <span class="material-icons" style="font-size: 18px;">done</span> 完成
+            </button>
+        </div>
+    </div>
+</div>
+
+
+<script>
+const { createApp, ref, computed, watch, reactive, nextTick, onMounted } = Vue;
+
+// ==================== 常量定义 ====================
+const JOIN_TYPES = {
+    INNER: 'inner',
+    LEFT: 'left',
+    RIGHT: 'right',
+    FULL: 'full'
+};
+
+const DEDUP_KEEP = {
+    FIRST: 'first',
+    LAST: 'last',
+    ANY: 'any'
+};
+
+const FILTER_OPERATORS = {
+    EQUALS: 'equals',
+    NOT_EQUALS: 'not_equals',
+    CONTAINS: 'contains',
+    IS_EMPTY: 'is_empty',
+    IS_NOT_EMPTY: 'is_not_empty',
+    GREATER_THAN: 'greater_than',
+    LESS_THAN: 'less_than'
+};
+
+const TRANSFORM_TYPES = {
+    UPPERCASE: 'uppercase',
+    LOWERCASE: 'lowercase',
+    TRIM: 'trim',
+    FORMAT_DATETIME: 'format_datetime',
+    EXTRACT_YEAR: 'extract_year',
+    EXTRACT_TIME: 'extract_time',
+    TO_NUMBER: 'to_number',
+    REMOVE_THOUSAND_SEP: 'remove_thousand_sep',
+    REMOVE_PERCENT: 'remove_percent',
+    SET_VALUE: 'set_value',
+    CONCAT: 'concat',
+    REPLACE: 'replace',
+    FORMULA: 'formula'
+};
+
+const AGGREGATION_METHODS = {
+    SUM: 'sum',
+    AVG: 'avg',
+    COUNT: 'count',
+    MAX: 'max',
+    MIN: 'min'
+};
+
+const SORT_ORDER = {
+    ASC: 'asc',
+    DESC: 'desc'
+};
+
+// ================================================
+
+createApp({
+    setup() {
+        const steps = ['选择模型', '字段映射', '数据处理', '聚合配置', '写入配置'];
+        const currentStep = ref(0);
+
+        const selectedModel = ref('');
+        const dragOver = ref(false);
+        const uploadedFiles = ref([]);
+        const fileData = ref([]);
+        const fileInput = ref(null);
+
+        const parseCSV = (text) => {
+            const lines = text.trim().split('\n');
+            if (lines.length < 2) return { headers: [], data: [] };
+            const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+            const data = [];
+            for (let i = 1; i < lines.length; i++) {
+                const values = [];
+                let current = '';
+                let inQuotes = false;
+                for (let char of lines[i]) {
+                    if (char === '"') inQuotes = !inQuotes;
+                    else if (char === ',' && !inQuotes) {
+                        values.push(current.trim().replace(/^"|"$/g, ''));
+                        current = '';
+                    } else current += char;
+                }
+                values.push(current.trim().replace(/^"|"$/g, ''));
+                const row = {};
+                headers.forEach((h, idx) => { row[h] = values[idx] || ''; });
+                data.push(row);
+            }
+            return { headers, data };
+        };
+
+        const inferFieldType = (sample) => {
+            if (!sample) return 'STRING';
+            if (!isNaN(parseFloat(sample)) && isFinite(sample)) {
+                return Number.isInteger(parseFloat(sample)) ? 'INT' : 'DECIMAL';
+            }
+            const pattern = /^\d{4}-\d{2}-\d{2}/;
