@@ -1098,3 +1098,303 @@ createApp({
                         console.log('[Preset] Applied filter:', field, config);
                     }
                 });
+            }
+
+            if (preset.transforms) {
+                Object.entries(preset.transforms).forEach(([field, config]) => {
+                    if (targetModelFields.value.find(f => f.name === field)) {
+                        transforms[field] = config;
+                        addHistory('transform', '数据转换', `${field}: ${config.type}`, field);
+                    }
+                });
+            }
+
+            if (preset.dedupFields && preset.dedupFields.length > 0) {
+                const validDedupFields = preset.dedupFields.filter(f =>
+                    targetModelFields.value.find(t => t.name === f)
+                );
+                if (validDedupFields.length > 0) {
+                    dedupConfig.enabled = true;
+                    dedupConfig.fields = validDedupFields;
+                    dedupConfig.keep = DEDUP_KEEP.FIRST;
+                    addHistory('dedup', '去重', `按 ${validDedupFields.join(', ')} 去重，保留第一行`, 'GLOBAL');
+                }
+            }
+
+            if (preset.sortField && targetModelFields.value.find(f => f.name === preset.sortField)) {
+                sortConfig.field = preset.sortField;
+                sortConfig.order = preset.sortOrder || SORT_ORDER.ASC;
+                addHistory('sort', '排序', `${preset.sortField} ${sortConfig.order === 'asc' ? '升序' : '降序'}`, preset.sortField);
+            }
+
+            demoInitialized.value = true;
+            console.log('[Preset] Done');
+        };
+
+        // 当选择模型变化时，更新状态
+        watch(selectedModel, async (newModel, oldModel) => {
+            console.log('[Preset] selectedModel changed:', newModel, 'old:', oldModel);
+
+            // 如果模型切换了，重置初始化状态
+            if (oldModel && oldModel !== newModel) {
+                demoInitialized.value = false;
+            }
+
+            // 当模型选择变化且文件已上传时，应用预设
+            if (newModel && !demoInitialized.value && fileData.value && fileData.value.length > 0) {
+                await applyPresets(newModel);
+            }
+        });
+
+        const parseDateTime = (val) => {
+            if (!val) return { y: '', m: '', d: '', t: '' };
+            const str = String(val).trim();
+            const parts = str.split(' ');
+            const datePart = parts[0] || '';
+            const timePart = parts[1] || '';
+            let y = '', m = '', d = '';
+            if (datePart.includes('.')) {
+                const a = datePart.split('.');
+                y = a[0]; m = a[1]; d = a[2];
+            } else if (datePart.includes('-')) {
+                const a = datePart.split('-');
+                y = a[0]; m = a[1]; d = a[2];
+            } else if (datePart.includes('/')) {
+                const a = datePart.split('/');
+                y = a[0]; m = a[1]; d = a[2];
+            }
+            if (m) m = m.padStart(2, '0');
+            if (d) d = d.padStart(2, '0');
+            return { y, m, d, t: timePart };
+        };
+
+        const formatDateTime = (val) => {
+            const { y, m, d, t } = parseDateTime(val);
+            if (!y) return val || '';
+            if (!t) return `${y}-${m}-${d}`;
+            return `${y}-${m}-${d} ${t}`;
+        };
+
+        const getSourceValue = (row, name) => {
+            if (!name) return '';
+            if (name.includes('.')) {
+                const [table, field] = name.split('.');
+                const key = `${table}_${field}`;
+                return row[key] || '';
+            }
+            const field = allSourceFields.value.find(f => f.name === name);
+            return field ? (row[field.key] || '') : '';
+        };
+
+        const getBaseValue = (field, row) => {
+            const keys = mappings.value[field] || [];
+            if (keys.length === 0) return '';
+            if (keys.length === 1) return row[keys[0]] || '';
+            const delimiter = transforms[field]?.type === 'concat' ? (transforms[field].delimiter || '') : '';
+            return keys.map(k => row[k] || '').join(delimiter);
+        };
+
+        const evalFormula = (formula, ctx) => {
+            if (!formula) return ctx.value;
+            let expr = String(formula).trim();
+            if (expr.startsWith('=')) expr = expr.slice(1);
+
+            const helpers = {
+                UPPER: (v) => String(v).toUpperCase(),
+                LOWER: (v) => String(v).toLowerCase(),
+                TRIM: (v) => String(v).trim(),
+                CONCAT: (...args) => args.join(''),
+                LEFT: (v, n) => String(v).substring(0, Number(n) || 0),
+                RIGHT: (v, n) => String(v).slice(-(Number(n) || 0)),
+                MID: (v, s, l) => String(v).substr(Number(s) || 0, Number(l) || 0),
+                LEN: (v) => String(v).length,
+                NUMBER: (v) => Number(String(v).replace(/,/g, '')) || 0,
+                REPLACE: (v, a, b) => String(v).replace(a, b),
+                SUBSTITUTE: (v, a, b) => String(v).replaceAll(a, b),
+                YEAR: (v) => parseDateTime(v).y,
+                MONTH: (v) => parseDateTime(v).m,
+                DAY: (v) => parseDateTime(v).d,
+                TIME: (v) => parseDateTime(v).t,
+                ISBLANK: (v) => v === null || v === undefined || String(v).trim() === ''
+            };
+
+            try {
+                const fn = new Function('value', 'row', 'S', 'T', 'helpers', `with(helpers){ return (${expr}); }`);
+                return fn(ctx.value, ctx.row, ctx.S, ctx.T, helpers);
+            } catch (e) {
+                return ctx.value;
+            }
+        };
+
+        const passesTransformRule = (row, fieldName, rule) => {
+            const value = getBaseValue(fieldName, row);
+            switch (rule.operator) {
+                case 'equals': return String(value) === String(rule.value);
+                case 'not_equals': return String(value) !== String(rule.value);
+                case 'contains': return String(value).includes(rule.value);
+                case 'is_empty': return value === null || value === undefined || String(value).trim() === '';
+                case 'is_not_empty': return !(value === null || value === undefined || String(value).trim() === '');
+                case 'greater_than': return Number(value) > Number(rule.value);
+                case 'less_than': return Number(value) < Number(rule.value);
+                default: return false;
+            }
+        };
+
+        const getFieldValue = (row, field) => {
+            const base = getBaseValue(field, row);
+            const t = transforms[field];
+            if (!t) return base;
+
+            // Priority: 1. Chain transforms (execute in sequence), 2. Conditional rules, 3. Single transform
+            if (Array.isArray(t.chain) && t.chain.length > 0) {
+                let result = base;
+                for (const step of t.chain) {
+                    result = applyTransformByConfig(row, field, result, step);
+                }
+                return result;
+            }
+
+            if (Array.isArray(t.rules) && t.rules.length > 0) {
+                for (const r of t.rules) {
+                    if (!r.operator) continue;
+                    if (passesTransformRule(row, field, r)) {
+                        return applyTransformByConfig(row, field, base, r);
+                    }
+                }
+                return base;
+            }
+
+            if (t.type) return applyTransformByConfig(row, field, base, t);
+
+            return base;
+        };
+
+        const passesFilter = (row, fieldName) => {
+            const conf = filterConfigs[fieldName];
+            if (!conf) return true;
+
+            const value = getFieldValue(row, fieldName);
+
+            if (conf.mode === 'formula') {
+                if (!conf.formula) return true;
+                const ctx = {
+                    value,
+                    row,
+                    S: (name) => getSourceValue(row, name),
+                    T: (name) => getBaseValue(name, row)
+                };
+                return !!evalFormula(conf.formula, ctx);
+            }
+
+            if (conf.mode === 'compound') {
+                if (!conf.conditions || conf.conditions.length === 0) return true;
+
+                const results = conf.conditions.map(cond => {
+                    if (!cond.operator) return true;
+                    switch (cond.operator) {
+                        case 'equals': return String(value) === String(cond.value);
+                        case 'not_equals': return String(value) !== String(cond.value);
+                        case 'contains': return String(value).includes(cond.value);
+                        case 'is_empty': return value === null || value === undefined || String(value).trim() === '';
+                        case 'is_not_empty': return !(value === null || value === undefined || String(value).trim() === '');
+                        case 'greater_than': return Number(value) > Number(cond.value);
+                        case 'less_than': return Number(value) < Number(cond.value);
+                        default: return true;
+                    }
+                });
+
+                const logic = conf.logic || 'AND';
+                return logic === 'AND' ? results.every(r => r) : results.some(r => r);
+            }
+
+            // Simple mode (backward compatibility)
+            if (!conf.operator) return true;
+
+            switch (conf.operator) {
+                case 'equals': return String(value) === String(conf.value);
+                case 'not_equals': return String(value) !== String(conf.value);
+                case 'contains': return String(value).includes(conf.value);
+                case 'is_empty': return value === null || value === undefined || String(value).trim() === '';
+                case 'is_not_empty': return !(value === null || value === undefined || String(value).trim() === '');
+                case 'greater_than': return Number(value) > Number(conf.value);
+                case 'less_than': return Number(value) < Number(conf.value);
+                default: return true;
+            }
+        };
+
+        // 优化：单次遍历完成所有字段筛选
+        const filteredData = computed(() => {
+            return previewData.value.filter(row => {
+                return targetModelFields.value.every(field => passesFilter(row, field.name));
+            });
+        });
+
+        // 优化：减少去重时的 key 生成开销
+        const dedupedData = computed(() => {
+            if (!dedupConfig.enabled || dedupConfig.fields.length === 0) return filteredData.value;
+            const map = new Map();
+            const order = dedupConfig.keep;
+            const dedupFields = dedupConfig.fields;
+
+            filteredData.value.forEach((row, index) => {
+                // 预先计算 key，减少 map 操作
+                const key = dedupFields.map(f => getFieldValue(row, f)).join('||');
+                const existing = map.get(key);
+
+                if (!existing) {
+                    map.set(key, { row, index });
+                } else if (order === DEDUP_KEEP.LAST) {
+                    map.set(key, { row, index });
+                }
+            });
+
+            // 直接从 Map 提取值并排序
+            return Array.from(map.values())
+                .sort((a, b) => a.index - b.index)
+                .map(x => x.row);
+        });
+
+        // 优化：避免不必要的数组拷贝（只在需要排序时拷贝）
+        const processedData = computed(() => {
+            const data = dedupedData.value;
+            if (!sortConfig.field) return data;
+
+            // 创建副本进行排序，不修改原数组
+            const sorted = [...data];
+            const field = sortConfig.field;
+            const order = sortConfig.order;
+
+            sorted.sort((a, b) => {
+                const aVal = getFieldValue(a, field);
+                const bVal = getFieldValue(b, field);
+                return order === SORT_ORDER.ASC
+                    ? (aVal > bVal ? 1 : -1)
+                    : (aVal < bVal ? 1 : -1);
+            });
+            return sorted;
+        });
+
+        const hasActiveFilters = computed(() => {
+            return Object.values(filterConfigs).some(f =>
+                (f.mode === 'simple' && f.operator) ||
+                (f.mode === 'formula' && f.formula)
+            );
+        });
+
+        // 优化：缓存计数结果，避免重复计算
+        const filteredOutCount = computed(() => previewData.value.length - filteredData.value.length);
+        const dedupRemovedCount = computed(() => filteredData.value.length - dedupedData.value.length);
+
+        const groupByFields = ref([]);
+        const aggregationFields = ref([]);
+
+        const aggregatedData = computed(() => {
+            if (groupByFields.value.length === 0) return [];
+            const groups = {};
+
+            processedData.value.forEach(row => {
+                const key = groupByFields.value.map(f => getFieldValue(row, f)).join('_');
+                if (!groups[key]) {
+                    groups[key] = {};
+                    groupByFields.value.forEach(f => groups[key][f] = getFieldValue(row, f));
+                    aggregationFields.value.forEach(agg => {
