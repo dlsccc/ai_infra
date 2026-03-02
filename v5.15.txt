@@ -1698,3 +1698,203 @@
                                          :key="'agg-' + index"
                                          class="aggregation-field-item">
                                         <div style="flex: 1;">
+                                            <div style="font-weight: 500;">{{ field.field }}</div>
+                                            <select v-model="aggregationFields[index].method"
+                                                    class="form-select"
+                                                    style="margin-top: 8px; padding: 6px 10px; font-size: 12px;">
+                                                <option value="sum">求和 (SUM)</option>
+                                                <option value="avg">平均值 (AVG)</option>
+                                                <option value="count">计数 (COUNT)</option>
+                                                <option value="max">最大值 (MAX)</option>
+                                                <option value="min">最小值 (MIN)</option>
+                                            </select>
+                                        </div>
+                                        <span @click="removeAggregationField(index)" style="cursor: pointer; color: var(--danger);">
+                                            <span class="material-icons" style="font-size: 18px;">close</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-if="groupByFields.length > 0" style="margin-top: 24px;">
+                            <label class="form-label"><span class="material-icons" style="font-size: 18px; vertical-align: middle; margin-right: 6px;">analytics</span>聚合预览</label>
+                            <div class="data-grid-container">
+                                <table class="data-grid">
+                                    <thead>
+                                    <tr>
+                                        <th v-for="field in [...groupByFields, ...aggregationFields.map(f => f.field + '_' + f.method)]" :key="field">
+                                            {{ field }}
+                                        </th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr v-for="(row, index) in aggregatedData" :key="index">
+                                        <td v-for="field in [...groupByFields, ...aggregationFields.map(f => f.field + '_' + f.method)]" :key="field">
+                                            {{ row[field] }}
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 5 -->
+                <div v-show="currentStep === 4">
+                    <div class="card-header">
+                        <div class="card-title">写入配置</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="summary-grid">
+                            <div class="summary-card">
+                                <div class="summary-label"><span class="material-icons" style="font-size: 16px; vertical-align: middle; margin-right: 4px;">table_rows</span>源数据行数</div>
+                                <div class="summary-value">{{ processedData.length }}</div>
+                            </div>
+                            <div class="summary-card">
+                                <div class="summary-label"><span class="material-icons" style="font-size: 16px; vertical-align: middle; margin-right: 4px;">view_column</span>映射字段数</div>
+                                <div class="summary-value">{{ getMappedFieldCount() }}</div>
+                            </div>
+                            <div class="summary-card">
+                                <div class="summary-label"><span class="material-icons" style="font-size: 16px; vertical-align: middle; margin-right: 4px;">construction</span>处理步骤数</div>
+                                <div class="summary-value">{{ history.length }}</div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label"><span class="material-icons" style="font-size: 18px; vertical-align: middle; margin-right: 6px;">edit_note</span>写入模式</label>
+                            <div class="write-option" :class="{ selected: writeConfig.mode === 'append' }" @click="writeConfig.mode = 'append'">
+                                <div class="write-option-header">
+                                    <div class="radio-circle"></div>
+                                    <span class="write-option-title">增量写入</span>
+                                </div>
+                                <div class="write-option-desc">将数据追加到目标表中，可配置去重规则和冲突处理策略</div>
+                                <div v-if="writeConfig.mode === 'append'" class="sub-options">
+                                    <div class="sub-option-item">
+                                        <input type="checkbox" id="dedupCheck" v-model="writeConfig.deduplication">
+                                        <label for="dedupCheck">启用去重</label>
+                                        <select v-if="writeConfig.deduplication"
+                                                v-model="writeConfig.dedupFields"
+                                                class="form-select"
+                                                style="width: 200px; margin-left: 8px;"
+                                                multiple>
+                                            <option v-for="field in targetModelFields" :key="field.name" :value="field.name">{{ field.name }}</option>
+                                        </select>
+                                    </div>
+                                    <div class="sub-option-item">
+                                        <span>冲突处理：</span>
+                                        <select v-model="writeConfig.conflictStrategy" class="form-select" style="width: 200px;">
+                                            <option value="keep_old">保留旧数据</option>
+                                            <option value="overwrite">覆盖旧数据</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="write-option" :class="{ selected: writeConfig.mode === 'replace' }" @click="writeConfig.mode = 'replace'">
+                                <div class="write-option-header">
+                                    <div class="radio-circle"></div>
+                                    <span class="write-option-title">全表替换</span>
+                                </div>
+                                <div class="write-option-desc">清空目标表中的所有数据，然后写入新数据</div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label"><span class="material-icons" style="font-size: 18px; vertical-align: middle; margin-right: 6px;">info</span>目标表信息</label>
+                            <div style="padding: 20px; background: linear-gradient(135deg, #fafafa 0%, #fff 100%); border-radius: 12px; border: 1px solid var(--border);">
+                                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                                    <div><div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;"><span class="material-icons" style="font-size: 14px; vertical-align: middle; margin-right: 4px;">table_chart</span>表名</div><div style="font-weight: 600;">{{ selectedModel }}</div></div>
+                                    <div><div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;"><span class="material-icons" style="font-size: 14px; vertical-align: middle; margin-right: 4px;">cloud</span>目标环境</div><div style="font-weight: 600;">数据湖 (Lake)</div></div>
+                                    <div><div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;"><span class="material-icons" style="font-size: 14px; vertical-align: middle; margin-right: 4px;">view_column</span>写入字段数</div><div style="font-weight: 600;">{{ getMappedFieldCount() }}</div></div>
+                                    <div><div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;"><span class="material-icons" style="font-size: 14px; vertical-align: middle; margin-right: 4px;">format_list_numbered</span>预计写入行数</div><div style="font-weight: 600;">{{ processedData.length }}</div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nav -->
+                <div class="nav-buttons">
+                    <div>
+                        <button v-if="currentStep > 0" class="btn btn-default" @click="prevStep">
+                            <span class="material-icons" style="font-size: 18px;">arrow_back</span> 上一步
+                        </button>
+                    </div>
+                    <div>
+                        <button v-if="currentStep < steps.length - 1"
+                                class="btn btn-primary"
+                                :disabled="!canProceed"
+                                @click="nextStep">
+                            下一步 <span class="material-icons" style="font-size: 18px;">arrow_forward</span>
+                        </button>
+                        <button v-if="currentStep === steps.length - 1"
+                                class="btn btn-primary"
+                                @click="executeJob">
+                            <span class="material-icons" style="font-size: 18px;">rocket_launch</span> 发布入库流
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Column Popover -->
+    <div v-if="columnPopover.show && !showRawPreview"
+         class="column-popover"
+         :style="{ left: columnPopover.x + 'px', top: columnPopover.y + 'px' }"
+         @click.stop
+         role="dialog"
+         aria-modal="true"
+         :aria-label="columnPopover.type === 'filter' ? '筛选配置' : '排序配置'">
+        <div class="popover-title">
+            <span class="material-icons" style="font-size: 18px; vertical-align: middle; margin-right: 6px;">
+                {{ columnPopover.type === 'filter' ? 'filter_alt' : 'sort' }}
+            </span>
+            {{ columnPopover.type === 'filter' ? '筛选配置' : '排序配置' }} - {{ columnPopover.field }}
+        </div>
+
+        <div v-if="columnPopover.type === 'filter'">
+            <div class="form-group">
+                <label class="form-label" style="font-size: 13px;">模式</label>
+                <select v-model="filterConfigs[columnPopover.field].mode" class="form-select">
+                    <option value="simple">条件筛选</option>
+                    <option value="compound">多条件筛选</option>
+                    <option value="formula">公式筛选</option>
+                </select>
+            </div>
+
+            <div v-if="filterConfigs[columnPopover.field].mode === 'simple'">
+                <label class="form-label" style="font-size: 13px;">条件</label>
+                <select v-model="filterConfigs[columnPopover.field].operator" class="form-select">
+                    <option value="">请选择</option>
+                    <option value="equals">等于</option>
+                    <option value="not_equals">不等于</option>
+                    <option value="contains">包含</option>
+                    <option value="is_empty">为空</option>
+                    <option value="is_not_empty">不为空</option>
+                    <option value="greater_than">大于</option>
+                    <option value="less_than">小于</option>
+                </select>
+                <input v-if="!['is_empty', 'is_not_empty'].includes(filterConfigs[columnPopover.field].operator)"
+                       v-model="filterConfigs[columnPopover.field].value"
+                       class="form-input"
+                       placeholder="请输入筛选值"
+                       style="margin-top: 10px;">
+            </div>
+
+            <div v-if="filterConfigs[columnPopover.field].mode === 'compound'">
+                <div v-if="filterConfigs[columnPopover.field].conditions && filterConfigs[columnPopover.field].conditions.length > 0">
+                    <div style="margin-bottom: 10px;">
+                        <label class="form-label" style="font-size: 13px;">条件逻辑</label>
+                        <select v-model="filterConfigs[columnPopover.field].logic" class="form-select" style="font-size: 12px;">
+                            <option value="AND">AND (全部满足)</option>
+                            <option value="OR">OR (任一满足)</option>
+                        </select>
+                    </div>
+
+                    <div v-for="(cond, idx) in filterConfigs[columnPopover.field].conditions" :key="idx"
+                         style="border: 1px solid var(--border); padding: 10px; border-radius: 6px; margin-bottom: 8px; background: #fafafa;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <select v-model="cond.operator" class="form-select" style="flex: 1;">
