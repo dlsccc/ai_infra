@@ -1,0 +1,375 @@
+                        rowCount: data.length
+                    });
+
+                    uploadedFiles.value.push({
+                        name: file.name,
+                        size: (file.size / 1024).toFixed(2) + ' KB',
+                        rows: data.length,
+                        sourceId: sourceId,
+                        fields: headers
+                    });
+
+                    if (fileData.value.length === 2) {
+                        const commonFields = fileData.value[0].headers.filter(f => fileData.value[1].headers.includes(f));
+                        if (commonFields.length > 0) {
+                            joinConfig.leftField = commonFields[0];
+                            joinConfig.rightField = commonFields[0];
+                        }
+                    }
+                };
+                reader.readAsText(file);
+            }
+        };
+
+        const addMoreFiles = () => fileInput.value.click();
+        const removeFile = (index) => {
+            const file = uploadedFiles.value[index];
+            uploadedFiles.value.splice(index, 1);
+            fileData.value = fileData.value.filter(f => f.sourceId !== file.sourceId);
+            mappings.value = {};
+            Object.keys(filterConfigs).forEach(k => delete filterConfigs[k]);
+            Object.keys(transforms).forEach(k => delete transforms[k]);
+            sortConfig.field = '';
+            sortConfig.order = 'asc';
+            history.value = [];
+            activeHistoryIndex.value = -1;
+        };
+
+        const getJoinExplanation = () => ({
+            'inner': '内连接：只保留两个表中连接字段值相等的记录。例如：表A的SITE_ID=表B的SITE_ID的记录才会出现在结果中。',
+            'left': '左连接：保留左表（数据表A）的所有记录，右表（数据表B）中没有匹配的行用空值填充。',
+            'right': '右连接：保留右表（数据表B）的所有记录，左表（数据表A）中没有匹配的行用空值填充。',
+            'full': '外连接：保留两个表的所有记录。没有匹配的行用空值填充。'
+        })[joinConfig.type] || '';
+
+        const openFilterPopover = (field, e) => {
+            transformModal.show = false;
+            if (!filterConfigs[field]) {
+                filterConfigs[field] = { mode: 'simple', operator: '', value: '', formula: '', conditions: [], logic: 'AND', scope: 'filter', name: '' };
+            }
+
+            let x = e.clientX;
+            let y = e.clientY;
+            const popoverWidth = 280;
+            const popoverHeight = 320;
+            if (x + popoverWidth > window.innerWidth) {
+                x = window.innerWidth - popoverWidth - 10;
+            }
+            if (y + popoverHeight > window.innerHeight) {
+                y = window.innerHeight - popoverHeight - 10;
+            }
+
+            columnPopover.show = true;
+            columnPopover.field = field;
+            columnPopover.type = 'filter';
+            columnPopover.x = x;
+            columnPopover.y = y;
+        };
+
+        const openSortPopover = (field, e) => {
+            transformModal.show = false;
+
+            let x = e.clientX;
+            let y = e.clientY;
+            const popoverWidth = 280;
+            const popoverHeight = 200;
+            if (x + popoverWidth > window.innerWidth) {
+                x = window.innerWidth - popoverWidth - 10;
+            }
+            if (y + popoverHeight > window.innerHeight) {
+                y = window.innerHeight - popoverHeight - 10;
+            }
+
+            columnPopover.show = true;
+            columnPopover.field = field;
+            columnPopover.type = 'sort';
+            columnPopover.x = x;
+            columnPopover.y = y;
+        };
+
+        const isFilterActive = (field) => {
+            const conf = filterConfigs[field];
+            if (!conf) return false;
+            if (conf.mode === 'simple' && conf.operator) return true;
+            if (conf.mode === 'compound' && conf.conditions && conf.conditions.length > 0 && conf.conditions.some(c => c.operator)) return true;
+            if (conf.mode === 'formula' && conf.formula) return true;
+            return false;
+        };
+
+        const applyFilterConfig = (field) => {
+            const conf = filterConfigs[field];
+
+            if (conf.mode === 'simple' && conf.operator) {
+                addHistory('filter', '筛选', `${field} ${conf.operator} ${conf.value || ''}`, field);
+            } else if (conf.mode === 'compound' && conf.conditions && conf.conditions.length > 0) {
+                const activeConds = conf.conditions.filter(c => c.operator);
+                if (activeConds.length > 0) {
+                    const logic = conf.logic || 'AND';
+                    const desc = activeConds.map(c => `${c.operator} ${c.value || ''}`).join(` ${logic} `);
+                    addHistory('filter', '筛选', `${field} [${logic}] ${desc}`, field);
+                }
+            } else if (conf.mode === 'formula' && conf.formula) {
+                addHistory('filter', '筛选', `${field} 公式: ${conf.formula}`, field);
+            }
+            columnPopover.show = false;
+        };
+
+        const clearFilter = (field) => {
+            filterConfigs[field] = { mode: 'simple', operator: '', value: '', formula: '', conditions: [], logic: 'AND' };
+            history.value = history.value.filter(h => !(h.type === 'filter' && h.field === field));
+            columnPopover.show = false;
+        };
+
+        const addFilterCondition = (field) => {
+            if (!filterConfigs[field]) {
+                filterConfigs[field] = { mode: 'simple', operator: '', value: '', formula: '', conditions: [], logic: 'AND' };
+            }
+            if (!filterConfigs[field].conditions) {
+                filterConfigs[field].conditions = [];
+            }
+            filterConfigs[field].conditions.push({ operator: '', value: '' });
+        };
+
+        const removeFilterCondition = (field, index) => {
+            if (filterConfigs[field] && filterConfigs[field].conditions) {
+                filterConfigs[field].conditions.splice(index, 1);
+            }
+        };
+
+        const applySort = (field, order) => {
+            sortConfig.field = field;
+            sortConfig.order = order;
+            addHistory('sort', '排序', `${field} ${order === 'asc' ? '升序' : '降序'}`, field);
+            columnPopover.show = false;
+        };
+
+        const clearSort = () => {
+            sortConfig.field = '';
+            sortConfig.order = 'asc';
+            history.value = history.value.filter(h => h.type !== 'sort');
+            columnPopover.show = false;
+        };
+
+        const openTransformModal = (field) => {
+            previousFocus.value = document.activeElement;
+            columnPopover.show = false;
+            transformModal.field = field;
+            transformModal.show = true;
+
+            transformModal.rules = transforms[field]?.rules ? JSON.parse(JSON.stringify(transforms[field].rules)) : [];
+
+            // 如果有转换链，直接使用；如果只有单个转换类型，转换为转换链
+            if (transforms[field]?.chain && transforms[field].chain.length > 0) {
+                transformModal.chain = JSON.parse(JSON.stringify(transforms[field].chain));
+            } else if (transforms[field]?.type) {
+                // 将旧的单个转换类型转换为转换链（向后兼容）
+                transformModal.chain = [{
+                    type: transforms[field].type,
+                    delimiter: transforms[field].delimiter || '',
+                    fixedValue: transforms[field].fixedValue || '',
+                    search: transforms[field].search || '',
+                    replace: transforms[field].replace || '',
+                    formula: transforms[field].formula || ''
+                }];
+            } else {
+                transformModal.chain = [];
+            }
+
+            // 自动聚焦到弹窗
+            nextTick(() => {
+                const modal = document.querySelector('.modal');
+                if (modal) modal.focus();
+            });
+        };
+
+        const closeTransformModal = () => {
+            transformModal.show = false;
+            // 恢复之前焦点
+            nextTick(() => {
+                if (previousFocus.value && previousFocus.value.focus) {
+                    previousFocus.value.focus();
+                    previousFocus.value = null;
+                }
+            });
+        };
+
+        const confirmTransform = () => {
+            transforms[transformModal.field] = {
+                rules: transformModal.rules,
+                chain: transformModal.chain
+            };
+            const chainDesc = transformModal.chain && transformModal.chain.length > 0
+                ? ` [链:${transformModal.chain.map(s => s.type).join('→')}]`
+                : '';
+            addHistory('transform', '数据转换', `${transformModal.field}${chainDesc}`, transformModal.field);
+            closeTransformModal();
+        };
+
+        const applyTransformByConfig = (row, field, base, cfg) => {
+            switch (cfg.type) {
+                case 'uppercase': return String(base).toUpperCase();
+                case 'lowercase': return String(base).toLowerCase();
+                case 'trim': return String(base).trim();
+                case 'format_datetime': return formatDateTime(base);
+                case 'extract_year': return parseDateTime(base).y || '';
+                case 'extract_time': return parseDateTime(base).t || '';
+                case 'to_number': return Number(String(base).replace(/,/g, '')) || 0;
+                case 'remove_thousand_sep': return String(base).replace(/,/g, '');
+                case 'remove_percent': return String(base).replace(/%/g, '');
+                case 'set_value': return cfg.fixedValue || '';
+                case 'concat': {
+                    const keys = mappings.value[field] || [];
+                    const delimiter = cfg.delimiter || '';
+                    return keys.map(k => row[k] || '').join(delimiter);
+                }
+                case 'replace': return String(base).replace(cfg.search || '', cfg.replace || '');
+                case 'formula': {
+                    const ctx = {
+                        value: base,
+                        row,
+                        S: (name) => getSourceValue(row, name),
+                        T: (name) => getBaseValue(name, row)
+                    };
+                    return evalFormula(cfg.formula, ctx);
+                }
+                default: return base;
+            }
+        };
+
+        const applyDedupConfig = () => {
+            if (dedupConfig.enabled && dedupConfig.fields.length > 0) {
+                addHistory('dedup', '去重', `按 ${dedupConfig.fields.join(', ')} 去重，保留${dedupConfig.keep === 'first' ? '第一行' : dedupConfig.keep === 'last' ? '最后一行' : '任意一行'}`, 'GLOBAL');
+            } else {
+                history.value = history.value.filter(h => h.type !== 'dedup');
+            }
+        };
+
+        const addHistory = (type, title, description, field = '') => {
+            const existing = history.value.findIndex(h => h.type === type && h.field === field);
+            if (existing >= 0) history.value[existing] = { type, title, description, field };
+            else history.value.push({ type, title, description, field });
+            activeHistoryIndex.value = history.value.length - 1;
+        };
+
+        const goToHistoryItem = (index) => { activeHistoryIndex.value = index; };
+
+        const undoHistoryItem = (index) => {
+            const item = history.value[index];
+            if (item.type === 'filter') {
+                filterConfigs[item.field] = { mode: 'simple', operator: '', value: '', formula: '', conditions: [], logic: 'AND' };
+            } else if (item.type === 'transform') {
+                delete transforms[item.field];
+            } else if (item.type === 'sort') {
+                sortConfig.field = '';
+                sortConfig.order = 'asc';
+            } else if (item.type === 'dedup') {
+                dedupConfig.enabled = false;
+            }
+            history.value.splice(index, 1);
+        };
+
+        const deleteHistoryItem = (index) => { undoHistoryItem(index); };
+
+        const getMappedFieldCount = () => Object.keys(mappings.value).length;
+
+        const executeJob = () => {
+            previousFocus.value = document.activeElement;
+            successModal.show = true;
+            // 自动聚焦到成功弹窗的按钮
+            nextTick(() => {
+                const btn = document.querySelector('.success-modal .btn-primary');
+                if (btn) btn.focus();
+            });
+        };
+
+        document.addEventListener('click', (e) => {
+            const pop = document.querySelector('.column-popover');
+            const isOpenerButton = e.target.closest('.header-btn-main') || e.target.closest('.header-btn-icon');
+            if (!pop || !pop.contains(e.target)) {
+                if (!isOpenerButton) {
+                    columnPopover.show = false;
+                }
+            }
+        });
+
+        const dragState = reactive({ field: '', over: '' });
+
+        const onDragStart = (fieldName) => {
+            dragState.field = fieldName;
+        };
+
+        const handleDropGroup = () => {
+            if (dragState.field && !groupByFields.value.includes(dragState.field)) {
+                groupByFields.value.push(dragState.field);
+            }
+            dragState.field = '';
+            dragState.over = '';
+        };
+
+        const handleDropAgg = () => {
+            if (dragState.field && !aggregationFields.value.find(f => f.field === dragState.field)) {
+                aggregationFields.value.push({ field: dragState.field, method: AGGREGATION_METHODS.SUM });
+            }
+            dragState.field = '';
+            dragState.over = '';
+        };
+
+        const removeGroupByField = (index) => groupByFields.value.splice(index, 1);
+        const removeAggregationField = (index) => aggregationFields.value.splice(index, 1);
+        const isConcatActive = (field) => {return transforms[field]?.type === 'concat';};
+
+        const displayData = computed(() => {
+            return showRawPreview.value ? previewData.value : processedData.value;
+        });
+
+        const getRawValue = (field, row) => {
+            const keys = mappings.value[field] || [];
+            if (keys.length === 0) return '';
+            return row[keys[0]] || '';
+        };
+
+        const dedupFieldSelect = ref('');
+
+        const addDedupField = () => {
+            const val = dedupFieldSelect.value;
+            if (val && !dedupConfig.fields.includes(val)) {
+                dedupConfig.fields.push(val);
+                applyDedupConfig();
+            }
+            dedupFieldSelect.value = '';
+        };
+
+        const removeDedupField = (field) => {
+            dedupConfig.fields = dedupConfig.fields.filter(f => f !== field);
+            applyDedupConfig();
+        };
+
+        return {
+            steps, currentStep, selectedModel, targetModelFields, dragOver, uploadedFiles, fileInput,
+            triggerFileInput, handleFileSelect, handleDrop, addMoreFiles, removeFile,
+            sourceFields: allSourceFields, sourceDataA, sourceDataB, mappings,
+            selectedSourceField, selectedTargetField, selectSourceField, selectTargetField,
+            removeMapping, isFieldMapped, isMultiMapped, getMappedSources, hasMultiMapping,
+            getMappingSource, getMappedValue, autoMap, previewData, joinConfig, mappingSourceFilter,
+            getSourceFields, getFilteredSourceFields, getJoinExplanation,
+            filterConfigs, transforms, sortConfig, history, activeHistoryIndex, dedupConfig,
+            openFilterPopover, openSortPopover, isFilterActive, applyFilterConfig, clearFilter,
+            applySort, clearSort, getFieldValue,
+            processedData, hasActiveFilters, filteredOutCount, dedupRemovedCount,
+            columnPopover, transformModal, openTransformModal, closeTransformModal, confirmTransform,
+            applyDedupConfig, groupByFields, aggregationFields, aggregatedData, dragState,
+            onDragStart, handleDropGroup, handleDropAgg, removeGroupByField, removeAggregationField,
+            writeConfig, getMappedFieldCount, executeJob, successModal, canProceed,
+            goToStep, prevStep, nextStep, goToHistoryItem, undoHistoryItem, deleteHistoryItem,
+            isConcatActive, showRawPreview, displayData, getRawValue, dedupFieldSelect,
+            addDedupField, removeDedupField, addTransformRule, removeTransformRule,
+            addChainStep, removeChainStep, moveChainStep,
+            addFilterCondition, removeFilterCondition, copiedConfig,
+            applyModal, filteredApplyTargets, copyColumnConfig, openApplyModal, closeApplyModal,
+            selectAll, clearAll, selectByPrefix, selectByType, applyColumnConfig, processGridContainer
+        };
+    }
+}).mount('#app');
+</script>
+</body>
+</html>
