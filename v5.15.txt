@@ -998,3 +998,503 @@
             border: 2px dashed var(--border);
             border-radius: 10px;
             padding: 32px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        .drop-zone { 
+            border: 2px dashed transparent; 
+            border-radius: 10px; 
+            min-height: 120px;
+        }
+        .drop-zone.dragover { 
+            border-color: var(--primary); 
+            background: var(--primary-bg);
+        }
+        
+        /* Preview Indicator */
+        .preview-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: var(--success-light);
+            border: 1px solid #b7eb8f;
+            border-radius: 6px;
+            font-size: 12px;
+            color: var(--success);
+            font-weight: 500;
+        }
+        
+        /* Field Info */
+        .field-info { 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            font-size: 13px; 
+            color: var(--text-secondary); 
+        }
+        
+        /* Transform & Sort Indicators */
+        .transform-indicator {
+            display: inline-block;
+            padding: 2px 6px;
+            background: var(--success-light);
+            color: var(--success);
+            border-radius: 4px;
+            font-size: 10px;
+            margin-left: 6px;
+            font-weight: 500;
+        }
+        .sort-indicator { 
+            color: var(--primary); 
+            margin-left: 6px; 
+            font-weight: 600;
+        }
+        
+        /* Concat Badge */
+        .concat-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 6px;
+            background: var(--purple-light);
+            color: var(--purple);
+            border-radius: 4px;
+            font-size: 11px;
+            margin-left: 8px;
+            font-weight: 500;
+        }
+        
+        /* Multi Mapping */
+        .multi-mapping-container {
+            padding: 12px;
+            background: #fafafa;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        .multi-mapping-title { 
+            font-size: 12px; 
+            color: var(--text-secondary); 
+            margin-bottom: 8px; 
+        }
+        .multi-mapping-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            margin-bottom: 6px;
+            font-size: 12px;
+        }
+        
+        /* Success Modal */
+        .success-icon { 
+            font-size: 72px; 
+            margin-bottom: 20px;
+            animation: successPop 0.5s ease-out;
+        }
+        @keyframes successPop {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+        
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+        }
+        .tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 6px 10px;
+            background: #333;
+            color: #fff;
+            font-size: 12px;
+            border-radius: 6px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s;
+        }
+        .tooltip:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon"><span class="material-icons">cloud_upload</span></div>
+            <span>智能入湖</span>
+        </div>
+        <div class="stepper">
+            <div v-for="(step, index) in steps" :key="index"
+                 class="step-item"
+                 :class="{ active: currentStep === index, completed: currentStep > index }"
+                 @click="goToStep(index)">
+                <div class="step-number">
+                    <span v-if="currentStep > index" class="material-icons" style="font-size: 16px;">check</span>
+                    <span v-else>{{ index + 1 }}</span>
+                </div>
+                <span class="step-label">{{ step }}</span>
+            </div>
+            <div v-if="index < steps.length - 1"
+                 v-for="(step, index) in steps.slice(0, -1)"
+                 :key="'line-' + index"
+                 class="step-line"
+                 :class="{ completed: currentStep > index }">
+            </div>
+        </div>
+        <div class="user-info">
+            <span style="font-size: 14px; color: #8c8c8c;">项目作业人员</span>
+            <div class="user-avatar">A</div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <aside class="sidebar" v-show="currentStep === 2">
+            <div class="sidebar-header">
+                <span><span class="material-icons" style="font-size: 18px; vertical-align: middle; margin-right: 6px;">history</span>操作记录</span>
+                <span v-if="history.length > 0" class="badge">{{ history.length }}</span>
+            </div>
+            <div class="sidebar-content">
+                <div v-if="history.length === 0" class="empty-state">
+                    <div class="empty-state-icon"><span class="material-icons" style="font-size: 48px;">folder_open</span></div>
+                    <p>暂无操作记录</p>
+                    <p style="font-size: 12px; margin-top: 8px;">在表中配置筛选 / 转换 / 排序 / 去重</p>
+                </div>
+                <div v-for="(item, index) in history"
+                     :key="index"
+                     class="history-item"
+                     :class="{ active: activeHistoryIndex === index }"
+                     @click="goToHistoryItem(index)">
+                    <div class="history-icon" :class="item.type">
+                        <span v-if="item.type === 'filter'" class="material-icons" style="font-size: 16px;">filter_alt</span>
+                        <span v-else-if="item.type === 'transform'" class="material-icons" style="font-size: 16px;">transform</span>
+                        <span v-else-if="item.type === 'sort'" class="material-icons" style="font-size: 16px;">sort</span>
+                        <span v-else-if="item.type === 'dedup'" class="material-icons" style="font-size: 16px;">delete_sweep</span>
+                        <span v-else class="material-icons" style="font-size: 16px;">tune</span>
+                    </div>
+                    <div class="history-content">
+                        <div class="history-title">{{ item.title }}</div>
+                        <div class="history-desc">{{ item.description }}</div>
+                        <div class="history-actions">
+                            <button class="history-btn" @click.stop="undoHistoryItem(index)">撤销</button>
+                            <button class="history-btn delete" @click.stop="deleteHistoryItem(index)">删除</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="content">
+            <div class="content-card">
+                <!-- Step 1 -->
+                <div v-show="currentStep === 0">
+                    <div class="card-header">
+                        <div class="card-title">选择数据模型并上传原始数据</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label class="form-label"><span class="material-icons" style="font-size: 18px; vertical-align: middle; margin-right: 6px;">database</span>目标数据模型</label>
+                            <select v-model="selectedModel" class="form-select">
+                                <option value="">请选择目标数据模型</option>
+                                <option value="HW_4G_COUNTER">HW_4G_COUNTER - 4G基站计数器</option>
+                                <option value="HW_5G_COUNTER">HW_5G_COUNTER - 5G基站计数器</option>
+                                <option value="NETWORK_PERFORMANCE">NETWORK_PERFORMANCE - 网络性能KPI</option>
+                                <option value="USER_BEHAVIOR">USER_BEHAVIOR - 用户行为数据</option>
+                                <option value="IOT_DEVICE_DATA">IOT_DEVICE_DATA - 物联网设备数据</option>
+                                <option value="CRM_ORDER">CRM_ORDER - 订单数据</option>
+                                <option value="WIFI_AP_STATS">WIFI_AP_STATS - WiFi AP统计</option>
+                                <option value="CDR_DETAIL">CDR_DETAIL - 通话详单</option>
+                            </select>
+                        </div>
+                        <div v-if="selectedModel" class="form-group">
+                            <label class="form-label"><span class="material-icons" style="font-size: 18px; vertical-align: middle; margin-right: 6px;">view_column</span>模型字段预览</label>
+                            <div class="data-grid-container" style="max-height: 220px;">
+                                <table class="data-grid">
+                                    <thead>
+                                    <tr>
+                                        <th>字段名称</th>
+                                        <th>字段类型</th>
+                                        <th>是否必填</th>
+                                        <th>说明</th>
+                                        <th>样例值</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr v-for="field in targetModelFields" :key="field.name">
+                                        <td>{{ field.name }}</td>
+                                        <td><span class="tag" :class="field.type === 'STRING' ? 'tag-primary' : 'tag-warning'">{{ field.type }}</span></td>
+                                        <td>{{ field.required ? '是' : '否' }}</td>
+                                        <td>{{ field.description }}</td>
+                                        <td style="color: var(--text-secondary); font-family: monospace;">{{ field.sampleValue }}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label"><span class="material-icons" style="font-size: 18px; vertical-align: middle; margin-right: 6px;">upload_file</span>上传原始数据 (支持多个文件)</label>
+                            <div class="upload-area"
+                                 @dragover.prevent="dragOver = true"
+                                 @dragleave="dragOver = false"
+                                 @drop.prevent="handleDrop"
+                                 :class="{ dragover: dragOver }"
+                                 @click="triggerFileInput">
+                                <div class="upload-icon"><span class="material-icons" style="font-size: 56px;">cloud_upload</span></div>
+                                <div class="upload-text">点击或拖拽文件到此处上传</div>
+                                <div class="upload-hint">支持 Excel (.xlsx, .xls)、CSV (.csv)、压缩包 (.zip)</div>
+                            </div>
+                            <input type="file" ref="fileInput" style="display: none;" @change="handleFileSelect"
+                                   accept=".xlsx,.xls,.csv,.zip">
+                        </div>
+                        <div v-if="uploadedFiles.length > 0" class="form-group">
+                            <label class="form-label"><span class="material-icons" style="font-size: 18px; vertical-align: middle; margin-right: 6px;">attach_file</span>已上传文件</label>
+                            <div v-for="(file, index) in uploadedFiles" :key="index" class="file-card">
+                                <div class="file-card-icon" :class="file.sourceId === 'table_a' ? 'table-a' : 'table-b'">
+                                    <span class="material-icons">description</span>
+                                </div>
+                                <div class="file-card-info">
+                                    <div class="file-card-name">
+                                        {{ file.name }}
+                                        <span class="source-badge" :class="file.sourceId === 'table_a' ? 'table-a' : 'table-b'">
+                                            {{ file.sourceId === 'table_a' ? '数据表A' : '数据表B' }}
+                                        </span>
+                                    </div>
+                                    <div class="file-card-meta">{{ file.size }} | {{ file.rows }} 行数据 | {{ file.fields.length }} 个字段</div>
+                                </div>
+                                <span class="tag tag-success"><span class="material-icons" style="font-size: 14px; vertical-align: middle; margin-right: 4px;">check_circle</span>解析成功</span>
+                                <button class="btn btn-default btn-sm" @click="removeFile(index)"><span class="material-icons" style="font-size: 16px;">delete</span></button>
+                            </div>
+                            <button class="btn btn-default" @click="addMoreFiles" style="margin-top: 12px;" v-if="uploadedFiles.length < 2">
+                                <span class="material-icons" style="font-size: 18px;">add</span> 添加更多源文件
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div v-show="currentStep === 1">
+                    <div class="card-header">
+                        <div class="card-title">表连接配置与字段映射</div>
+                        <div class="step-actions">
+                            <button class="btn btn-default btn-sm" @click="autoMap"><span class="material-icons" style="font-size: 16px; vertical-align: middle;">auto_fix_high</span> 自动匹配</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="join-config" v-if="uploadedFiles.length >= 2">
+                            <div class="join-config-title">
+                                <span class="material-icons" style="color: var(--primary);">join_inner</span>
+                                表连接配置
+                            </div>
+                            <div class="join-type-selector">
+                                <div class="join-type-item" :class="{ selected: joinConfig.type === 'inner' }" @click="joinConfig.type = 'inner'">
+                                    <div class="join-type-icon"><span class="material-icons">circle</span></div>
+                                    <div class="join-type-name">内连接</div>
+                                    <div class="join-type-desc">只保留两表都有的记录</div>
+                                </div>
+                                <div class="join-type-item" :class="{ selected: joinConfig.type === 'left' }" @click="joinConfig.type = 'left'">
+                                    <div class="join-type-icon"><span class="material-icons">radio_button_unchecked</span></div>
+                                    <div class="join-type-name">左连接</div>
+                                    <div class="join-type-desc">保留左表所有记录</div>
+                                </div>
+                                <div class="join-type-item" :class="{ selected: joinConfig.type === 'right' }" @click="joinConfig.type = 'right'">
+                                    <div class="join-type-icon"><span class="material-icons">panorama_fish_eye</span></div>
+                                    <div class="join-type-name">右连接</div>
+                                    <div class="join-type-desc">保留右表所有记录</div>
+                                </div>
+                                <div class="join-type-item" :class="{ selected: joinConfig.type === 'full' }" @click="joinConfig.type = 'full'">
+                                    <div class="join-type-icon"><span class="material-icons">change_history</span></div>
+                                    <div class="join-type-name">外连接</div>
+                                    <div class="join-type-desc">保留两表所有记录</div>
+                                </div>
+                            </div>
+
+                            <div style="display: flex; align-items: center; gap: 16px; margin-top: 16px;">
+                                <div style="flex: 1;">
+                                    <label class="form-label" style="font-size: 13px; margin-bottom: 6px;"><span class="source-badge table-a">表A</span>数据表A 连接字段</label>
+                                    <select v-model="joinConfig.leftField" class="form-select">
+                                        <option value="">选择字段</option>
+                                        <option v-for="field in getSourceFields('table_a')" :key="field.name" :value="field.name">{{ field.name }}</option>
+                                    </select>
+                                </div>
+                                <div style="font-size: 24px; color: var(--primary); font-weight: bold; margin-top: 20px;"><span class="material-icons">compare_arrows</span></div>
+                                <div style="flex: 1;">
+                                    <label class="form-label" style="font-size: 13px; margin-bottom: 6px;"><span class="source-badge table-b">表B</span>数据表B 连接字段</label>
+                                    <select v-model="joinConfig.rightField" class="form-select">
+                                        <option value="">选择字段</option>
+                                        <option v-for="field in getSourceFields('table_b')" :key="field.name" :value="field.name">{{ field.name }}</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div style="margin-top: 16px; padding: 14px 18px; background: var(--primary-bg); border-radius: 8px; border-left: 4px solid var(--primary); font-size: 13px; color: var(--primary);">
+                                <span class="material-icons" style="font-size: 18px; vertical-align: middle; margin-right: 6px;">info</span>
+                                {{ getJoinExplanation() }}
+                            </div>
+                        </div>
+
+                        <div class="mapping-container">
+                            <div class="mapping-panel">
+                                <div class="mapping-panel-header">
+                                    <span><span class="material-icons" style="font-size: 16px; vertical-align: middle; margin-right: 6px;">source</span>原始数据字段</span>
+                                    <div class="table-tabs" v-if="uploadedFiles.length >= 2">
+                                        <div class="table-tab" :class="{ active: mappingSourceFilter === 'table_a' }" @click="mappingSourceFilter = 'table_a'">数据表A</div>
+                                        <div class="table-tab" :class="{ active: mappingSourceFilter === 'table_b' }" @click="mappingSourceFilter = 'table_b'">数据表B</div>
+                                    </div>
+                                </div>
+                                <div class="mapping-list">
+                                    <div v-for="(field, index) in getFilteredSourceFields()"
+                                         :key="index"
+                                         class="mapping-item"
+                                         :class="{ selected: selectedSourceField === field.key, mapped: isFieldMapped(field.key) }"
+                                         @click="selectSourceField(field.key)">
+                                        <div>
+                                            <span class="source-badge" :class="field.sourceId === 'table_a' ? 'table-a' : 'table-b'">
+                                                {{ field.sourceId === 'table_a' ? '表A' : '表B' }}
+                                            </span>
+                                            <span class="mapping-field-name">{{ field.name }}</span>
+                                            <div class="mapping-field-type">{{ field.sampleValue }}</div>
+                                        </div>
+                                        <span v-if="isFieldMapped(field.key)" class="tag tag-success"><span class="material-icons" style="font-size: 12px; vertical-align: middle;">check</span>已映射</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mapping-arrow"><span class="material-icons" style="font-size: 32px;">arrow_forward</span></div>
+
+                            <div class="mapping-panel">
+                                <div class="mapping-panel-header">
+                                    <span><span class="material-icons" style="font-size: 16px; vertical-align: middle; margin-right: 6px;">flag</span>目标数据字段</span>
+                                    <span class="tag tag-primary">目标</span>
+                                </div>
+                                <div class="mapping-list">
+                                    <div v-for="(field, index) in targetModelFields"
+                                         :key="index"
+                                         class="mapping-item"
+                                         :class="{ selected: selectedTargetField === index }"
+                                         @click="selectTargetField(index)">
+                                        <div style="flex: 1;">
+                                            <div class="mapping-field-name">
+                                                {{ field.name }}
+                                                <span v-if="isMultiMapped(field.name)" class="concat-badge">
+                                                    <span class="material-icons" style="font-size: 12px;">call_merge</span> {{ getMappedSources(field.name).length }}个字段
+                                                </span>
+                                            </div>
+                                            <div class="mapping-field-type">{{ field.type }}</div>
+                                            <div v-if="isMultiMapped(field.name)" class="multi-mapping-container">
+                                                <div class="multi-mapping-title">已映射的源字段：</div>
+                                                <div v-for="source in getMappedSources(field.name)" :key="source.key" class="multi-mapping-item">
+                                                    <input type="checkbox"
+                                                           class="mapping-checkbox"
+                                                           :checked="true"
+                                                           @change="removeMapping(field.name, source.key)">
+                                                    <span class="source-badge" :class="source.sourceId === 'table_a' ? 'table-a' : 'table-b'">
+                                                        {{ source.sourceId === 'table_a' ? '表A' : '表B' }}
+                                                    </span>
+                                                    <span>{{ source.name }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div v-if="getMappedSources(field.name).length > 0" style="text-align: right;">
+                                            <span class="source-badge" :class="getMappedSources(field.name).length > 1 ? 'multi' : (getMappedSources(field.name)[0].sourceId === 'table_a' ? 'table-a' : 'table-b')">
+                                                {{ getMappedSources(field.name).length > 1 ? '多源' : (getMappedSources(field.name)[0].sourceId === 'table_a' ? '表A' : '表B') }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 20px;">
+                            <label class="form-label"><span class="material-icons" style="font-size: 18px; vertical-align: middle; margin-right: 6px;">preview</span>映射预览</label>
+                            <div class="data-grid-container">
+                                <table class="data-grid">
+                                    <thead>
+                                    <tr>
+                                        <th v-for="field in targetModelFields" :key="field.name" :colspan="isMultiMapped(field.name) ? getMappedSources(field.name).length : 1">
+                                            {{ field.name }}
+                                            <div style="font-weight: normal; font-size: 11px; color: #8c8c8c;">
+                                                <span v-if="isMultiMapped(field.name)">
+                                                    {{ getMappedSources(field.name).map(s => s.name).join(' + ') }}
+                                                </span>
+                                                <span v-else>
+                                                    {{ getMappingSource(field.name) || '未映射' }}
+                                                </span>
+                                            </div>
+                                        </th>
+                                    </tr>
+                                    <tr v-if="hasMultiMapping()">
+                                        <template v-for="field in targetModelFields" :key="'sub-' + field.name">
+                                            <template v-if="isMultiMapped(field.name)">
+                                                <th v-for="source in getMappedSources(field.name)" :key="'sub-' + field.name + '-' + source.key">
+                                                    <span class="source-badge" :class="source.sourceId === 'table_a' ? 'table-a' : 'table-b'" style="margin: 0;">
+                                                        {{ source.name }}
+                                                    </span>
+                                                </th>
+                                            </template>
+                                            <th v-else>
+                                                <span>{{ getMappingSource(field.name) }}</span>
+                                            </th>
+                                        </template>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr v-for="(row, rowIndex) in previewData.slice(0, 30)" :key="rowIndex">
+                                        <template v-for="field in targetModelFields" :key="field.name">
+                                            <template v-if="isMultiMapped(field.name)">
+                                                <td v-for="source in getMappedSources(field.name)" :key="field.name + '-' + source.key">
+                                                    {{ row[source.key] || '-' }}
+                                                </td>
+                                            </template>
+                                            <td v-else>
+                                                {{ getMappedValue(field.name, row) }}
+                                            </td>
+                                        </template>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Data Processing -->
+                <div v-show="currentStep === 2">
+                    <div class="card-header">
+                        <div class="card-title">数据处理配置</div>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <button class="btn btn-default btn-sm" @click="showRawPreview = !showRawPreview">
+                                <span class="material-icons" style="font-size: 16px; vertical-align: middle;">{{ showRawPreview ? 'edit' : 'visibility' }}</span>
+                                {{ showRawPreview ? '返回处理预览' : '预览源数据' }}
+                            </button>
+                            <div class="preview-indicator" v-if="history.length > 0">
+                                <span class="material-icons" style="font-size: 14px;">check_circle</span> 已配置 {{ history.length }} 个操作
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Global Dedup Config -->
+                        <div class="dedup-config">
+                            <div class="dedup-config-header">
+                                <div class="dedup-title">
+                                    <span class="material-icons" style="color: var(--purple);">delete_sweep</span>
+                                    <span>全局去重</span>
+                                    <span class="tag tag-primary">全局</span>
+                                </div>
+                                <label class="dedup-toggle">
