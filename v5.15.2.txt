@@ -98,3 +98,103 @@
                             <select v-model="step.type" class="form-select" style="font-size: 13px;">
                                 <option value="uppercase">转换为大写</option>
                                 <option value="lowercase">转换为小写</option>
+                                <option value="trim">去除首尾空格</option>
+                                <option value="format_datetime">格式化日期时间</option>
+                                <option value="extract_year">提取年份</option>
+                                <option value="extract_time">提取时间</option>
+                                <option value="to_number">转换为数值</option>
+                                <option value="remove_thousand_sep">去除千分位符号</option>
+                                <option value="remove_percent">去除百分号</option>
+                                <option value="set_value">固定赋值</option>
+                                <option value="concat">多字段拼接</option>
+                                <option value="replace">替换内容</option>
+                                <option value="formula">自定义公式</option>
+                            </select>
+                            <div v-if="step.type === 'concat'" style="margin-top: 8px;">
+                                <input v-model="step.delimiter" class="form-input" placeholder="拼接分隔符（可选）" style="font-size: 13px;">
+                            </div>
+                            <div v-if="step.type === 'set_value'" style="margin-top: 8px;">
+                                <input v-model="step.fixedValue" class="form-input" placeholder="固定值" style="font-size: 13px;">
+                            </div>
+                            <div v-if="step.type === 'replace'" style="margin-top: 8px;">
+                                <input v-model="step.search" class="form-input" placeholder="查找内容" style="margin-bottom: 4px; font-size: 13px;">
+                                <input v-model="step.replace" class="form-input" placeholder="替换为" style="font-size: 13px;">
+                            </div>
+                            <div v-if="step.type === 'formula'" style="margin-top: 8px;">
+                                <input v-model="step.formula" class="form-input" placeholder="公式，例如：=value*2" style="font-size: 13px;">
+                            </div>
+                        </div>
+                    </div>
+                    <div v-else style="text-align: center; padding: 15px; color: var(--text-secondary); background: #fafafa; border-radius: 8px; border: 1px dashed var(--border);">
+                        暂无转换步骤
+                    </div>
+
+                    <button class="btn btn-default btn-sm" @click="addChainStep" style="width: 100%; margin-top: 8px;">
+                        <span class="material-icons" style="font-size: 16px; vertical-align: middle;">add</span> 添加转换步骤
+                    </button>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label"><span class="material-icons" style="font-size: 16px; vertical-align: middle; margin-right: 4px;">rule</span>条件转换</label>
+                    <div class="popover-muted" style="margin-bottom: 12px; padding: 10px; background: #fafafa; border-radius: 6px;">
+                        满足条件时才应用转换规则；未命中则保留原值
+                    </div>
+
+                    <div v-for="(rule, index) in transformModal.rules" :key="index"
+                         style="border: 1px solid var(--border); padding: 14px; border-radius: 8px; margin-bottom: 10px; background: #fafafa;">
+                        <div class="form-group">
+                            <label class="form-label" style="font-size: 12px;">条件</label>
+                            <select v-model="rule.operator" class="form-select">
+                                <option value="">请选择</option>
+                                <option value="equals">等于</option>
+                                <option value="not_equals">不等于</option>
+                                <option value="contains">包含</option>
+                                <option value="is_empty">为空</option>
+                                <option value="is_not_empty">不为空</option>
+                                <option value="greater_than">大于</option>
+                                <option value="less_than">小于</option>
+                            </select>
+                            <input v-if="!['is_empty', 'is_not_empty'].includes(rule.operator)"
+                                   v-model="rule.value"
+                                   class="form-input"
+                                   placeholder="请输入条件值"
+                                   style="margin-top: 8px;">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" style="font-size: 12px;">转换类型</label>
+                            <select v-model="rule.type" class="form-select">
+                                <option value="uppercase">转换为大写</option>
+                                <option value="lowercase">转换为小写</option>
+                                <option value="trim">去除首尾空格</option>
+                                <option value="format_datetime">格式化日期时间</option>
+                                <option value="extract_year">提取年份</option>
+                                <option value="extract_time">提取时间</option>
+                                <option value="to_number">转换为数值</option>
+                                <option value="remove_thousand_sep">去除千分位符号</option>
+                                <option value="remove_percent">去除百分号</option>
+                                <option value="set_value">固定赋值</option>
+                                <option value="concat">多字段拼接</option>
+                                <option value="replace">替换内容</option>
+                                <option value="formula">自定义公式</option>
+                            </select>
+                        </div>
+
+                        <div v-if="rule.type === 'concat'" class="form-group">
+                            <label class="form-label" style="font-size: 12px;">拼接分隔符</label>
+                            <input v-model="rule.delimiter" class="form-input" placeholder="例如：_ 或 留空">
+                        </div>
+
+                        <div v-if="rule.type === 'set_value'" class="form-group">
+                            <label class="form-label" style="font-size: 12px;">固定值</label>
+                            <input v-model="rule.fixedValue" class="form-input" placeholder="例如：100">
+                        </div>
+
+                        <div v-if="rule.type === 'replace'" class="form-group">
+                            <label class="form-label" style="font-size: 12px;">替换内容</label>
+                            <input v-model="rule.search" class="form-input" placeholder="查找内容" style="margin-bottom: 8px;">
+                            <input v-model="rule.replace" class="form-input" placeholder="替换为">
+                        </div>
+
+                        <div v-if="rule.type === 'formula'" class="form-group">
+                            <label class="form-label" style="font-size: 12px;">公式</label>
