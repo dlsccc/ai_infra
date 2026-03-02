@@ -798,3 +798,303 @@ createApp({
             'FIELD0002': ['table_b_FIELD0002'],
             'FIELD0003': ['table_b_FIELD0003']
         });
+        const selectedSourceField = ref(null);
+        const selectedTargetField = ref(null);
+
+        const isMultiMapped = (targetField) => {
+            const sources = mappings.value[targetField];
+            return sources && sources.length > 1;
+        };
+
+        const getMappedSources = (targetField) => {
+            const keys = mappings.value[targetField] || [];
+            return keys.map(key => {
+                const field = allSourceFields.value.find(f => f.key === key);
+                return field || { key, name: key, sourceId: key.split('_')[0] };
+            });
+        };
+
+        const hasMultiMapping = () => Object.keys(mappings.value).some(field => isMultiMapped(field));
+
+        const selectSourceField = (key) => { selectedSourceField.value = key; };
+
+        const selectTargetField = (index) => {
+            selectedTargetField.value = index;
+            if (selectedSourceField.value !== null) {
+                const targetField = targetModelFields.value[index].name;
+                const sourceKey = selectedSourceField.value;
+                if (!mappings.value[targetField]) mappings.value[targetField] = [];
+                if (!mappings.value[targetField].includes(sourceKey)) mappings.value[targetField].push(sourceKey);
+            }
+        };
+
+        const removeMapping = (targetField, sourceKey) => {
+            if (mappings.value[targetField]) {
+                mappings.value[targetField] = mappings.value[targetField].filter(k => k !== sourceKey);
+                if (mappings.value[targetField].length === 0) delete mappings.value[targetField];
+            }
+        };
+
+        const isFieldMapped = (key) => Object.values(mappings.value).some(arr => arr.includes(key));
+
+        const getMappingSource = (targetField) => {
+            const keys = mappings.value[targetField] || [];
+            if (keys.length === 0) return '';
+            if (keys.length > 1) return keys.map(k => {
+                const field = allSourceFields.value.find(f => f.key === k);
+                return field ? field.name : k;
+            }).join(' + ');
+            const field = allSourceFields.value.find(f => f.key === keys[0]);
+            return field ? field.name : keys[0];
+        };
+
+        const getMappedValue = (targetField, row) => {
+            const keys = mappings.value[targetField] || [];
+            if (keys.length === 0) return '';
+            if (keys.length > 1) return keys.map(k => row[k] || '').join('');
+            return row[keys[0]] || '';
+        };
+
+        // 自动匹配函数：使用别名进行智能匹配
+        const autoMap = () => {
+            targetModelFields.value.forEach(target => {
+                // 获取目标字段的所有可能名称（目标名 + 别名）
+                const possibleNames = [
+                    target.name,
+                    ...(target.aliases || [])
+                ];
+
+                // 在源字段中查找匹配
+                const sourceField = allSourceFields.value.find(s => {
+                    const sourceName = s.name.toUpperCase();
+                    return possibleNames.some(name =>
+                        sourceName === name.toUpperCase() ||
+                        sourceName.startsWith(name.toUpperCase()) ||
+                        name.toUpperCase().startsWith(sourceName)
+                    );
+                });
+
+                if (sourceField) {
+                    mappings.value[target.name] = [sourceField.key];
+                }
+            });
+        };
+
+        const filterConfigs = reactive({});
+        const transforms = reactive({});
+        const sortConfig = reactive({ field: '', order: SORT_ORDER.ASC });
+        const history = ref([]);
+        const activeHistoryIndex = ref(-1);
+
+        const dedupConfig = reactive({
+            enabled: true,
+            fields: [],
+            keep: DEDUP_KEEP.FIRST
+        });
+
+        const initFilters = () => {
+            targetModelFields.value.forEach(field => {
+                if (!filterConfigs[field.name]) {
+                    filterConfigs[field.name] = { mode: 'simple', operator: '', value: '', formula: '', conditions: [], logic: 'AND' };
+                }
+            });
+        };
+
+        // 根据模型类型获取预置配置（丰富的演示数据）
+        const getPresetConfig = (modelName) => {
+            const presets = {
+                'HW_4G_COUNTER': {
+                    filters: {
+                        'FIELD0001': { operator: FILTER_OPERATORS.IS_NOT_EMPTY, value: '' },
+                        'FIELD0002': { operator: FILTER_OPERATORS.GREATER_THAN, value: '15' }
+                    },
+                    transforms: {
+                        'SITE_ID': { type: TRANSFORM_TYPES.UPPERCASE },
+                        'SITE_NAME': { type: TRANSFORM_TYPES.CONCAT, delimiter: '' },
+                        'CLUSTER': { type: TRANSFORM_TYPES.UPPERCASE },
+                        'COMMON4': { type: TRANSFORM_TYPES.SET_VALUE, fixedValue: 'HW' },
+                        'COMMON5': { type: TRANSFORM_TYPES.REMOVE_PERCENT },
+                        'FIELD0001': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'FIELD0002': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'FIELD0003': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'TIME_DATE': { type: TRANSFORM_TYPES.FORMAT_DATETIME },
+                        'TIME_YEAR': { type: TRANSFORM_TYPES.EXTRACT_YEAR },
+                        'TIME_WEEK': { type: TRANSFORM_TYPES.EXTRACT_YEAR },
+                        'TIME_DAY': { type: TRANSFORM_TYPES.EXTRACT_YEAR },
+                        'TIME_TIME': { type: TRANSFORM_TYPES.EXTRACT_TIME }
+                    },
+                    dedupFields: ['SITE_ID', 'SITE_NAME'],
+                    sortField: 'SITE_ID'
+                },
+                'HW_5G_COUNTER': {
+                    filters: {
+                        'DL_PRB': { operator: FILTER_OPERATORS.LESS_THAN, value: '80' },
+                        'MAX_USERS': { operator: FILTER_OPERATORS.GREATER_THAN, value: '0' }
+                    },
+                    transforms: {
+                        'SITE_ID': { type: TRANSFORM_TYPES.UPPERCASE },
+                        'SITE_NAME': { type: TRANSFORM_TYPES.UPPERCASE },
+                        'CELL_ID': { type: TRANSFORM_TYPES.UPPERCASE },
+                        'CELL_NAME': { type: TRANSFORM_TYPES.UPPERCASE },
+                        'DL_PRB': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'UL_PRB': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'DL_THROUGHPUT': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'UL_THROUGHPUT': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'MAX_USERS': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'AVG_USERS': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'RRC_CONNECTED': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'TIME_DATE': { type: TRANSFORM_TYPES.FORMAT_DATETIME }
+                    },
+                    dedupFields: ['SITE_ID', 'CELL_ID'],
+                    sortField: 'DL_THROUGHPUT',
+                    sortOrder: SORT_ORDER.DESC
+                },
+                'NETWORK_PERFORMANCE': {
+                    filters: {
+                        'ACHIEVEMENT_RATE': { operator: FILTER_OPERATORS.GREATER_THAN, value: '100' },
+                        'KPI_VALUE': { operator: FILTER_OPERATORS.IS_NOT_EMPTY, value: '' }
+                    },
+                    transforms: {
+                        'PROVINCE': { type: TRANSFORM_TYPES.TRIM },
+                        'CITY': { type: TRANSFORM_TYPES.TRIM },
+                        'KPI_NAME': { type: TRANSFORM_TYPES.TRIM },
+                        'KPI_VALUE': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'KPI_TARGET': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'ACHIEVEMENT_RATE': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'RANKING': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'NET_TYPE': { type: TRANSFORM_TYPES.UPPERCASE }
+                    },
+                    dedupFields: ['PROVINCE', 'CITY', 'KPI_NAME'],
+                    sortField: 'ACHIEVEMENT_RATE',
+                    sortOrder: SORT_ORDER.DESC
+                },
+                'USER_BEHAVIOR': {
+                    filters: {
+                        'DL_VOLUME': { operator: FILTER_OPERATORS.GREATER_THAN, value: '0' },
+                        'SESSION_CNT': { operator: FILTER_OPERATORS.GREATER_THAN, value: '0' }
+                    },
+                    transforms: {
+                        'USER_ID': { type: TRANSFORM_TYPES.UPPERCASE },
+                        'APP_TYPE': { type: TRANSFORM_TYPES.UPPERCASE },
+                        'APP_NAME': { type: TRANSFORM_TYPES.TRIM },
+                        'DL_VOLUME': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'UL_VOLUME': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'DL_SPEED': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'UL_SPEED': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'LATENCY': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'PAGE_VIEW': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'SESSION_CNT': { type: TRANSFORM_TYPES.TO_NUMBER }
+                    },
+                    dedupFields: ['USER_ID', 'TIME_DATE', 'APP_NAME'],
+                    sortField: 'DL_VOLUME',
+                    sortOrder: SORT_ORDER.DESC
+                },
+                'IOT_DEVICE_DATA': {
+                    filters: {
+                        'ONLINE_STATUS': { operator: FILTER_OPERATORS.EQUALS, value: '在线' }
+                    },
+                    transforms: {
+                        'DEVICE_ID': { type: TRANSFORM_TYPES.UPPERCASE },
+                        'DEVICE_TYPE': { type: TRANSFORM_TYPES.TRIM },
+                        'MANUFACTURER': { type: TRANSFORM_TYPES.TRIM },
+                        'LOCATION': { type: TRANSFORM_TYPES.TRIM },
+                        'LONGITUDE': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'LATITUDE': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'SENSOR_TEMP': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'SENSOR_HUMIDITY': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'SENSOR_VOLTAGE': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'SENSOR_BATTERY': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'SIGNAL_STRENGTH': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'ONLINE_STATUS': { type: TRANSFORM_TYPES.TRIM }
+                    },
+                    dedupFields: ['DEVICE_ID', 'TIME_DATE'],
+                    sortField: 'SENSOR_TEMP',
+                    sortOrder: SORT_ORDER.DESC
+                },
+                'CRM_ORDER': {
+                    filters: {
+                        'ORDER_STATUS': { operator: FILTER_OPERATORS.EQUALS, value: '已完成' },
+                        'ORDER_AMOUNT': { operator: FILTER_OPERATORS.GREATER_THAN, value: '0' }
+                    },
+                    transforms: {
+                        'ORDER_ID': { type: TRANSFORM_TYPES.UPPERCASE },
+                        'ORDER_NO': { type: TRANSFORM_TYPES.UPPERCASE },
+                        'CUST_NAME': { type: TRANSFORM_TYPES.TRIM },
+                        'PRODUCT_NAME': { type: TRANSFORM_TYPES.TRIM },
+                        'ORDER_AMOUNT': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'DISCOUNT_AMOUNT': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'ACTUAL_AMOUNT': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'PAY_METHOD': { type: TRANSFORM_TYPES.UPPERCASE },
+                        'ORDER_STATUS': { type: TRANSFORM_TYPES.TRIM },
+                        'SALES_NAME': { type: TRANSFORM_TYPES.TRIM },
+                        'DEPT_NAME': { type: TRANSFORM_TYPES.TRIM }
+                    },
+                    dedupFields: ['ORDER_ID'],
+                    sortField: 'ACTUAL_AMOUNT',
+                    sortOrder: SORT_ORDER.DESC
+                },
+                'WIFI_AP_STATS': {
+                    filters: {
+                        'CONN_USERS': { operator: FILTER_OPERATORS.GREATER_THAN, value: '0' }
+                    },
+                    transforms: {
+                        'AP_ID': { type: TRANSFORM_TYPES.UPPERCASE },
+                        'AP_NAME': { type: TRANSFORM_TYPES.TRIM },
+                        'LOCATION': { type: TRANSFORM_TYPES.TRIM },
+                        'SSID': { type: TRANSFORM_TYPES.TRIM },
+                        'ONLINE_TIME': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'TOTAL_USERS': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'CONN_USERS': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'DL_BYTES': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'UL_BYTES': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'AUTH_FAIL_CNT': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'SIGNAL_AVG': { type: TRANSFORM_TYPES.TO_NUMBER }
+                    },
+                    dedupFields: ['AP_ID', 'TIME_DATE'],
+                    sortField: 'CONN_USERS',
+                    sortOrder: SORT_ORDER.DESC
+                },
+                'CDR_DETAIL': {
+                    filters: {
+                        'CALL_RESULT': { operator: FILTER_OPERATORS.EQUALS, value: '成功' },
+                        'DURATION': { operator: FILTER_OPERATORS.GREATER_THAN, value: '0' }
+                    },
+                    transforms: {
+                        'CALL_ID': { type: TRANSFORM_TYPES.UPPERCASE },
+                        'CALLER_NUM': { type: TRANSFORM_TYPES.TRIM },
+                        'CALLEE_NUM': { type: TRANSFORM_TYPES.TRIM },
+                        'CALL_TYPE': { type: TRANSFORM_TYPES.TRIM },
+                        'CALL_RESULT': { type: TRANSFORM_TYPES.TRIM },
+                        'CELL_ID': { type: TRANSFORM_TYPES.UPPERCASE },
+                        'ROAM_TYPE': { type: TRANSFORM_TYPES.UPPERCASE },
+                        'DURATION': { type: TRANSFORM_TYPES.TO_NUMBER },
+                        'FEE': { type: TRANSFORM_TYPES.TO_NUMBER }
+                    },
+                    dedupFields: ['CALL_ID'],
+                    sortField: 'DURATION',
+                    sortOrder: SORT_ORDER.DESC
+                }
+            };
+            return presets[modelName] || {};
+        };
+
+        const demoInitialized = ref(false);
+
+        // 预设应用函数
+        const applyPresets = async (modelName) => {
+            console.log('[Preset] Applying presets for:', modelName);
+            await nextTick();
+            console.log('[Preset] targetModelFields:', targetModelFields.value.map(f => f.name));
+
+            initFilters();
+            const preset = getPresetConfig(modelName);
+            console.log('[Preset] Got preset:', preset);
+
+            if (preset.filters) {
+                Object.entries(preset.filters).forEach(([field, config]) => {
+                    if (targetModelFields.value.find(f => f.name === field)) {
+                        filterConfigs[field] = { mode: 'simple', operator: config.operator, value: config.value, formula: '' };
+                        addHistory('filter', '筛选', `${field} ${config.operator} ${config.value}`, field);
+                        console.log('[Preset] Applied filter:', field, config);
+                    }
+                });
