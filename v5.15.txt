@@ -1498,3 +1498,203 @@
                                     <span class="tag tag-primary">全局</span>
                                 </div>
                                 <label class="dedup-toggle">
+                                    <input type="checkbox" v-model="dedupConfig.enabled" @change="applyDedupConfig">
+                                    <span>启用</span>
+                                </label>
+                            </div>
+
+                            <div class="dedup-config-row">
+                                <div>
+                                    <label class="form-label" style="font-size: 13px; margin-bottom: 8px;">去重字段</label>
+                                    <div class="dedup-field-row">
+                                        <select class="form-select dedup-select"
+                                                v-model="dedupFieldSelect"
+                                                @change="addDedupField">
+                                            <option value="">选择字段...</option>
+                                            <option v-for="field in targetModelFields"
+                                                    :key="field.name"
+                                                    :value="field.name"
+                                                    :disabled="dedupConfig.fields.includes(field.name)">
+                                                {{ field.name }}
+                                            </option>
+                                        </select>
+
+                                        <div class="dedup-tags">
+                                            <span v-for="f in dedupConfig.fields" :key="f" class="dedup-tag">
+                                                {{ f }}
+                                                <span class="dedup-tag-close" @click="removeDedupField(f)">×</span>
+                                            </span>
+                                            <span v-if="dedupConfig.fields.length === 0" style="font-size: 12px; color: #bfbfbf;">未选择字段</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="form-label" style="font-size: 13px; margin-bottom: 8px;">保留</label>
+                                    <select class="form-select" v-model="dedupConfig.keep" @change="applyDedupConfig">
+                                        <option value="first">保留第一行</option>
+                                        <option value="last">保留最后一行</option>
+                                        <option value="any">保留任意一行</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div style="margin-top: 12px; font-size: 12px; color: var(--text-secondary);">
+                                <span class="material-icons" style="font-size: 14px; vertical-align: middle; margin-right: 4px;">info</span>
+                                选择去重字段后，将根据这些字段的组合键去重
+                            </div>
+                        </div>
+
+                        <!-- Data Grid -->
+                        <div class="data-grid-container" ref="processGridContainer">
+                            <table class="data-grid">
+                                <thead>
+                                <tr>
+                                    <th v-for="field in targetModelFields"
+                                        :key="field.name"
+                                        :colspan="isMultiMapped(field.name) ? getMappedSources(field.name).length : 1"
+                                        class="level-1">
+                                        <div class="header-cell">
+                                            <div>
+                                                <span>{{ field.name }}</span>
+                                                <span v-if="!showRawPreview && sortConfig.field === field.name" class="sort-indicator">
+                                                    {{ sortConfig.order === 'asc' ? '↑' : '↓' }}
+                                                </span>
+                                                <span v-if="!showRawPreview && transforms[field.name]" class="transform-indicator">转换</span>
+                                            </div>
+                                            <div class="header-actions" v-if="!showRawPreview">
+                                                <div class="main-actions-vert">
+                                                    <button class="header-btn header-btn-main" :class="{ active: isFilterActive(field.name) }" @click.stop="openFilterPopover(field.name, $event)">
+                                                        <span class="material-icons" style="font-size: 12px; vertical-align: middle;">filter_alt</span>筛选
+                                                    </button>
+                                                    <button class="header-btn header-btn-main" :class="{ active: transforms[field.name] }" @click.stop="openTransformModal(field.name)">
+                                                        <span class="material-icons" style="font-size: 12px; vertical-align: middle;">transform</span>转换
+                                                    </button>
+                                                    <button class="header-btn header-btn-main" :class="{ active: sortConfig.field === field.name }" @click.stop="openSortPopover(field.name, $event)">
+                                                        <span class="material-icons" style="font-size: 12px; vertical-align: middle;">sort</span>排序
+                                                    </button>
+                                                </div>
+
+                                                <div class="secondary-actions-vert">
+                                                    <button class="header-btn-icon tooltip" title="复制配置" @click.stop="copyColumnConfig(field.name)">
+                                                        <span class="material-icons" style="font-size: 14px;">content_copy</span>
+                                                    </button>
+                                                    <button class="header-btn-icon tooltip" title="应用到其他列" @click.stop="openApplyModal(field.name)">
+                                                        <span class="material-icons" style="font-size: 14px;">content_paste</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </th>
+                                </tr>
+
+                                <tr v-if="hasMultiMapping()">
+                                    <th v-for="field in targetModelFields" :key="'sub-' + field.name" :colspan="isMultiMapped(field.name) ? getMappedSources(field.name).length : 1">
+                                        <div v-if="isMultiMapped(field.name)" style="display: flex; gap: 4px;">
+                                            <span v-for="source in getMappedSources(field.name)" :key="source.key" style="flex: 1; text-align: center;">
+                                                <span class="source-badge" :class="source.sourceId === 'table_a' ? 'table-a' : 'table-b'" style="margin: 0;">
+                                                    {{ source.name }}
+                                                </span>
+                                            </span>
+                                        </div>
+                                        <span v-else>{{ getMappingSource(field.name) }}</span>
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr v-for="(row, rowIndex) in displayData.slice(0, 50)" :key="rowIndex">
+                                    <template v-for="field in targetModelFields" :key="field.name">
+                                        <template v-if="showRawPreview && isMultiMapped(field.name)">
+                                            <td v-for="src in getMappedSources(field.name)" :key="field.name + '_' + src.key">
+                                                <span>{{ row[src.key] || '' }}</span>
+                                            </td>
+                                        </template>
+
+                                        <template v-else-if="showRawPreview">
+                                            <td>
+                                                <span>{{ getRawValue(field.name, row) }}</span>
+                                            </td>
+                                        </template>
+
+                                        <template v-else>
+                                            <template v-if="isMultiMapped(field.name) && !isConcatActive(field.name)">
+                                                <td v-for="src in getMappedSources(field.name)" :key="field.name + '_' + src.key">
+                                                    <span>{{ row[src.key] || '' }}</span>
+                                                </td>
+                                            </template>
+                                            <template v-else>
+                                                <td :colspan="isMultiMapped(field.name) ? getMappedSources(field.name).length : 1">
+                                                    <span>{{ getFieldValue(row, field.name) }}</span>
+                                                </td>
+                                            </template>
+                                        </template>
+                                    </template>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div style="margin-top: 14px; display: flex; justify-content: space-between; align-items: center;">
+                            <div class="field-info">
+                                <span><span class="material-icons" style="font-size: 16px; vertical-align: middle;">table_rows</span> 共 {{ processedData.length }} 条数据</span>
+                                <span v-if="hasActiveFilters" style="color: var(--warning);">，已筛选 {{ filteredOutCount }} 条</span>
+                                <span v-if="dedupRemovedCount > 0" style="color: var(--purple);">，去重移除 {{ dedupRemovedCount }} 条</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Aggregation -->
+                <div v-show="currentStep === 3">
+                    <div class="card-header">
+                        <div class="card-title">分组聚合配置</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="aggregation-config">
+                            <div class="aggregation-section">
+                                <div class="aggregation-header"><span class="material-icons" style="font-size: 16px; vertical-align: middle; margin-right: 6px;">group_by</span>分组字段 (GROUP BY)</div>
+                                <div class="aggregation-fields drop-zone"
+                                     :class="{ dragover: dragState.over === 'group' }"
+                                     @dragover.prevent="dragState.over = 'group'"
+                                     @dragleave="dragState.over = ''"
+                                     @drop="handleDropGroup">
+                                    <div v-if="groupByFields.length === 0" class="drag-placeholder">
+                                        <span class="material-icons" style="font-size: 32px; color: #d9d9d9; margin-bottom: 8px;">drag_indicator</span>
+                                        <div>从右侧拖拽字段到此处进行分组</div>
+                                    </div>
+                                    <div v-for="(field, index) in groupByFields" :key="index" class="aggregation-field-item">
+                                        <span>{{ field }}</span>
+                                        <span @click="removeGroupByField(index)" style="cursor: pointer; color: var(--danger);">
+                                            <span class="material-icons" style="font-size: 18px;">close</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="aggregation-section">
+                                <div class="aggregation-header"><span class="material-icons" style="font-size: 16px; vertical-align: middle; margin-right: 6px;">category</span>字段池 (拖拽使用)</div>
+                                <div class="aggregation-fields">
+                                    <div v-for="(field, index) in targetModelFields"
+                                         :key="'pool-' + index"
+                                         class="aggregation-field-item"
+                                         draggable="true"
+                                         @dragstart="onDragStart(field.name)">
+                                        <span>{{ field.name }}</span>
+                                        <span style="font-size: 12px; color: var(--text-secondary);"><span class="material-icons" style="font-size: 14px;">drag_indicator</span> 拖拽</span>
+                                    </div>
+                                </div>
+
+                                <div class="aggregation-header"><span class="material-icons" style="font-size: 16px; vertical-align: middle; margin-right: 6px;">functions</span>聚合字段 (拖拽到此处)</div>
+                                <div class="aggregation-fields drop-zone"
+                                     :class="{ dragover: dragState.over === 'agg' }"
+                                     @dragover.prevent="dragState.over = 'agg'"
+                                     @dragleave="dragState.over = ''"
+                                     @drop="handleDropAgg">
+                                    <div v-if="aggregationFields.length === 0" class="drag-placeholder">
+                                        <span class="material-icons" style="font-size: 32px; color: #d9d9d9; margin-bottom: 8px;">drag_indicator</span>
+                                        <div>从字段池拖拽字段到此处进行聚合</div>
+                                    </div>
+                                    <div v-for="(field, index) in aggregationFields"
+                                         :key="'agg-' + index"
+                                         class="aggregation-field-item">
+                                        <div style="flex: 1;">
