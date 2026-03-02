@@ -598,3 +598,203 @@ createApp({
                     { name: 'ACTUAL_AMOUNT', type: 'DECIMAL', required: false, description: '实付金额(元)', sampleValue: '1100', aliases: ['实付'] },
                     { name: 'PAY_METHOD', type: 'STRING', required: false, description: '支付方式', sampleValue: '微信支付', aliases: ['支付方式'] },
                     { name: 'ORDER_STATUS', type: 'STRING', required: false, description: '订单状态', sampleValue: '已完成', aliases: ['状态'] },
+                    { name: 'SALES_NAME', type: 'STRING', required: false, description: '销售员', sampleValue: '张三', aliases: ['销售'] },
+                    { name: 'DEPT_NAME', type: 'STRING', required: false, description: '所属部门', sampleValue: '华北大区', aliases: ['部门'] }
+                ],
+                'WIFI_AP_STATS': [
+                    { name: 'AP_ID', type: 'STRING', required: true, description: 'AP设备ID', sampleValue: 'AP_001', aliases: ['AP设备ID'] },
+                    { name: 'AP_NAME', type: 'STRING', required: true, description: 'AP设备名称', sampleValue: '会议室AP-01', aliases: ['AP名称'] },
+                    { name: 'TIME_DATE', type: 'DATE', required: true, description: '统计日期', sampleValue: '2025-01-15', aliases: ['日期'] },
+                    { name: 'TIME_HOUR', type: 'INT', required: false, description: '统计小时', sampleValue: '8', aliases: ['小时'] },
+                    { name: 'LOCATION', type: 'STRING', required: false, description: '安装位置', sampleValue: '3楼会议室', aliases: ['位置'] },
+                    { name: 'SSID', type: 'STRING', required: false, description: 'SSID名称', sampleValue: 'Guest_WiFi', aliases: [] },
+                    { name: 'ONLINE_TIME', type: 'INT', required: false, description: '在线时长(分钟)', sampleValue: '45', aliases: ['在线时长'] },
+                    { name: 'TOTAL_USERS', type: 'INT', required: false, description: '累计用户数', sampleValue: '120', aliases: ['累计用户'] },
+                    { name: 'CONN_USERS', type: 'INT', required: false, description: '同时在线用户数', sampleValue: '35', aliases: ['在线用户'] },
+                    { name: 'DL_BYTES', type: 'DECIMAL', required: false, description: '下行流量(GB)', sampleValue: '2.5', aliases: ['下行流量'] },
+                    { name: 'UL_BYTES', type: 'DECIMAL', required: false, description: '上行流量(GB)', sampleValue: '0.8', aliases: ['上行流量'] },
+                    { name: 'AUTH_FAIL_CNT', type: 'INT', required: false, description: '认证失败次数', sampleValue: '3', aliases: ['失败次数'] },
+                    { name: 'SIGNAL_AVG', type: 'DECIMAL', required: false, description: '平均信号强度(dBm)', sampleValue: '-55', aliases: ['信号强度'] }
+                ],
+                'CDR_DETAIL': [
+                    { name: 'CALL_ID', type: 'STRING', required: true, description: '通话记录ID', sampleValue: 'CALL_202501150001', aliases: ['记录ID'] },
+                    { name: 'CALLER_NUM', type: 'STRING', required: true, description: '主叫号码', sampleValue: '13800001001', aliases: ['主叫', 'Caller'] },
+                    { name: 'CALLEE_NUM', type: 'STRING', required: true, description: '被叫号码', sampleValue: '13800002001', aliases: ['被叫', 'Callee'] },
+                    { name: 'TIME_START', type: 'DATE', required: true, description: '通话开始时间', sampleValue: '2025-01-15 08:05:23', aliases: ['开始时间'] },
+                    { name: 'TIME_END', type: 'DATE', required: false, description: '通话结束时间', sampleValue: '2025-01-15 08:12:45', aliases: ['结束时间'] },
+                    { name: 'DURATION', type: 'INT', required: false, description: '通话时长(秒)', sampleValue: '442', aliases: ['时长'] },
+                    { name: 'CALL_TYPE', type: 'STRING', required: false, description: '呼叫类型', sampleValue: '主叫', aliases: ['类型'] },
+                    { name: 'CALL_RESULT', type: 'STRING', required: false, description: '呼叫结果', sampleValue: '成功', aliases: ['结果'] },
+                    { name: 'CELL_ID', type: 'STRING', required: false, description: '基站小区ID', sampleValue: 'CELL_001', aliases: ['小区'] },
+                    { name: 'IMEI', type: 'STRING', required: false, description: '设备IMEI', sampleValue: '862195012345678', aliases: [] },
+                    { name: 'ROAM_TYPE', type: 'STRING', required: false, description: '漫游类型', sampleValue: '本地', aliases: ['漫游'] },
+                    { name: 'FEE', type: 'DECIMAL', required: false, description: '通话费用(元)', sampleValue: '0.44', aliases: ['费用'] }
+                ]
+            };
+            return models[selectedModel.value] || [];
+        });
+
+        const sourceDataA = computed(() => {
+            const file = fileData.value.find(f => f.sourceId === 'table_a');
+            if (!file) {
+                return [
+                    { key: 'table_a_SITE_ID', sourceId: 'table_a', name: 'SITE_ID', sampleValue: '225' },
+                    { key: 'table_a_SITE_NAME1', sourceId: 'table_a', name: 'SITE_NAME1', sampleValue: 'ALE' },
+                    { key: 'table_a_SITE_NAME2', sourceId: 'table_a', name: 'SITE_NAME2', sampleValue: '1' },
+                    { key: 'table_a_DATE_TIME', sourceId: 'table_a', name: 'DATE_TIME', sampleValue: '2025.3.4 15:20:36' },
+                    { key: 'table_a_CLUSTER', sourceId: 'table_a', name: 'CLUSTER', sampleValue: 'CLUSTER2' },
+                    { key: 'table_a_COMMON4', sourceId: 'table_a', name: 'COMMON4', sampleValue: 'aa' }
+                ];
+            }
+            return file.headers.map((h, idx) => ({
+                key: 'table_a_' + h,
+                sourceId: 'table_a',
+                name: h,
+                sampleValue: file.data[0]?.[h] || ''
+            }));
+        });
+
+        const sourceDataB = computed(() => {
+            const file = fileData.value.find(f => f.sourceId === 'table_b');
+            if (!file) {
+                return [
+                    { key: 'table_b_SITE_ID', sourceId: 'table_b', name: 'SITE_ID', sampleValue: '225' },
+                    { key: 'table_b_COMMON5', sourceId: 'table_b', name: 'COMMON5', sampleValue: '23.50%' },
+                    { key: 'table_b_FIELD0001', sourceId: 'table_b', name: 'FIELD0001', sampleValue: '36.25' },
+                    { key: 'table_b_FIELD0002', sourceId: 'table_b', name: 'FIELD0002', sampleValue: '15.2' },
+                    { key: 'table_b_FIELD0003', sourceId: 'table_b', name: 'FIELD0003', sampleValue: '24.6' }
+                ];
+            }
+            return file.headers.map((h, idx) => ({
+                key: 'table_b_' + h,
+                sourceId: 'table_b',
+                name: h,
+                sampleValue: file.data[0]?.[h] || ''
+            }));
+        });
+
+        const tableAData = computed(() => {
+            const file = fileData.value.find(f => f.sourceId === 'table_a');
+            if (!file) {
+                return [
+                    { 'table_a_SITE_ID': '225', 'table_a_SITE_NAME1': 'ALE', 'table_a_SITE_NAME2': '1', 'table_a_DATE_TIME': '2025.3.4 15:20:36', 'table_a_CLUSTER': 'CLUSTER2', 'table_a_COMMON4': 'aa' },
+                    { 'table_a_SITE_ID': '226', 'table_a_SITE_NAME1': 'ALE', 'table_a_SITE_NAME2': '2', 'table_a_DATE_TIME': '2025.4.15 10:30:00', 'table_a_CLUSTER': 'CLUSTER2', 'table_a_COMMON4': 'aa' },
+                    { 'table_a_SITE_ID': '227', 'table_a_SITE_NAME1': 'LMD', 'table_a_SITE_NAME2': '1', 'table_a_DATE_TIME': '2025.5.4 08:10:25', 'table_a_CLUSTER': 'CLUSTER3', 'table_a_COMMON4': 'aa' },
+                    { 'table_a_SITE_ID': '228', 'table_a_SITE_NAME1': 'LMD', 'table_a_SITE_NAME2': '2', 'table_a_DATE_TIME': '2025.6.20 14:25:18', 'table_a_CLUSTER': 'CLUSTER3', 'table_a_COMMON4': 'aa' },
+                    { 'table_a_SITE_ID': '229', 'table_a_SITE_NAME1': 'LMD', 'table_a_SITE_NAME2': '3', 'table_a_DATE_TIME': '2025.8.12 20:10:14', 'table_a_CLUSTER': 'CLUSTER4', 'table_a_COMMON4': 'aa' },
+                    { 'table_a_SITE_ID': '230', 'table_a_SITE_NAME1': 'ALE', 'table_a_SITE_NAME2': '3', 'table_a_DATE_TIME': '2025.8.13 15:20:36', 'table_a_CLUSTER': 'CLUSTER2', 'table_a_COMMON4': 'aa' },
+                    { 'table_a_SITE_ID': '231', 'table_a_SITE_NAME1': 'ALE', 'table_a_SITE_NAME2': '4', 'table_a_DATE_TIME': '2025.8.14 10:30:00', 'table_a_CLUSTER': 'CLUSTER2', 'table_a_COMMON4': 'aa' },
+                    { 'table_a_SITE_ID': '232', 'table_a_SITE_NAME1': 'ALE', 'table_a_SITE_NAME2': '5', 'table_a_DATE_TIME': '2025.9.12 08:10:25', 'table_a_CLUSTER': 'CLUSTER4', 'table_a_COMMON4': 'aa' },
+                    { 'table_a_SITE_ID': '233', 'table_a_SITE_NAME1': 'ALE', 'table_a_SITE_NAME2': '6', 'table_a_DATE_TIME': '2025.10.12 14:25:18', 'table_a_CLUSTER': 'CLUSTER4', 'table_a_COMMON4': 'aa' },
+                    { 'table_a_SITE_ID': '234', 'table_a_SITE_NAME1': 'ALE', 'table_a_SITE_NAME2': '7', 'table_a_DATE_TIME': '2025.8.15 20:10:14', 'table_a_CLUSTER': 'CLUSTER4', 'table_a_COMMON4': 'aa' }
+                ];
+            }
+            return file.data.map(row => {
+                const newRow = {};
+                file.headers.forEach(h => {
+                    newRow['table_a_' + h] = row[h];
+                });
+                return newRow;
+            });
+        });
+
+        const tableBData = computed(() => {
+            const file = fileData.value.find(f => f.sourceId === 'table_b');
+            if (!file) {
+                return [
+                    { 'table_b_SITE_ID': '225', 'table_b_COMMON5': '23.50%', 'table_b_FIELD0001': '36.25', 'table_b_FIELD0002': '15.2', 'table_b_FIELD0003': '24.6' },
+                    { 'table_b_SITE_ID': '226', 'table_b_COMMON5': '23.50%', 'table_b_FIELD0001': '36.25', 'table_b_FIELD0002': '15.2', 'table_b_FIELD0003': '24.6' },
+                    { 'table_b_SITE_ID': '227', 'table_b_COMMON5': '23.50%', 'table_b_FIELD0001': '', 'table_b_FIELD0002': '10', 'table_b_FIELD0003': '10' },
+                    { 'table_b_SITE_ID': '228', 'table_b_COMMON5': '23.50%', 'table_b_FIELD0001': '36.25', 'table_b_FIELD0002': '15.2', 'table_b_FIELD0003': '24.6' },
+                    { 'table_b_SITE_ID': '229', 'table_b_COMMON5': '23.50%', 'table_b_FIELD0001': '', 'table_b_FIELD0002': '0', 'table_b_FIELD0003': '24.6' },
+                    { 'table_b_SITE_ID': '230', 'table_b_COMMON5': '23.50%', 'table_b_FIELD0001': '36.25', 'table_b_FIELD0002': '15.2', 'table_b_FIELD0003': '24.6' },
+                    { 'table_b_SITE_ID': '231', 'table_b_COMMON5': '21.50%', 'table_b_FIELD0001': '22.1', 'table_b_FIELD0002': '10', 'table_b_FIELD0003': '10' },
+                    { 'table_b_SITE_ID': '232', 'table_b_COMMON5': '23.50%', 'table_b_FIELD0001': '36.25', 'table_b_FIELD0002': '15.2', 'table_b_FIELD0003': '24.6' },
+                    { 'table_b_SITE_ID': '233', 'table_b_COMMON5': '25.50%', 'table_b_FIELD0001': '10.12', 'table_b_FIELD0002': '2', 'table_b_FIELD0003': '10' },
+                    { 'table_b_SITE_ID': '234', 'table_b_COMMON5': '23.50%', 'table_b_FIELD0001': '36.25', 'table_b_FIELD0002': '15.2', 'table_b_FIELD0003': '24.6' }
+                ];
+            }
+            return file.data.map(row => {
+                const newRow = {};
+                file.headers.forEach(h => {
+                    newRow['table_b_' + h] = row[h];
+                });
+                return newRow;
+            });
+        });
+
+        const joinConfig = reactive({ type: JOIN_TYPES.LEFT, leftField: 'SITE_ID', rightField: 'SITE_ID' });
+        const mappingSourceFilter = ref('table_a');
+
+        const allSourceFields = computed(() => [...sourceDataA.value, ...sourceDataB.value]);
+
+        const getSourceFields = (sourceId) => {
+            if (sourceId === 'table_a') return sourceDataA.value;
+            if (sourceId === 'table_b') return sourceDataB.value;
+            return allSourceFields.value;
+        };
+
+        const getFilteredSourceFields = () => {
+            if (uploadedFiles.value.length >= 2) {
+                return allSourceFields.value.filter(f => f.sourceId === mappingSourceFilter.value);
+            }
+            return sourceDataA.value;
+        };
+
+        const previewData = computed(() => {
+            if (uploadedFiles.value.length < 2) return tableAData.value;
+
+            const leftKey = joinConfig.leftField;
+            const rightKey = joinConfig.rightField;
+            const joinType = joinConfig.type;
+            const result = [];
+
+            if (joinType === 'left' || joinType === 'inner' || joinType === 'full') {
+                tableAData.value.forEach(rowA => {
+                    const keyA = rowA['table_a_' + leftKey];
+                    const matchingB = tableBData.value.find(rowB => rowB['table_b_' + rightKey] === keyA);
+
+                    if (matchingB || joinType === 'left') {
+                        const merged = { ...rowA };
+                        if (matchingB) {
+                            Object.keys(matchingB).forEach(k => merged[k] = matchingB[k]);
+                        } else {
+                            sourceDataB.value.forEach(f => merged[f.key] = '');
+                        }
+                        result.push(merged);
+                    }
+                });
+            }
+
+            if (joinType === 'right' || joinType === 'full') {
+                tableBData.value.forEach(rowB => {
+                    const keyB = rowB['table_b_' + rightKey];
+                    const matchingA = tableAData.value.find(rowA => rowA['table_a_' + leftKey] === keyB);
+
+                    if (!matchingA) {
+                        const merged = {};
+                        sourceDataA.value.forEach(f => merged[f.key] = '');
+                        Object.keys(rowB).forEach(k => merged[k] = rowB[k]);
+                        result.push(merged);
+                    }
+                });
+            }
+
+            return result;
+        });
+
+        const mappings = ref({
+            'SITE_ID': ['table_a_SITE_ID'],
+            'SITE_NAME': ['table_a_SITE_NAME1', 'table_a_SITE_NAME2'],
+            'TIME_DATE': ['table_a_DATE_TIME'],
+            'TIME_YEAR': ['table_a_DATE_TIME'],
+            'TIME_WEEK': ['table_a_DATE_TIME'],
+            'TIME_DAY': ['table_a_DATE_TIME'],
+            'TIME_TIME': ['table_a_DATE_TIME'],
+            'CLUSTER': ['table_a_CLUSTER'],
+            'COMMON4': ['table_a_COMMON4'],
+            'COMMON5': ['table_b_COMMON5'],
+            'FIELD0001': ['table_b_FIELD0001'],
+            'FIELD0002': ['table_b_FIELD0002'],
+            'FIELD0003': ['table_b_FIELD0003']
+        });
