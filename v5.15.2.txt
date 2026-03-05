@@ -1,1600 +1,2531 @@
-                                <option value="">请选择</option>
-                                <option value="equals">等于</option>
-                                <option value="not_equals">不等于</option>
-                                <option value="contains">包含</option>
-                                <option value="is_empty">为空</option>
-                                <option value="is_not_empty">不为空</option>
-                                <option value="greater_than">大于</option>
-                                <option value="less_than">小于</option>
-                            </select>
-                            <input v-if="!['is_empty', 'is_not_empty'].includes(cond.operator)"
-                                   v-model="cond.value"
-                                   class="form-input"
-                                   placeholder="值"
-                                   style="flex: 1;">
-                            <button class="btn btn-danger btn-sm" @click="removeFilterCondition(columnPopover.field, idx)"
-                                    style="padding: 4px 8px; min-width: auto;">
-                                <span class="material-icons" style="font-size: 16px;">delete</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <button class="btn btn-default btn-sm" @click="addFilterCondition(columnPopover.field)"
-                            style="width: 100%; margin-top: 5px;">
-                        <span class="material-icons" style="font-size: 16px; vertical-align: middle;">add</span> 添加条件
-                    </button>
-                </div>
-                <div v-else style="text-align: center; padding: 20px; color: var(--text-secondary);">
-                    <div>暂无条件</div>
-                    <button class="btn btn-default btn-sm" @click="addFilterCondition(columnPopover.field)" style="margin-top: 10px;">
-                        <span class="material-icons" style="font-size: 16px; vertical-align: middle;">add</span> 添加筛选条件
-                    </button>
-                </div>
-            </div>
-
-            <div v-if="filterConfigs[columnPopover.field].mode === 'formula'">
-                <label class="form-label" style="font-size: 13px;">公式</label>
-                <input v-model="filterConfigs[columnPopover.field].formula"
-                       class="form-input"
-                       placeholder="例如：=value>15 或 =NOT(ISBLANK(value))">
-                <div class="popover-muted" style="margin-top: 8px;">
-                    支持 <code>value</code>、<code>row</code>、<code>S('字段名')</code>、<code>T('目标字段')</code>
-                </div>
-            </div>
-
-            <div class="popover-actions">
-                <button class="btn btn-default btn-sm" @click="clearFilter(columnPopover.field)">清除</button>
-                <button class="btn btn-primary btn-sm" @click="applyFilterConfig(columnPopover.field)">应用</button>
-            </div>
-        </div>
-
-        <div v-if="columnPopover.type === 'sort'">
-            <button class="btn btn-default btn-sm" style="width: 100%; margin-bottom: 10px;" @click="applySort(columnPopover.field, 'asc')">
-                <span class="material-icons" style="font-size: 16px; vertical-align: middle;">arrow_upward</span> 升序
-            </button>
-            <button class="btn btn-default btn-sm" style="width: 100%; margin-bottom: 10px;" @click="applySort(columnPopover.field, 'desc')">
-                <span class="material-icons" style="font-size: 16px; vertical-align: middle;">arrow_downward</span> 降序
-            </button>
-            <button class="btn btn-danger btn-sm" style="width: 100%;" @click="clearSort()">
-                <span class="material-icons" style="font-size: 16px; vertical-align: middle;">clear</span> 清除排序
-            </button>
-        </div>
-    </div>
-
-    <!-- Transform Modal -->
-    <div v-if="transformModal.show" class="modal-overlay" @click="closeTransformModal" role="presentation">
-        <div class="modal" @click.stop role="dialog" aria-modal="true" aria-labelledby="transform-modal-title" tabindex="-1">
-            <div class="modal-header">
-                <span id="transform-modal-title"><span class="material-icons" style="font-size: 20px; vertical-align: middle; margin-right: 8px; color: var(--primary);">transform</span>配置转换 - {{ transformModal.field }}</span>
-                <span class="modal-close" @click="closeTransformModal" @keydown.enter="closeTransformModal" role="button" aria-label="关闭弹窗" tabindex="0"><span class="material-icons">close</span></span>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="form-label"><span class="material-icons" style="font-size: 16px; vertical-align: middle; margin-right: 4px;">link</span>转换链（按顺序执行）</label>
-                    <div class="popover-muted" style="margin-bottom: 12px; padding: 10px; background: #fafafa; border-radius: 6px;">
-                        多个转换步骤按顺序执行，前一步的输出作为后一步的输入
-                    </div>
-
-                    <div v-if="transformModal.chain && transformModal.chain.length > 0">
-                        <div v-for="(step, index) in transformModal.chain" :key="index"
-                             style="border: 1px solid var(--border); padding: 12px; border-radius: 8px; margin-bottom: 8px; background: #fafafa;">
-                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                                <span style="font-size: 12px; color: var(--text-secondary);">步骤 {{ index + 1 }}</span>
-                                <div style="display: flex; gap: 4px;">
-                                    <button class="btn btn-default btn-sm" @click="moveChainStep(index, -1)" v-if="index > 0"
-                                            style="padding: 2px 6px; min-width: auto;" title="上移">
-                                        <span class="material-icons" style="font-size: 14px;">arrow_upward</span>
-                                    </button>
-                                    <button class="btn btn-default btn-sm" @click="moveChainStep(index, 1)" v-if="index < transformModal.chain.length - 1"
-                                            style="padding: 2px 6px; min-width: auto;" title="下移">
-                                        <span class="material-icons" style="font-size: 14px;">arrow_downward</span>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm" @click="removeChainStep(index)"
-                                            style="padding: 2px 6px; min-width: auto;" title="删除">
-                                        <span class="material-icons" style="font-size: 14px;">delete</span>
-                                    </button>
-                                </div>
-                            </div>
-                            <select v-model="step.type" class="form-select" style="font-size: 13px;">
-                                <option value="uppercase">转换为大写</option>
-                                <option value="lowercase">转换为小写</option>
-                                <option value="trim">去除首尾空格</option>
-                                <option value="format_datetime">格式化日期时间</option>
-                                <option value="extract_year">提取年份</option>
-                                <option value="extract_time">提取时间</option>
-                                <option value="to_number">转换为数值</option>
-                                <option value="remove_thousand_sep">去除千分位符号</option>
-                                <option value="remove_percent">去除百分号</option>
-                                <option value="set_value">固定赋值</option>
-                                <option value="concat">多字段拼接</option>
-                                <option value="replace">替换内容</option>
-                                <option value="formula">自定义公式</option>
-                            </select>
-                            <div v-if="step.type === 'concat'" style="margin-top: 8px;">
-                                <input v-model="step.delimiter" class="form-input" placeholder="拼接分隔符（可选）" style="font-size: 13px;">
-                            </div>
-                            <div v-if="step.type === 'set_value'" style="margin-top: 8px;">
-                                <input v-model="step.fixedValue" class="form-input" placeholder="固定值" style="font-size: 13px;">
-                            </div>
-                            <div v-if="step.type === 'replace'" style="margin-top: 8px;">
-                                <input v-model="step.search" class="form-input" placeholder="查找内容" style="margin-bottom: 4px; font-size: 13px;">
-                                <input v-model="step.replace" class="form-input" placeholder="替换为" style="font-size: 13px;">
-                            </div>
-                            <div v-if="step.type === 'formula'" style="margin-top: 8px;">
-                                <input v-model="step.formula" class="form-input" placeholder="公式，例如：=value*2" style="font-size: 13px;">
-                            </div>
-                        </div>
-                    </div>
-                    <div v-else style="text-align: center; padding: 15px; color: var(--text-secondary); background: #fafafa; border-radius: 8px; border: 1px dashed var(--border);">
-                        暂无转换步骤
-                    </div>
-
-                    <button class="btn btn-default btn-sm" @click="addChainStep" style="width: 100%; margin-top: 8px;">
-                        <span class="material-icons" style="font-size: 16px; vertical-align: middle;">add</span> 添加转换步骤
-                    </button>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label"><span class="material-icons" style="font-size: 16px; vertical-align: middle; margin-right: 4px;">rule</span>条件转换</label>
-                    <div class="popover-muted" style="margin-bottom: 12px; padding: 10px; background: #fafafa; border-radius: 6px;">
-                        满足条件时才应用转换规则；未命中则保留原值
-                    </div>
-
-                    <div v-for="(rule, index) in transformModal.rules" :key="index"
-                         style="border: 1px solid var(--border); padding: 14px; border-radius: 8px; margin-bottom: 10px; background: #fafafa;">
-                        <div class="form-group">
-                            <label class="form-label" style="font-size: 12px;">条件</label>
-                            <select v-model="rule.operator" class="form-select">
-                                <option value="">请选择</option>
-                                <option value="equals">等于</option>
-                                <option value="not_equals">不等于</option>
-                                <option value="contains">包含</option>
-                                <option value="is_empty">为空</option>
-                                <option value="is_not_empty">不为空</option>
-                                <option value="greater_than">大于</option>
-                                <option value="less_than">小于</option>
-                            </select>
-                            <input v-if="!['is_empty', 'is_not_empty'].includes(rule.operator)"
-                                   v-model="rule.value"
-                                   class="form-input"
-                                   placeholder="请输入条件值"
-                                   style="margin-top: 8px;">
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label" style="font-size: 12px;">转换类型</label>
-                            <select v-model="rule.type" class="form-select">
-                                <option value="uppercase">转换为大写</option>
-                                <option value="lowercase">转换为小写</option>
-                                <option value="trim">去除首尾空格</option>
-                                <option value="format_datetime">格式化日期时间</option>
-                                <option value="extract_year">提取年份</option>
-                                <option value="extract_time">提取时间</option>
-                                <option value="to_number">转换为数值</option>
-                                <option value="remove_thousand_sep">去除千分位符号</option>
-                                <option value="remove_percent">去除百分号</option>
-                                <option value="set_value">固定赋值</option>
-                                <option value="concat">多字段拼接</option>
-                                <option value="replace">替换内容</option>
-                                <option value="formula">自定义公式</option>
-                            </select>
-                        </div>
-
-                        <div v-if="rule.type === 'concat'" class="form-group">
-                            <label class="form-label" style="font-size: 12px;">拼接分隔符</label>
-                            <input v-model="rule.delimiter" class="form-input" placeholder="例如：_ 或 留空">
-                        </div>
-
-                        <div v-if="rule.type === 'set_value'" class="form-group">
-                            <label class="form-label" style="font-size: 12px;">固定值</label>
-                            <input v-model="rule.fixedValue" class="form-input" placeholder="例如：100">
-                        </div>
-
-                        <div v-if="rule.type === 'replace'" class="form-group">
-                            <label class="form-label" style="font-size: 12px;">替换内容</label>
-                            <input v-model="rule.search" class="form-input" placeholder="查找内容" style="margin-bottom: 8px;">
-                            <input v-model="rule.replace" class="form-input" placeholder="替换为">
-                        </div>
-
-                        <div v-if="rule.type === 'formula'" class="form-group">
-                            <label class="form-label" style="font-size: 12px;">公式</label>
-                            <input v-model="rule.formula" class="form-input" placeholder="例如：=value*2">
-                        </div>
-
-                        <button class="btn btn-danger btn-sm" @click="removeTransformRule(index)">
-                            <span class="material-icons" style="font-size: 14px;">delete</span> 删除此条件转换
-                        </button>
-                    </div>
-
-                    <button class="btn btn-default btn-sm" @click="addTransformRule">
-                        <span class="material-icons" style="font-size: 14px;">add</span> 添加条件转换
-                    </button>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-default" @click="closeTransformModal">取消</button>
-                <button class="btn btn-primary" @click="confirmTransform">确认转换</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Apply Config Modal -->
-    <div v-if="applyModal.show" class="modal-overlay" @click="closeApplyModal" role="presentation">
-        <div class="modal" @click.stop role="dialog" aria-modal="true" aria-labelledby="apply-modal-title" tabindex="-1">
-            <div class="modal-header">
-                <span id="apply-modal-title"><span class="material-icons" style="font-size: 20px; vertical-align: middle; margin-right: 8px; color: var(--primary);">content_paste</span>应用配置 - 来源列 {{ applyModal.sourceField }}</span>
-                <span class="modal-close" @click="closeApplyModal" @keydown.enter="closeApplyModal" role="button" aria-label="关闭弹窗" tabindex="0"><span class="material-icons">close</span></span>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="form-label">搜索字段</label>
-                    <input v-model="applyModal.search" class="form-input" placeholder="输入字段名关键字">
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">快捷规则</label>
-                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                        <button class="btn btn-default btn-sm" @click="selectByPrefix">同前缀</button>
-                        <button class="btn btn-default btn-sm" @click="selectByType">同类型</button>
-                        <button class="btn btn-default btn-sm" @click="selectAll">全选</button>
-                        <button class="btn btn-default btn-sm" @click="clearAll">清空</button>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">选择目标列</label>
-                    <div style="max-height: 240px; overflow:auto; border:1px solid var(--border); border-radius:8px; padding:12px;">
-                        <div v-for="f in filteredApplyTargets" :key="f.name" style="margin-bottom:8px;">
-                            <label style="display:flex; align-items:center; gap:10px; cursor: pointer; padding: 6px; border-radius: 4px; transition: background 0.2s;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='transparent'">
-                                <input type="checkbox" v-model="applyModal.selected" :value="f.name" style="width: 16px; height: 16px;">
-                                <span style="flex: 1;">{{ f.name }}</span>
-                                <span class="tag" :class="f.type === 'STRING' ? 'tag-primary' : 'tag-warning'">{{ f.type }}</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">应用内容</label>
-                    <div style="padding: 12px; background: #fafafa; border-radius: 8px;">
-                        <label style="display:block; font-size:13px; margin-bottom:10px; cursor: pointer;">
-                            <input type="checkbox" v-model="applyModal.applyFilter" style="margin-right: 8px;"> 筛选
-                        </label>
-                        <label style="display:block; font-size:13px; margin-bottom:10px; cursor: pointer;">
-                            <input type="checkbox" v-model="applyModal.applyTransform" style="margin-right: 8px;"> 转换
-                        </label>
-                        <label style="display:block; font-size:13px; margin-bottom:0; cursor: pointer;">
-                            <input type="checkbox" v-model="applyModal.applySort" style="margin-right: 8px;"> 排序
-                        </label>
-                    </div>
-                </div>
-
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label style="display:block; font-size:13px; cursor: pointer;">
-                        <input type="checkbox" v-model="applyModal.override" style="margin-right: 8px;"> 覆盖已有配置
-                    </label>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-default" @click="closeApplyModal">取消</button>
-                <button class="btn btn-primary" @click="applyColumnConfig">应用</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Success Modal -->
-    <div v-if="successModal.show" class="modal-overlay" role="presentation">
-        <div class="modal success-modal" style="text-align: center; padding: 40px; max-width: 420px;" role="dialog" aria-modal="true" aria-labelledby="success-title" tabindex="-1">
-            <div class="success-icon"><span class="material-icons" style="font-size: 72px; color: var(--success);" aria-hidden="true">check_circle</span></div>
-            <div id="success-title" style="font-size: 22px; font-weight: 600; margin-bottom: 12px;">执行成功</div>
-            <div style="color: var(--text-secondary); margin-bottom: 28px; line-height: 1.8;">
-                数据已成功写入到 <strong>{{ selectedModel }}</strong> 表<br>
-                共写入 <strong>{{ processedData.length }}</strong> 条数据
-            </div>
-            <button class="btn btn-primary" @click="successModal.show = false" style="min-width: 120px;" autofocus>
-                <span class="material-icons" style="font-size: 18px;">done</span> 完成
-            </button>
-        </div>
-    </div>
-</div>
-
-
-<script>
-const { createApp, ref, computed, watch, reactive, nextTick, onMounted } = Vue;
-
-// ==================== 常量定义 ====================
-const JOIN_TYPES = {
-    INNER: 'inner',
-    LEFT: 'left',
-    RIGHT: 'right',
-    FULL: 'full'
-};
-
-const DEDUP_KEEP = {
-    FIRST: 'first',
-    LAST: 'last',
-    ANY: 'any'
-};
-
-const FILTER_OPERATORS = {
-    EQUALS: 'equals',
-    NOT_EQUALS: 'not_equals',
-    CONTAINS: 'contains',
-    IS_EMPTY: 'is_empty',
-    IS_NOT_EMPTY: 'is_not_empty',
-    GREATER_THAN: 'greater_than',
-    LESS_THAN: 'less_than'
-};
-
-const TRANSFORM_TYPES = {
-    UPPERCASE: 'uppercase',
-    LOWERCASE: 'lowercase',
-    TRIM: 'trim',
-    FORMAT_DATETIME: 'format_datetime',
-    EXTRACT_YEAR: 'extract_year',
-    EXTRACT_TIME: 'extract_time',
-    TO_NUMBER: 'to_number',
-    REMOVE_THOUSAND_SEP: 'remove_thousand_sep',
-    REMOVE_PERCENT: 'remove_percent',
-    SET_VALUE: 'set_value',
-    CONCAT: 'concat',
-    REPLACE: 'replace',
-    FORMULA: 'formula'
-};
-
-const AGGREGATION_METHODS = {
-    SUM: 'sum',
-    AVG: 'avg',
-    COUNT: 'count',
-    MAX: 'max',
-    MIN: 'min'
-};
-
-const SORT_ORDER = {
-    ASC: 'asc',
-    DESC: 'desc'
-};
-
-// ================================================
-
-createApp({
-    setup() {
-        const steps = ['选择模型', '字段映射', '数据处理', '聚合配置', '写入配置'];
-        const currentStep = ref(0);
-
-        const selectedModel = ref('');
-        const dragOver = ref(false);
-        const uploadedFiles = ref([]);
-        const fileData = ref([]);
-        const fileInput = ref(null);
-
-        const parseCSV = (text) => {
-            const lines = text.trim().split('\n');
-            if (lines.length < 2) return { headers: [], data: [] };
-            const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
-            const data = [];
-            for (let i = 1; i < lines.length; i++) {
-                const values = [];
-                let current = '';
-                let inQuotes = false;
-                for (let char of lines[i]) {
-                    if (char === '"') inQuotes = !inQuotes;
-                    else if (char === ',' && !inQuotes) {
-                        values.push(current.trim().replace(/^"|"$/g, ''));
-                        current = '';
-                    } else current += char;
-                }
-                values.push(current.trim().replace(/^"|"$/g, ''));
-                const row = {};
-                headers.forEach((h, idx) => { row[h] = values[idx] || ''; });
-                data.push(row);
-            }
-            return { headers, data };
-        };
-
-        const inferFieldType = (sample) => {
-            if (!sample) return 'STRING';
-            if (!isNaN(parseFloat(sample)) && isFinite(sample)) {
-                return Number.isInteger(parseFloat(sample)) ? 'INT' : 'DECIMAL';
-            }
-            const pattern = /^\d{4}-\d{2}-\d{2}/;
-            if (pattern.test(sample)) return 'DATE';
-            return 'STRING';
-        };
-
-        const processGridContainer = ref(null);
-        const showRawPreview = ref(false);
-
-        const updateHeaderStickyOffset = () => {
-            if (!processGridContainer.value) return;
-            const firstRow = processGridContainer.value.querySelector('thead tr:first-child');
-            if (!firstRow) return;
-            const h = firstRow.getBoundingClientRect().height;
-            processGridContainer.value.style.setProperty('--header-row-1-height', h + 'px');
-        };
-
-        // 焦点管理：保存之前聚焦的元素
-        const previousFocus = ref(null);
-
-        // 键盘导航处理
-        const handleKeyDown = (e) => {
-            // Escape 关闭所有弹窗
-            if (e.key === 'Escape') {
-                if (transformModal.show) {
-                    closeTransformModal();
-                    e.preventDefault();
-                } else if (applyModal.show) {
-                    closeApplyModal();
-                    e.preventDefault();
-                } else if (columnPopover.show) {
-                    columnPopover.show = false;
-                    e.preventDefault();
-                } else if (successModal.show) {
-                    successModal.show = false;
-                    e.preventDefault();
-                }
-            }
-            // Tab 键在步骤间导航
-            if (e.key === 'Tab' && !transformModal.show && !applyModal.show && !columnPopover.show && !successModal.show) {
-                // 允许默认 Tab 行为
-            }
-        };
-
-        onMounted(() => {
-            updateHeaderStickyOffset();
-            document.addEventListener('keydown', handleKeyDown);
-        });
-
-        // 清理键盘事件监听
-
-        watch([currentStep, showRawPreview], async () => {
-            if (currentStep.value !== 2) return;
-            await nextTick();
-            updateHeaderStickyOffset();
-        });
-
-        watch(fileData, async (newFileData) => {
-            if (newFileData && newFileData.length > 0) {
-                // 清理配置
-                mappings.value = {};
-                Object.keys(filterConfigs).forEach(k => delete filterConfigs[k]);
-                Object.keys(transforms).forEach(k => delete transforms[k]);
-                sortConfig.field = '';
-                sortConfig.order = 'asc';
-
-                // 如果已有模型选择，应用预设
-                if (selectedModel.value && !demoInitialized.value) {
-                    await applyPresets(selectedModel.value);
-                }
-            }
-        }, { deep: true });
-
-        const addTransformRule = () => {
-            transformModal.rules.push({
-                operator: '', value: '', type: 'set_value', delimiter: '',
-                fixedValue: '', search: '', replace: '', formula: ''
-            });
-        };
-
-        const removeTransformRule = (index) => {
-            transformModal.rules.splice(index, 1);
-        };
-
-        const addChainStep = () => {
-            if (!transformModal.chain) {
-                transformModal.chain = [];
-            }
-            transformModal.chain.push({
-                type: 'trim',
-                delimiter: '',
-                fixedValue: '',
-                search: '',
-                replace: '',
-                formula: ''
-            });
-        };
-
-        const removeChainStep = (index) => {
-            if (transformModal.chain) {
-                transformModal.chain.splice(index, 1);
-            }
-        };
-
-        const moveChainStep = (index, direction) => {
-            if (!transformModal.chain || index < 0 || index >= transformModal.chain.length) return;
-            const newIndex = index + direction;
-            if (newIndex < 0 || newIndex >= transformModal.chain.length) return;
-            const temp = transformModal.chain[index];
-            transformModal.chain[index] = transformModal.chain[newIndex];
-            transformModal.chain[newIndex] = temp;
-        };
-
-        const targetModelFields = computed(() => {
-            const models = {
-                'HW_4G_COUNTER': [
-                    { name: 'SITE_ID', type: 'STRING', required: true, description: '站点ID', sampleValue: 'SITE001', aliases: ['站点编号', '站点标识', 'SITE_NO'] },
-                    { name: 'SITE_NAME', type: 'STRING', required: true, description: '站点名称', sampleValue: '北京朝阳基站', aliases: ['基站名称', '站点名'] },
-                    { name: 'TIME_DATE', type: 'DATE', required: true, description: '日期', sampleValue: '2025-01-15', aliases: ['统计日期', 'DATA_DATE', '日期'] },
-                    { name: 'TIME_YEAR', type: 'INT', required: false, description: '年份', sampleValue: '2025', aliases: ['年', 'YEAR'] },
-                    { name: 'TIME_WEEK', type: 'INT', required: false, description: '周数', sampleValue: '3', aliases: ['周', 'WEEK'] },
-                    { name: 'TIME_DAY', type: 'INT', required: false, description: '日', sampleValue: '15', aliases: ['天', 'DAY', '日期_数字'] },
-                    { name: 'TIME_TIME', type: 'STRING', required: false, description: '时间', sampleValue: '08:00:00', aliases: ['时间点', 'TIME_HOUR'] },
-                    { name: 'CLUSTER', type: 'STRING', required: false, description: '集群', sampleValue: 'CLUSTER_A', aliases: ['集群名称', 'CLUSTER_NAME'] },
-                    { name: 'COMMON4', type: 'STRING', required: false, description: '通用字段4', sampleValue: 'aa', aliases: ['EXT4', 'COL4'] },
-                    { name: 'COMMON5', type: 'STRING', required: false, description: '通用字段5', sampleValue: '12.5', aliases: ['EXT5', 'COL5', '补充字段5'] },
-                    { name: 'FIELD0001', type: 'DECIMAL', required: false, description: '数值字段1', sampleValue: '100.2', aliases: ['指标A', 'FIELD1', '流量指标1'] },
-                    { name: 'FIELD0002', type: 'DECIMAL', required: false, description: '数值字段2', sampleValue: '50.3', aliases: ['指标B', 'FIELD2', '流量指标2'] },
-                    { name: 'FIELD0003', type: 'DECIMAL', required: false, description: '数值字段3', sampleValue: '25.8', aliases: ['指标C', 'FIELD3', '流量指标3'] }
-                ],
-                'HW_5G_COUNTER': [
-                    { name: 'SITE_ID', type: 'STRING', required: true, description: '5G站点ID', sampleValue: '5G_SITE_001', aliases: ['基站ID', '5G站点编号'] },
-                    { name: 'SITE_NAME', type: 'STRING', required: true, description: '5G站点名称', sampleValue: '北京国贸5G', aliases: ['5G基站名称'] },
-                    { name: 'TIME_DATE', type: 'DATE', required: true, description: '日期', sampleValue: '2025-01-15', aliases: ['统计日期'] },
-                    { name: 'TIME_HOUR', type: 'INT', required: false, description: '小时', sampleValue: '8', aliases: ['小时', 'hour'] },
-                    { name: 'CELL_ID', type: 'STRING', required: false, description: '小区ID', sampleValue: 'CELL_001_1', aliases: ['小区编号'] },
-                    { name: 'CELL_NAME', type: 'STRING', required: false, description: '小区名称', sampleValue: '国贸中心-小区1', aliases: [] },
-                    { name: 'DL_PRB', type: 'DECIMAL', required: false, description: '下行PRB利用率(%)', sampleValue: '45.2', aliases: ['下行PRB'] },
-                    { name: 'UL_PRB', type: 'DECIMAL', required: false, description: '上行PRB利用率(%)', sampleValue: '32.5', aliases: ['上行PRB'] },
-                    { name: 'DL_THROUGHPUT', type: 'DECIMAL', required: false, description: '下行吞吐量(Mbps)', sampleValue: '520.3', aliases: ['下行吞吐量'] },
-                    { name: 'UL_THROUGHPUT', type: 'DECIMAL', required: false, description: '上行吞吐量(Mbps)', sampleValue: '125.6', aliases: ['上行吞吐量'] },
-                    { name: 'MAX_USERS', type: 'INT', required: false, description: '最大并发用户数', sampleValue: '850', aliases: ['最大用户数'] },
-                    { name: 'AVG_USERS', type: 'DECIMAL', required: false, description: '平均用户数', sampleValue: '620', aliases: ['平均用户'] },
-                    { name: 'RRC_CONNECTED', type: 'INT', required: false, description: 'RRC连接数', sampleValue: '720', aliases: ['RRC连接'] }
-                ],
-                'NETWORK_PERFORMANCE': [
-                    { name: 'PROVINCE', type: 'STRING', required: true, description: '省份', sampleValue: '广东省', aliases: ['省'] },
-                    { name: 'CITY', type: 'STRING', required: true, description: '城市', sampleValue: '深圳市', aliases: ['市'] },
-                    { name: 'DISTRICT', type: 'STRING', required: false, description: '区县', sampleValue: '南山区', aliases: ['区'] },
-                    { name: 'TIME_DATE', type: 'DATE', required: true, description: '统计日期', sampleValue: '2025-01-15', aliases: ['日期'] },
-                    { name: 'NET_TYPE', type: 'STRING', required: false, description: '网络制式(4G/5G)', sampleValue: '4G', aliases: ['网络类型', '制式'] },
-                    { name: 'KPI_NAME', type: 'STRING', required: false, description: 'KPI指标名称', sampleValue: '覆盖率', aliases: ['指标名称'] },
-                    { name: 'KPI_VALUE', type: 'DECIMAL', required: false, description: 'KPI指标值', sampleValue: '98.5', aliases: ['指标值', '实际值'] },
-                    { name: 'KPI_TARGET', type: 'DECIMAL', required: false, description: 'KPI目标值', sampleValue: '95', aliases: ['目标值'] },
-                    { name: 'ACHIEVEMENT_RATE', type: 'DECIMAL', required: false, description: '完成率(%)', sampleValue: '103.7', aliases: ['完成率'] },
-                    { name: 'RANKING', type: 'INT', required: false, description: '排名', sampleValue: '1', aliases: ['名次'] }
-                ],
-                'USER_BEHAVIOR': [
-                    { name: 'USER_ID', type: 'STRING', required: true, description: '用户ID', sampleValue: 'USER_10001', aliases: ['用户编号'] },
-                    { name: 'IMEI', type: 'STRING', required: false, description: '设备标识', sampleValue: 'IMEI_863295', aliases: ['设备ID', '手机IMEI'] },
-                    { name: 'TIME_DATE', type: 'DATE', required: true, description: '日期', sampleValue: '2025-01-15', aliases: ['统计日期'] },
-                    { name: 'TIME_HOUR', type: 'INT', required: false, description: '小时', sampleValue: '8', aliases: ['小时'] },
-                    { name: 'APP_TYPE', type: 'STRING', required: false, description: '业务类型', sampleValue: '视频', aliases: ['业务类型'] },
-                    { name: 'APP_NAME', type: 'STRING', required: false, description: '应用名称', sampleValue: '抖音', aliases: ['应用'] },
-                    { name: 'DL_VOLUME', type: 'DECIMAL', required: false, description: '下行流量(MB)', sampleValue: '1250.5', aliases: ['下行流量'] },
-                    { name: 'UL_VOLUME', type: 'DECIMAL', required: false, description: '上行流量(MB)', sampleValue: '85.2', aliases: ['上行流量'] },
-                    { name: 'DL_SPEED', type: 'DECIMAL', required: false, description: '平均下载速率(Mbps)', sampleValue: '25.5', aliases: ['下载速率'] },
-                    { name: 'UL_SPEED', type: 'DECIMAL', required: false, description: '平均上传速率(Mbps)', sampleValue: '5.2', aliases: ['上传速率'] },
-                    { name: 'LATENCY', type: 'DECIMAL', required: false, description: '时延(ms)', sampleValue: '35', aliases: ['延迟', '时延'] },
-                    { name: 'PAGE_VIEW', type: 'INT', required: false, description: '页面浏览量', sampleValue: '50', aliases: ['浏览量', 'PV'] },
-                    { name: 'SESSION_CNT', type: 'INT', required: false, description: '会话次数', sampleValue: '25', aliases: ['会话数'] }
-                ],
-                'IOT_DEVICE_DATA': [
-                    { name: 'DEVICE_ID', type: 'STRING', required: true, description: '设备ID', sampleValue: 'IOT_001', aliases: ['设备编号'] },
-                    { name: 'DEVICE_TYPE', type: 'STRING', required: true, description: '设备类型', sampleValue: '温湿度传感器', aliases: ['类型'] },
-                    { name: 'MANUFACTURER', type: 'STRING', required: false, description: '厂商', sampleValue: '华为', aliases: ['厂家', '品牌'] },
-                    { name: 'TIME_DATE', type: 'DATE', required: true, description: '日期', sampleValue: '2025-01-15', aliases: ['统计日期'] },
-                    { name: 'TIME_HOUR', type: 'INT', required: false, description: '小时', sampleValue: '8', aliases: [] },
-                    { name: 'LONGITUDE', type: 'DECIMAL', required: false, description: '经度', sampleValue: '116.397', aliases: ['经度坐标'] },
-                    { name: 'LATITUDE', type: 'DECIMAL', required: false, description: '纬度', sampleValue: '39.909', aliases: ['纬度坐标'] },
-                    { name: 'LOCATION', type: 'STRING', required: false, description: '位置描述', sampleValue: '北京市朝阳区某园区', aliases: ['位置', '地址'] },
-                    { name: 'SENSOR_TEMP', type: 'DECIMAL', required: false, description: '温度传感器(℃)', sampleValue: '22.5', aliases: ['温度', '气温'] },
-                    { name: 'SENSOR_HUMIDITY', type: 'DECIMAL', required: false, description: '湿度传感器(%)', sampleValue: '65.2', aliases: ['湿度'] },
-                    { name: 'SENSOR_VOLTAGE', type: 'DECIMAL', required: false, description: '电压(V)', sampleValue: '3.8', aliases: ['电压'] },
-                    { name: 'SENSOR_BATTERY', type: 'DECIMAL', required: false, description: '电池电量(%)', sampleValue: '85', aliases: ['电量', '电池'] },
-                    { name: 'SIGNAL_STRENGTH', type: 'INT', required: false, description: '信号强度(dBm)', sampleValue: '-75', aliases: ['信号强度'] },
-                    { name: 'ONLINE_STATUS', type: 'STRING', required: false, description: '在线状态', sampleValue: '在线', aliases: ['状态'] }
-                ],
-                'CRM_ORDER': [
-                    { name: 'ORDER_ID', type: 'STRING', required: true, description: '订单ID', sampleValue: 'ORD_20250115001', aliases: ['订单ID'] },
-                    { name: 'ORDER_NO', type: 'STRING', required: true, description: '订单编号', sampleValue: 'SO20250115001', aliases: ['订单号'] },
-                    { name: 'TIME_DATE', type: 'DATE', required: true, description: '下单日期', sampleValue: '2025-01-15', aliases: ['日期', '下单日期'] },
-                    { name: 'CUST_ID', type: 'STRING', required: true, description: '客户ID', sampleValue: 'C_1001', aliases: ['客户编号'] },
-                    { name: 'CUST_NAME', type: 'STRING', required: true, description: '客户名称', sampleValue: '北京科技有限公司', aliases: ['客户名'] },
-                    { name: 'PRODUCT_ID', type: 'STRING', required: false, description: '产品ID', sampleValue: 'P_001', aliases: ['产品编号'] },
-                    { name: 'PRODUCT_NAME', type: 'STRING', required: false, description: '产品名称', sampleValue: '企业宽带-100M', aliases: ['产品名'] },
-                    { name: 'PRODUCT_TYPE', type: 'STRING', required: false, description: '产品类型', sampleValue: '宽带产品', aliases: [] },
-                    { name: 'ORDER_AMOUNT', type: 'DECIMAL', required: false, description: '订单金额(元)', sampleValue: '1200', aliases: ['金额'] },
-                    { name: 'DISCOUNT_AMOUNT', type: 'DECIMAL', required: false, description: '优惠金额(元)', sampleValue: '100', aliases: ['优惠'] },
-                    { name: 'ACTUAL_AMOUNT', type: 'DECIMAL', required: false, description: '实付金额(元)', sampleValue: '1100', aliases: ['实付'] },
-                    { name: 'PAY_METHOD', type: 'STRING', required: false, description: '支付方式', sampleValue: '微信支付', aliases: ['支付方式'] },
-                    { name: 'ORDER_STATUS', type: 'STRING', required: false, description: '订单状态', sampleValue: '已完成', aliases: ['状态'] },
-                    { name: 'SALES_NAME', type: 'STRING', required: false, description: '销售员', sampleValue: '张三', aliases: ['销售'] },
-                    { name: 'DEPT_NAME', type: 'STRING', required: false, description: '所属部门', sampleValue: '华北大区', aliases: ['部门'] }
-                ],
-                'WIFI_AP_STATS': [
-                    { name: 'AP_ID', type: 'STRING', required: true, description: 'AP设备ID', sampleValue: 'AP_001', aliases: ['AP设备ID'] },
-                    { name: 'AP_NAME', type: 'STRING', required: true, description: 'AP设备名称', sampleValue: '会议室AP-01', aliases: ['AP名称'] },
-                    { name: 'TIME_DATE', type: 'DATE', required: true, description: '统计日期', sampleValue: '2025-01-15', aliases: ['日期'] },
-                    { name: 'TIME_HOUR', type: 'INT', required: false, description: '统计小时', sampleValue: '8', aliases: ['小时'] },
-                    { name: 'LOCATION', type: 'STRING', required: false, description: '安装位置', sampleValue: '3楼会议室', aliases: ['位置'] },
-                    { name: 'SSID', type: 'STRING', required: false, description: 'SSID名称', sampleValue: 'Guest_WiFi', aliases: [] },
-                    { name: 'ONLINE_TIME', type: 'INT', required: false, description: '在线时长(分钟)', sampleValue: '45', aliases: ['在线时长'] },
-                    { name: 'TOTAL_USERS', type: 'INT', required: false, description: '累计用户数', sampleValue: '120', aliases: ['累计用户'] },
-                    { name: 'CONN_USERS', type: 'INT', required: false, description: '同时在线用户数', sampleValue: '35', aliases: ['在线用户'] },
-                    { name: 'DL_BYTES', type: 'DECIMAL', required: false, description: '下行流量(GB)', sampleValue: '2.5', aliases: ['下行流量'] },
-                    { name: 'UL_BYTES', type: 'DECIMAL', required: false, description: '上行流量(GB)', sampleValue: '0.8', aliases: ['上行流量'] },
-                    { name: 'AUTH_FAIL_CNT', type: 'INT', required: false, description: '认证失败次数', sampleValue: '3', aliases: ['失败次数'] },
-                    { name: 'SIGNAL_AVG', type: 'DECIMAL', required: false, description: '平均信号强度(dBm)', sampleValue: '-55', aliases: ['信号强度'] }
-                ],
-                'CDR_DETAIL': [
-                    { name: 'CALL_ID', type: 'STRING', required: true, description: '通话记录ID', sampleValue: 'CALL_202501150001', aliases: ['记录ID'] },
-                    { name: 'CALLER_NUM', type: 'STRING', required: true, description: '主叫号码', sampleValue: '13800001001', aliases: ['主叫', 'Caller'] },
-                    { name: 'CALLEE_NUM', type: 'STRING', required: true, description: '被叫号码', sampleValue: '13800002001', aliases: ['被叫', 'Callee'] },
-                    { name: 'TIME_START', type: 'DATE', required: true, description: '通话开始时间', sampleValue: '2025-01-15 08:05:23', aliases: ['开始时间'] },
-                    { name: 'TIME_END', type: 'DATE', required: false, description: '通话结束时间', sampleValue: '2025-01-15 08:12:45', aliases: ['结束时间'] },
-                    { name: 'DURATION', type: 'INT', required: false, description: '通话时长(秒)', sampleValue: '442', aliases: ['时长'] },
-                    { name: 'CALL_TYPE', type: 'STRING', required: false, description: '呼叫类型', sampleValue: '主叫', aliases: ['类型'] },
-                    { name: 'CALL_RESULT', type: 'STRING', required: false, description: '呼叫结果', sampleValue: '成功', aliases: ['结果'] },
-                    { name: 'CELL_ID', type: 'STRING', required: false, description: '基站小区ID', sampleValue: 'CELL_001', aliases: ['小区'] },
-                    { name: 'IMEI', type: 'STRING', required: false, description: '设备IMEI', sampleValue: '862195012345678', aliases: [] },
-                    { name: 'ROAM_TYPE', type: 'STRING', required: false, description: '漫游类型', sampleValue: '本地', aliases: ['漫游'] },
-                    { name: 'FEE', type: 'DECIMAL', required: false, description: '通话费用(元)', sampleValue: '0.44', aliases: ['费用'] }
-                ]
-            };
-            return models[selectedModel.value] || [];
-        });
-
-        const sourceDataA = computed(() => {
-            const file = fileData.value.find(f => f.sourceId === 'table_a');
-            if (!file) {
-                return [
-                    { key: 'table_a_SITE_ID', sourceId: 'table_a', name: 'SITE_ID', sampleValue: '225' },
-                    { key: 'table_a_SITE_NAME1', sourceId: 'table_a', name: 'SITE_NAME1', sampleValue: 'ALE' },
-                    { key: 'table_a_SITE_NAME2', sourceId: 'table_a', name: 'SITE_NAME2', sampleValue: '1' },
-                    { key: 'table_a_DATE_TIME', sourceId: 'table_a', name: 'DATE_TIME', sampleValue: '2025.3.4 15:20:36' },
-                    { key: 'table_a_CLUSTER', sourceId: 'table_a', name: 'CLUSTER', sampleValue: 'CLUSTER2' },
-                    { key: 'table_a_COMMON4', sourceId: 'table_a', name: 'COMMON4', sampleValue: 'aa' }
-                ];
-            }
-            return file.headers.map((h, idx) => ({
-                key: 'table_a_' + h,
-                sourceId: 'table_a',
-                name: h,
-                sampleValue: file.data[0]?.[h] || ''
-            }));
-        });
-
-        const sourceDataB = computed(() => {
-            const file = fileData.value.find(f => f.sourceId === 'table_b');
-            if (!file) {
-                return [
-                    { key: 'table_b_SITE_ID', sourceId: 'table_b', name: 'SITE_ID', sampleValue: '225' },
-                    { key: 'table_b_COMMON5', sourceId: 'table_b', name: 'COMMON5', sampleValue: '23.50%' },
-                    { key: 'table_b_FIELD0001', sourceId: 'table_b', name: 'FIELD0001', sampleValue: '36.25' },
-                    { key: 'table_b_FIELD0002', sourceId: 'table_b', name: 'FIELD0002', sampleValue: '15.2' },
-                    { key: 'table_b_FIELD0003', sourceId: 'table_b', name: 'FIELD0003', sampleValue: '24.6' }
-                ];
-            }
-            return file.headers.map((h, idx) => ({
-                key: 'table_b_' + h,
-                sourceId: 'table_b',
-                name: h,
-                sampleValue: file.data[0]?.[h] || ''
-            }));
-        });
-
-        const tableAData = computed(() => {
-            const file = fileData.value.find(f => f.sourceId === 'table_a');
-            if (!file) {
-                return [
-                    { 'table_a_SITE_ID': '225', 'table_a_SITE_NAME1': 'ALE', 'table_a_SITE_NAME2': '1', 'table_a_DATE_TIME': '2025.3.4 15:20:36', 'table_a_CLUSTER': 'CLUSTER2', 'table_a_COMMON4': 'aa' },
-                    { 'table_a_SITE_ID': '226', 'table_a_SITE_NAME1': 'ALE', 'table_a_SITE_NAME2': '2', 'table_a_DATE_TIME': '2025.4.15 10:30:00', 'table_a_CLUSTER': 'CLUSTER2', 'table_a_COMMON4': 'aa' },
-                    { 'table_a_SITE_ID': '227', 'table_a_SITE_NAME1': 'LMD', 'table_a_SITE_NAME2': '1', 'table_a_DATE_TIME': '2025.5.4 08:10:25', 'table_a_CLUSTER': 'CLUSTER3', 'table_a_COMMON4': 'aa' },
-                    { 'table_a_SITE_ID': '228', 'table_a_SITE_NAME1': 'LMD', 'table_a_SITE_NAME2': '2', 'table_a_DATE_TIME': '2025.6.20 14:25:18', 'table_a_CLUSTER': 'CLUSTER3', 'table_a_COMMON4': 'aa' },
-                    { 'table_a_SITE_ID': '229', 'table_a_SITE_NAME1': 'LMD', 'table_a_SITE_NAME2': '3', 'table_a_DATE_TIME': '2025.8.12 20:10:14', 'table_a_CLUSTER': 'CLUSTER4', 'table_a_COMMON4': 'aa' },
-                    { 'table_a_SITE_ID': '230', 'table_a_SITE_NAME1': 'ALE', 'table_a_SITE_NAME2': '3', 'table_a_DATE_TIME': '2025.8.13 15:20:36', 'table_a_CLUSTER': 'CLUSTER2', 'table_a_COMMON4': 'aa' },
-                    { 'table_a_SITE_ID': '231', 'table_a_SITE_NAME1': 'ALE', 'table_a_SITE_NAME2': '4', 'table_a_DATE_TIME': '2025.8.14 10:30:00', 'table_a_CLUSTER': 'CLUSTER2', 'table_a_COMMON4': 'aa' },
-                    { 'table_a_SITE_ID': '232', 'table_a_SITE_NAME1': 'ALE', 'table_a_SITE_NAME2': '5', 'table_a_DATE_TIME': '2025.9.12 08:10:25', 'table_a_CLUSTER': 'CLUSTER4', 'table_a_COMMON4': 'aa' },
-                    { 'table_a_SITE_ID': '233', 'table_a_SITE_NAME1': 'ALE', 'table_a_SITE_NAME2': '6', 'table_a_DATE_TIME': '2025.10.12 14:25:18', 'table_a_CLUSTER': 'CLUSTER4', 'table_a_COMMON4': 'aa' },
-                    { 'table_a_SITE_ID': '234', 'table_a_SITE_NAME1': 'ALE', 'table_a_SITE_NAME2': '7', 'table_a_DATE_TIME': '2025.8.15 20:10:14', 'table_a_CLUSTER': 'CLUSTER4', 'table_a_COMMON4': 'aa' }
-                ];
-            }
-            return file.data.map(row => {
-                const newRow = {};
-                file.headers.forEach(h => {
-                    newRow['table_a_' + h] = row[h];
-                });
-                return newRow;
-            });
-        });
-
-        const tableBData = computed(() => {
-            const file = fileData.value.find(f => f.sourceId === 'table_b');
-            if (!file) {
-                return [
-                    { 'table_b_SITE_ID': '225', 'table_b_COMMON5': '23.50%', 'table_b_FIELD0001': '36.25', 'table_b_FIELD0002': '15.2', 'table_b_FIELD0003': '24.6' },
-                    { 'table_b_SITE_ID': '226', 'table_b_COMMON5': '23.50%', 'table_b_FIELD0001': '36.25', 'table_b_FIELD0002': '15.2', 'table_b_FIELD0003': '24.6' },
-                    { 'table_b_SITE_ID': '227', 'table_b_COMMON5': '23.50%', 'table_b_FIELD0001': '', 'table_b_FIELD0002': '10', 'table_b_FIELD0003': '10' },
-                    { 'table_b_SITE_ID': '228', 'table_b_COMMON5': '23.50%', 'table_b_FIELD0001': '36.25', 'table_b_FIELD0002': '15.2', 'table_b_FIELD0003': '24.6' },
-                    { 'table_b_SITE_ID': '229', 'table_b_COMMON5': '23.50%', 'table_b_FIELD0001': '', 'table_b_FIELD0002': '0', 'table_b_FIELD0003': '24.6' },
-                    { 'table_b_SITE_ID': '230', 'table_b_COMMON5': '23.50%', 'table_b_FIELD0001': '36.25', 'table_b_FIELD0002': '15.2', 'table_b_FIELD0003': '24.6' },
-                    { 'table_b_SITE_ID': '231', 'table_b_COMMON5': '21.50%', 'table_b_FIELD0001': '22.1', 'table_b_FIELD0002': '10', 'table_b_FIELD0003': '10' },
-                    { 'table_b_SITE_ID': '232', 'table_b_COMMON5': '23.50%', 'table_b_FIELD0001': '36.25', 'table_b_FIELD0002': '15.2', 'table_b_FIELD0003': '24.6' },
-                    { 'table_b_SITE_ID': '233', 'table_b_COMMON5': '25.50%', 'table_b_FIELD0001': '10.12', 'table_b_FIELD0002': '2', 'table_b_FIELD0003': '10' },
-                    { 'table_b_SITE_ID': '234', 'table_b_COMMON5': '23.50%', 'table_b_FIELD0001': '36.25', 'table_b_FIELD0002': '15.2', 'table_b_FIELD0003': '24.6' }
-                ];
-            }
-            return file.data.map(row => {
-                const newRow = {};
-                file.headers.forEach(h => {
-                    newRow['table_b_' + h] = row[h];
-                });
-                return newRow;
-            });
-        });
-
-        const joinConfig = reactive({ type: JOIN_TYPES.LEFT, leftField: 'SITE_ID', rightField: 'SITE_ID' });
-        const mappingSourceFilter = ref('table_a');
-
-        const allSourceFields = computed(() => [...sourceDataA.value, ...sourceDataB.value]);
-
-        const getSourceFields = (sourceId) => {
-            if (sourceId === 'table_a') return sourceDataA.value;
-            if (sourceId === 'table_b') return sourceDataB.value;
-            return allSourceFields.value;
-        };
-
-        const getFilteredSourceFields = () => {
-            if (uploadedFiles.value.length >= 2) {
-                return allSourceFields.value.filter(f => f.sourceId === mappingSourceFilter.value);
-            }
-            return sourceDataA.value;
-        };
-
-        const previewData = computed(() => {
-            if (uploadedFiles.value.length < 2) return tableAData.value;
-
-            const leftKey = joinConfig.leftField;
-            const rightKey = joinConfig.rightField;
-            const joinType = joinConfig.type;
-            const result = [];
-
-            if (joinType === 'left' || joinType === 'inner' || joinType === 'full') {
-                tableAData.value.forEach(rowA => {
-                    const keyA = rowA['table_a_' + leftKey];
-                    const matchingB = tableBData.value.find(rowB => rowB['table_b_' + rightKey] === keyA);
-
-                    if (matchingB || joinType === 'left') {
-                        const merged = { ...rowA };
-                        if (matchingB) {
-                            Object.keys(matchingB).forEach(k => merged[k] = matchingB[k]);
-                        } else {
-                            sourceDataB.value.forEach(f => merged[f.key] = '');
-                        }
-                        result.push(merged);
-                    }
-                });
-            }
-
-            if (joinType === 'right' || joinType === 'full') {
-                tableBData.value.forEach(rowB => {
-                    const keyB = rowB['table_b_' + rightKey];
-                    const matchingA = tableAData.value.find(rowA => rowA['table_a_' + leftKey] === keyB);
-
-                    if (!matchingA) {
-                        const merged = {};
-                        sourceDataA.value.forEach(f => merged[f.key] = '');
-                        Object.keys(rowB).forEach(k => merged[k] = rowB[k]);
-                        result.push(merged);
-                    }
-                });
-            }
-
-            return result;
-        });
-
-        const mappings = ref({
-            'SITE_ID': ['table_a_SITE_ID'],
-            'SITE_NAME': ['table_a_SITE_NAME1', 'table_a_SITE_NAME2'],
-            'TIME_DATE': ['table_a_DATE_TIME'],
-            'TIME_YEAR': ['table_a_DATE_TIME'],
-            'TIME_WEEK': ['table_a_DATE_TIME'],
-            'TIME_DAY': ['table_a_DATE_TIME'],
-            'TIME_TIME': ['table_a_DATE_TIME'],
-            'CLUSTER': ['table_a_CLUSTER'],
-            'COMMON4': ['table_a_COMMON4'],
-            'COMMON5': ['table_b_COMMON5'],
-            'FIELD0001': ['table_b_FIELD0001'],
-            'FIELD0002': ['table_b_FIELD0002'],
-            'FIELD0003': ['table_b_FIELD0003']
-        });
-        const selectedSourceField = ref(null);
-        const selectedTargetField = ref(null);
-
-        const isMultiMapped = (targetField) => {
-            const sources = mappings.value[targetField];
-            return sources && sources.length > 1;
-        };
-
-        const getMappedSources = (targetField) => {
-            const keys = mappings.value[targetField] || [];
-            return keys.map(key => {
-                const field = allSourceFields.value.find(f => f.key === key);
-                return field || { key, name: key, sourceId: key.split('_')[0] };
-            });
-        };
-
-        const hasMultiMapping = () => Object.keys(mappings.value).some(field => isMultiMapped(field));
-
-        const selectSourceField = (key) => { selectedSourceField.value = key; };
-
-        const selectTargetField = (index) => {
-            selectedTargetField.value = index;
-            if (selectedSourceField.value !== null) {
-                const targetField = targetModelFields.value[index].name;
-                const sourceKey = selectedSourceField.value;
-                if (!mappings.value[targetField]) mappings.value[targetField] = [];
-                if (!mappings.value[targetField].includes(sourceKey)) mappings.value[targetField].push(sourceKey);
-            }
-        };
-
-        const removeMapping = (targetField, sourceKey) => {
-            if (mappings.value[targetField]) {
-                mappings.value[targetField] = mappings.value[targetField].filter(k => k !== sourceKey);
-                if (mappings.value[targetField].length === 0) delete mappings.value[targetField];
-            }
-        };
-
-        const isFieldMapped = (key) => Object.values(mappings.value).some(arr => arr.includes(key));
-
-        const getMappingSource = (targetField) => {
-            const keys = mappings.value[targetField] || [];
-            if (keys.length === 0) return '';
-            if (keys.length > 1) return keys.map(k => {
-                const field = allSourceFields.value.find(f => f.key === k);
-                return field ? field.name : k;
-            }).join(' + ');
-            const field = allSourceFields.value.find(f => f.key === keys[0]);
-            return field ? field.name : keys[0];
-        };
-
-        const getMappedValue = (targetField, row) => {
-            const keys = mappings.value[targetField] || [];
-            if (keys.length === 0) return '';
-            if (keys.length > 1) return keys.map(k => row[k] || '').join('');
-            return row[keys[0]] || '';
-        };
-
-        // 自动匹配函数：使用别名进行智能匹配
-        const autoMap = () => {
-            targetModelFields.value.forEach(target => {
-                // 获取目标字段的所有可能名称（目标名 + 别名）
-                const possibleNames = [
-                    target.name,
-                    ...(target.aliases || [])
-                ];
-
-                // 在源字段中查找匹配
-                const sourceField = allSourceFields.value.find(s => {
-                    const sourceName = s.name.toUpperCase();
-                    return possibleNames.some(name =>
-                        sourceName === name.toUpperCase() ||
-                        sourceName.startsWith(name.toUpperCase()) ||
-                        name.toUpperCase().startsWith(sourceName)
-                    );
-                });
-
-                if (sourceField) {
-                    mappings.value[target.name] = [sourceField.key];
-                }
-            });
-        };
-
-        const filterConfigs = reactive({});
-        const transforms = reactive({});
-        const sortConfig = reactive({ field: '', order: SORT_ORDER.ASC });
-        const history = ref([]);
-        const activeHistoryIndex = ref(-1);
-
-        const dedupConfig = reactive({
-            enabled: true,
-            fields: [],
-            keep: DEDUP_KEEP.FIRST
-        });
-
-        const initFilters = () => {
-            targetModelFields.value.forEach(field => {
-                if (!filterConfigs[field.name]) {
-                    filterConfigs[field.name] = { mode: 'simple', operator: '', value: '', formula: '', conditions: [], logic: 'AND' };
-                }
-            });
-        };
-
-        // 根据模型类型获取预置配置（丰富的演示数据）
-        const getPresetConfig = (modelName) => {
-            const presets = {
-                'HW_4G_COUNTER': {
-                    filters: {
-                        'FIELD0001': { operator: FILTER_OPERATORS.IS_NOT_EMPTY, value: '' },
-                        'FIELD0002': { operator: FILTER_OPERATORS.GREATER_THAN, value: '15' }
-                    },
-                    transforms: {
-                        'SITE_ID': { type: TRANSFORM_TYPES.UPPERCASE },
-                        'SITE_NAME': { type: TRANSFORM_TYPES.CONCAT, delimiter: '' },
-                        'CLUSTER': { type: TRANSFORM_TYPES.UPPERCASE },
-                        'COMMON4': { type: TRANSFORM_TYPES.SET_VALUE, fixedValue: 'HW' },
-                        'COMMON5': { type: TRANSFORM_TYPES.REMOVE_PERCENT },
-                        'FIELD0001': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'FIELD0002': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'FIELD0003': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'TIME_DATE': { type: TRANSFORM_TYPES.FORMAT_DATETIME },
-                        'TIME_YEAR': { type: TRANSFORM_TYPES.EXTRACT_YEAR },
-                        'TIME_WEEK': { type: TRANSFORM_TYPES.EXTRACT_YEAR },
-                        'TIME_DAY': { type: TRANSFORM_TYPES.EXTRACT_YEAR },
-                        'TIME_TIME': { type: TRANSFORM_TYPES.EXTRACT_TIME }
-                    },
-                    dedupFields: ['SITE_ID', 'SITE_NAME'],
-                    sortField: 'SITE_ID'
-                },
-                'HW_5G_COUNTER': {
-                    filters: {
-                        'DL_PRB': { operator: FILTER_OPERATORS.LESS_THAN, value: '80' },
-                        'MAX_USERS': { operator: FILTER_OPERATORS.GREATER_THAN, value: '0' }
-                    },
-                    transforms: {
-                        'SITE_ID': { type: TRANSFORM_TYPES.UPPERCASE },
-                        'SITE_NAME': { type: TRANSFORM_TYPES.UPPERCASE },
-                        'CELL_ID': { type: TRANSFORM_TYPES.UPPERCASE },
-                        'CELL_NAME': { type: TRANSFORM_TYPES.UPPERCASE },
-                        'DL_PRB': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'UL_PRB': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'DL_THROUGHPUT': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'UL_THROUGHPUT': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'MAX_USERS': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'AVG_USERS': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'RRC_CONNECTED': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'TIME_DATE': { type: TRANSFORM_TYPES.FORMAT_DATETIME }
-                    },
-                    dedupFields: ['SITE_ID', 'CELL_ID'],
-                    sortField: 'DL_THROUGHPUT',
-                    sortOrder: SORT_ORDER.DESC
-                },
-                'NETWORK_PERFORMANCE': {
-                    filters: {
-                        'ACHIEVEMENT_RATE': { operator: FILTER_OPERATORS.GREATER_THAN, value: '100' },
-                        'KPI_VALUE': { operator: FILTER_OPERATORS.IS_NOT_EMPTY, value: '' }
-                    },
-                    transforms: {
-                        'PROVINCE': { type: TRANSFORM_TYPES.TRIM },
-                        'CITY': { type: TRANSFORM_TYPES.TRIM },
-                        'KPI_NAME': { type: TRANSFORM_TYPES.TRIM },
-                        'KPI_VALUE': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'KPI_TARGET': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'ACHIEVEMENT_RATE': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'RANKING': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'NET_TYPE': { type: TRANSFORM_TYPES.UPPERCASE }
-                    },
-                    dedupFields: ['PROVINCE', 'CITY', 'KPI_NAME'],
-                    sortField: 'ACHIEVEMENT_RATE',
-                    sortOrder: SORT_ORDER.DESC
-                },
-                'USER_BEHAVIOR': {
-                    filters: {
-                        'DL_VOLUME': { operator: FILTER_OPERATORS.GREATER_THAN, value: '0' },
-                        'SESSION_CNT': { operator: FILTER_OPERATORS.GREATER_THAN, value: '0' }
-                    },
-                    transforms: {
-                        'USER_ID': { type: TRANSFORM_TYPES.UPPERCASE },
-                        'APP_TYPE': { type: TRANSFORM_TYPES.UPPERCASE },
-                        'APP_NAME': { type: TRANSFORM_TYPES.TRIM },
-                        'DL_VOLUME': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'UL_VOLUME': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'DL_SPEED': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'UL_SPEED': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'LATENCY': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'PAGE_VIEW': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'SESSION_CNT': { type: TRANSFORM_TYPES.TO_NUMBER }
-                    },
-                    dedupFields: ['USER_ID', 'TIME_DATE', 'APP_NAME'],
-                    sortField: 'DL_VOLUME',
-                    sortOrder: SORT_ORDER.DESC
-                },
-                'IOT_DEVICE_DATA': {
-                    filters: {
-                        'ONLINE_STATUS': { operator: FILTER_OPERATORS.EQUALS, value: '在线' }
-                    },
-                    transforms: {
-                        'DEVICE_ID': { type: TRANSFORM_TYPES.UPPERCASE },
-                        'DEVICE_TYPE': { type: TRANSFORM_TYPES.TRIM },
-                        'MANUFACTURER': { type: TRANSFORM_TYPES.TRIM },
-                        'LOCATION': { type: TRANSFORM_TYPES.TRIM },
-                        'LONGITUDE': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'LATITUDE': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'SENSOR_TEMP': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'SENSOR_HUMIDITY': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'SENSOR_VOLTAGE': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'SENSOR_BATTERY': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'SIGNAL_STRENGTH': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'ONLINE_STATUS': { type: TRANSFORM_TYPES.TRIM }
-                    },
-                    dedupFields: ['DEVICE_ID', 'TIME_DATE'],
-                    sortField: 'SENSOR_TEMP',
-                    sortOrder: SORT_ORDER.DESC
-                },
-                'CRM_ORDER': {
-                    filters: {
-                        'ORDER_STATUS': { operator: FILTER_OPERATORS.EQUALS, value: '已完成' },
-                        'ORDER_AMOUNT': { operator: FILTER_OPERATORS.GREATER_THAN, value: '0' }
-                    },
-                    transforms: {
-                        'ORDER_ID': { type: TRANSFORM_TYPES.UPPERCASE },
-                        'ORDER_NO': { type: TRANSFORM_TYPES.UPPERCASE },
-                        'CUST_NAME': { type: TRANSFORM_TYPES.TRIM },
-                        'PRODUCT_NAME': { type: TRANSFORM_TYPES.TRIM },
-                        'ORDER_AMOUNT': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'DISCOUNT_AMOUNT': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'ACTUAL_AMOUNT': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'PAY_METHOD': { type: TRANSFORM_TYPES.UPPERCASE },
-                        'ORDER_STATUS': { type: TRANSFORM_TYPES.TRIM },
-                        'SALES_NAME': { type: TRANSFORM_TYPES.TRIM },
-                        'DEPT_NAME': { type: TRANSFORM_TYPES.TRIM }
-                    },
-                    dedupFields: ['ORDER_ID'],
-                    sortField: 'ACTUAL_AMOUNT',
-                    sortOrder: SORT_ORDER.DESC
-                },
-                'WIFI_AP_STATS': {
-                    filters: {
-                        'CONN_USERS': { operator: FILTER_OPERATORS.GREATER_THAN, value: '0' }
-                    },
-                    transforms: {
-                        'AP_ID': { type: TRANSFORM_TYPES.UPPERCASE },
-                        'AP_NAME': { type: TRANSFORM_TYPES.TRIM },
-                        'LOCATION': { type: TRANSFORM_TYPES.TRIM },
-                        'SSID': { type: TRANSFORM_TYPES.TRIM },
-                        'ONLINE_TIME': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'TOTAL_USERS': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'CONN_USERS': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'DL_BYTES': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'UL_BYTES': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'AUTH_FAIL_CNT': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'SIGNAL_AVG': { type: TRANSFORM_TYPES.TO_NUMBER }
-                    },
-                    dedupFields: ['AP_ID', 'TIME_DATE'],
-                    sortField: 'CONN_USERS',
-                    sortOrder: SORT_ORDER.DESC
-                },
-                'CDR_DETAIL': {
-                    filters: {
-                        'CALL_RESULT': { operator: FILTER_OPERATORS.EQUALS, value: '成功' },
-                        'DURATION': { operator: FILTER_OPERATORS.GREATER_THAN, value: '0' }
-                    },
-                    transforms: {
-                        'CALL_ID': { type: TRANSFORM_TYPES.UPPERCASE },
-                        'CALLER_NUM': { type: TRANSFORM_TYPES.TRIM },
-                        'CALLEE_NUM': { type: TRANSFORM_TYPES.TRIM },
-                        'CALL_TYPE': { type: TRANSFORM_TYPES.TRIM },
-                        'CALL_RESULT': { type: TRANSFORM_TYPES.TRIM },
-                        'CELL_ID': { type: TRANSFORM_TYPES.UPPERCASE },
-                        'ROAM_TYPE': { type: TRANSFORM_TYPES.UPPERCASE },
-                        'DURATION': { type: TRANSFORM_TYPES.TO_NUMBER },
-                        'FEE': { type: TRANSFORM_TYPES.TO_NUMBER }
-                    },
-                    dedupFields: ['CALL_ID'],
-                    sortField: 'DURATION',
-                    sortOrder: SORT_ORDER.DESC
-                }
-            };
-            return presets[modelName] || {};
-        };
-
-        const demoInitialized = ref(false);
-
-        // 预设应用函数
-        const applyPresets = async (modelName) => {
-            console.log('[Preset] Applying presets for:', modelName);
-            await nextTick();
-            console.log('[Preset] targetModelFields:', targetModelFields.value.map(f => f.name));
-
-            initFilters();
-            const preset = getPresetConfig(modelName);
-            console.log('[Preset] Got preset:', preset);
-
-            if (preset.filters) {
-                Object.entries(preset.filters).forEach(([field, config]) => {
-                    if (targetModelFields.value.find(f => f.name === field)) {
-                        filterConfigs[field] = { mode: 'simple', operator: config.operator, value: config.value, formula: '' };
-                        addHistory('filter', '筛选', `${field} ${config.operator} ${config.value}`, field);
-                        console.log('[Preset] Applied filter:', field, config);
-                    }
-                });
-            }
-
-            if (preset.transforms) {
-                Object.entries(preset.transforms).forEach(([field, config]) => {
-                    if (targetModelFields.value.find(f => f.name === field)) {
-                        transforms[field] = config;
-                        addHistory('transform', '数据转换', `${field}: ${config.type}`, field);
-                    }
-                });
-            }
-
-            if (preset.dedupFields && preset.dedupFields.length > 0) {
-                const validDedupFields = preset.dedupFields.filter(f =>
-                    targetModelFields.value.find(t => t.name === f)
-                );
-                if (validDedupFields.length > 0) {
-                    dedupConfig.enabled = true;
-                    dedupConfig.fields = validDedupFields;
-                    dedupConfig.keep = DEDUP_KEEP.FIRST;
-                    addHistory('dedup', '去重', `按 ${validDedupFields.join(', ')} 去重，保留第一行`, 'GLOBAL');
-                }
-            }
-
-            if (preset.sortField && targetModelFields.value.find(f => f.name === preset.sortField)) {
-                sortConfig.field = preset.sortField;
-                sortConfig.order = preset.sortOrder || SORT_ORDER.ASC;
-                addHistory('sort', '排序', `${preset.sortField} ${sortConfig.order === 'asc' ? '升序' : '降序'}`, preset.sortField);
-            }
-
-            demoInitialized.value = true;
-            console.log('[Preset] Done');
-        };
-
-        // 当选择模型变化时，更新状态
-        watch(selectedModel, async (newModel, oldModel) => {
-            console.log('[Preset] selectedModel changed:', newModel, 'old:', oldModel);
-
-            // 如果模型切换了，重置初始化状态
-            if (oldModel && oldModel !== newModel) {
-                demoInitialized.value = false;
-            }
-
-            // 当模型选择变化且文件已上传时，应用预设
-            if (newModel && !demoInitialized.value && fileData.value && fileData.value.length > 0) {
-                await applyPresets(newModel);
-            }
-        });
-
-        const parseDateTime = (val) => {
-            if (!val) return { y: '', m: '', d: '', t: '' };
-            const str = String(val).trim();
-            const parts = str.split(' ');
-            const datePart = parts[0] || '';
-            const timePart = parts[1] || '';
-            let y = '', m = '', d = '';
-            if (datePart.includes('.')) {
-                const a = datePart.split('.');
-                y = a[0]; m = a[1]; d = a[2];
-            } else if (datePart.includes('-')) {
-                const a = datePart.split('-');
-                y = a[0]; m = a[1]; d = a[2];
-            } else if (datePart.includes('/')) {
-                const a = datePart.split('/');
-                y = a[0]; m = a[1]; d = a[2];
-            }
-            if (m) m = m.padStart(2, '0');
-            if (d) d = d.padStart(2, '0');
-            return { y, m, d, t: timePart };
-        };
-
-        const formatDateTime = (val) => {
-            const { y, m, d, t } = parseDateTime(val);
-            if (!y) return val || '';
-            if (!t) return `${y}-${m}-${d}`;
-            return `${y}-${m}-${d} ${t}`;
-        };
-
-        const getSourceValue = (row, name) => {
-            if (!name) return '';
-            if (name.includes('.')) {
-                const [table, field] = name.split('.');
-                const key = `${table}_${field}`;
-                return row[key] || '';
-            }
-            const field = allSourceFields.value.find(f => f.name === name);
-            return field ? (row[field.key] || '') : '';
-        };
-
-        const getBaseValue = (field, row) => {
-            const keys = mappings.value[field] || [];
-            if (keys.length === 0) return '';
-            if (keys.length === 1) return row[keys[0]] || '';
-            const delimiter = transforms[field]?.type === 'concat' ? (transforms[field].delimiter || '') : '';
-            return keys.map(k => row[k] || '').join(delimiter);
-        };
-
-        const evalFormula = (formula, ctx) => {
-            if (!formula) return ctx.value;
-            let expr = String(formula).trim();
-            if (expr.startsWith('=')) expr = expr.slice(1);
-
-            const helpers = {
-                UPPER: (v) => String(v).toUpperCase(),
-                LOWER: (v) => String(v).toLowerCase(),
-                TRIM: (v) => String(v).trim(),
-                CONCAT: (...args) => args.join(''),
-                LEFT: (v, n) => String(v).substring(0, Number(n) || 0),
-                RIGHT: (v, n) => String(v).slice(-(Number(n) || 0)),
-                MID: (v, s, l) => String(v).substr(Number(s) || 0, Number(l) || 0),
-                LEN: (v) => String(v).length,
-                NUMBER: (v) => Number(String(v).replace(/,/g, '')) || 0,
-                REPLACE: (v, a, b) => String(v).replace(a, b),
-                SUBSTITUTE: (v, a, b) => String(v).replaceAll(a, b),
-                YEAR: (v) => parseDateTime(v).y,
-                MONTH: (v) => parseDateTime(v).m,
-                DAY: (v) => parseDateTime(v).d,
-                TIME: (v) => parseDateTime(v).t,
-                ISBLANK: (v) => v === null || v === undefined || String(v).trim() === ''
-            };
-
-            try {
-                const fn = new Function('value', 'row', 'S', 'T', 'helpers', `with(helpers){ return (${expr}); }`);
-                return fn(ctx.value, ctx.row, ctx.S, ctx.T, helpers);
-            } catch (e) {
-                return ctx.value;
-            }
-        };
-
-        const passesTransformRule = (row, fieldName, rule) => {
-            const value = getBaseValue(fieldName, row);
-            switch (rule.operator) {
-                case 'equals': return String(value) === String(rule.value);
-                case 'not_equals': return String(value) !== String(rule.value);
-                case 'contains': return String(value).includes(rule.value);
-                case 'is_empty': return value === null || value === undefined || String(value).trim() === '';
-                case 'is_not_empty': return !(value === null || value === undefined || String(value).trim() === '');
-                case 'greater_than': return Number(value) > Number(rule.value);
-                case 'less_than': return Number(value) < Number(rule.value);
-                default: return false;
-            }
-        };
-
-        const getFieldValue = (row, field) => {
-            const base = getBaseValue(field, row);
-            const t = transforms[field];
-            if (!t) return base;
-
-            // Priority: 1. Chain transforms (execute in sequence), 2. Conditional rules, 3. Single transform
-            if (Array.isArray(t.chain) && t.chain.length > 0) {
-                let result = base;
-                for (const step of t.chain) {
-                    result = applyTransformByConfig(row, field, result, step);
-                }
-                return result;
-            }
-
-            if (Array.isArray(t.rules) && t.rules.length > 0) {
-                for (const r of t.rules) {
-                    if (!r.operator) continue;
-                    if (passesTransformRule(row, field, r)) {
-                        return applyTransformByConfig(row, field, base, r);
-                    }
-                }
-                return base;
-            }
-
-            if (t.type) return applyTransformByConfig(row, field, base, t);
-
-            return base;
-        };
-
-        const passesFilter = (row, fieldName) => {
-            const conf = filterConfigs[fieldName];
-            if (!conf) return true;
-
-            const value = getFieldValue(row, fieldName);
-
-            if (conf.mode === 'formula') {
-                if (!conf.formula) return true;
-                const ctx = {
-                    value,
-                    row,
-                    S: (name) => getSourceValue(row, name),
-                    T: (name) => getBaseValue(name, row)
-                };
-                return !!evalFormula(conf.formula, ctx);
-            }
-
-            if (conf.mode === 'compound') {
-                if (!conf.conditions || conf.conditions.length === 0) return true;
-
-                const results = conf.conditions.map(cond => {
-                    if (!cond.operator) return true;
-                    switch (cond.operator) {
-                        case 'equals': return String(value) === String(cond.value);
-                        case 'not_equals': return String(value) !== String(cond.value);
-                        case 'contains': return String(value).includes(cond.value);
-                        case 'is_empty': return value === null || value === undefined || String(value).trim() === '';
-                        case 'is_not_empty': return !(value === null || value === undefined || String(value).trim() === '');
-                        case 'greater_than': return Number(value) > Number(cond.value);
-                        case 'less_than': return Number(value) < Number(cond.value);
-                        default: return true;
-                    }
-                });
-
-                const logic = conf.logic || 'AND';
-                return logic === 'AND' ? results.every(r => r) : results.some(r => r);
-            }
-
-            // Simple mode (backward compatibility)
-            if (!conf.operator) return true;
-
-            switch (conf.operator) {
-                case 'equals': return String(value) === String(conf.value);
-                case 'not_equals': return String(value) !== String(conf.value);
-                case 'contains': return String(value).includes(conf.value);
-                case 'is_empty': return value === null || value === undefined || String(value).trim() === '';
-                case 'is_not_empty': return !(value === null || value === undefined || String(value).trim() === '');
-                case 'greater_than': return Number(value) > Number(conf.value);
-                case 'less_than': return Number(value) < Number(conf.value);
-                default: return true;
-            }
-        };
-
-        // 优化：单次遍历完成所有字段筛选
-        const filteredData = computed(() => {
-            return previewData.value.filter(row => {
-                return targetModelFields.value.every(field => passesFilter(row, field.name));
-            });
-        });
-
-        // 优化：减少去重时的 key 生成开销
-        const dedupedData = computed(() => {
-            if (!dedupConfig.enabled || dedupConfig.fields.length === 0) return filteredData.value;
-            const map = new Map();
-            const order = dedupConfig.keep;
-            const dedupFields = dedupConfig.fields;
-
-            filteredData.value.forEach((row, index) => {
-                // 预先计算 key，减少 map 操作
-                const key = dedupFields.map(f => getFieldValue(row, f)).join('||');
-                const existing = map.get(key);
-
-                if (!existing) {
-                    map.set(key, { row, index });
-                } else if (order === DEDUP_KEEP.LAST) {
-                    map.set(key, { row, index });
-                }
-            });
-
-            // 直接从 Map 提取值并排序
-            return Array.from(map.values())
-                .sort((a, b) => a.index - b.index)
-                .map(x => x.row);
-        });
-
-        // 优化：避免不必要的数组拷贝（只在需要排序时拷贝）
-        const processedData = computed(() => {
-            const data = dedupedData.value;
-            if (!sortConfig.field) return data;
-
-            // 创建副本进行排序，不修改原数组
-            const sorted = [...data];
-            const field = sortConfig.field;
-            const order = sortConfig.order;
-
-            sorted.sort((a, b) => {
-                const aVal = getFieldValue(a, field);
-                const bVal = getFieldValue(b, field);
-                return order === SORT_ORDER.ASC
-                    ? (aVal > bVal ? 1 : -1)
-                    : (aVal < bVal ? 1 : -1);
-            });
-            return sorted;
-        });
-
-        const hasActiveFilters = computed(() => {
-            return Object.values(filterConfigs).some(f =>
-                (f.mode === 'simple' && f.operator) ||
-                (f.mode === 'formula' && f.formula)
-            );
-        });
-
-        // 优化：缓存计数结果，避免重复计算
-        const filteredOutCount = computed(() => previewData.value.length - filteredData.value.length);
-        const dedupRemovedCount = computed(() => filteredData.value.length - dedupedData.value.length);
-
-        const groupByFields = ref([]);
-        const aggregationFields = ref([]);
-
-        const aggregatedData = computed(() => {
-            if (groupByFields.value.length === 0) return [];
-            const groups = {};
-
-            processedData.value.forEach(row => {
-                const key = groupByFields.value.map(f => getFieldValue(row, f)).join('_');
-                if (!groups[key]) {
-                    groups[key] = {};
-                    groupByFields.value.forEach(f => groups[key][f] = getFieldValue(row, f));
-                    aggregationFields.value.forEach(agg => {
-                        groups[key][`${agg.field}_${agg.method}`] = 0;
-                        groups[key][`${agg.field}_sum`] = 0;
-                        groups[key][`${agg.field}_count`] = 0;
-                    });
-                }
-                aggregationFields.value.forEach(agg => {
-                    const val = Number(getFieldValue(row, agg.field)) || 0;
-                    switch (agg.method) {
-                        case 'sum':
-                            groups[key][`${agg.field}_sum`] += val;
-                            groups[key][`${agg.field}_${agg.method}`] = groups[key][`${agg.field}_sum`];
-                            break;
-                        case 'avg':
-                            groups[key][`${agg.field}_sum`] += val;
-                            groups[key][`${agg.field}_count`]++;
-                            groups[key][`${agg.field}_${agg.method}`] = groups[key][`${agg.field}_sum`] / groups[key][`${agg.field}_count`];
-                            break;
-                        case 'count':
-                            groups[key][`${agg.field}_count`]++;
-                            groups[key][`${agg.field}_${agg.method}`] = groups[key][`${agg.field}_count`];
-                            break;
-                        case 'max':
-                            groups[key][`${agg.field}_${agg.method}`] = Math.max(groups[key][`${agg.field}_${agg.method}`] || 0, val);
-                            break;
-                        case 'min':
-                            groups[key][`${agg.field}_${agg.method}`] = Math.min(groups[key][`${agg.field}_${agg.method}`] || Infinity, val);
-                            break;
-                    }
-                });
-            });
-
-            return Object.values(groups);
-        });
-
-        const writeConfig = reactive({ mode: 'append', deduplication: false, dedupFields: [], conflictStrategy: 'keep_old' });
-
-        const columnPopover = reactive({ show: false, x: 0, y: 0, field: '', type: '' });
-
-        const transformModal = reactive({
-            show: false,
-            field: '',
-            rules: [],
-            chain: []
-        });
-
-        const copiedConfig = ref(null);
-
-        const applyModal = reactive({
-            show: false,
-            sourceField: '',
-            search: '',
-            selected: [],
-            applyFilter: true,
-            applyTransform: true,
-            applySort: false,
-            override: false
-        });
-
-        const filteredApplyTargets = computed(() => {
-            const keyword = applyModal.search.trim().toLowerCase();
-            return targetModelFields.value
-                .filter(f => f.name !== applyModal.sourceField)
-                .filter(f => !keyword || f.name.toLowerCase().includes(keyword));
-        });
-
-        const copyColumnConfig = (field) => {
-            copiedConfig.value = {
-                field,
-                filter: JSON.parse(JSON.stringify(filterConfigs[field] || null)),
-                transform: JSON.parse(JSON.stringify(transforms[field] || null)),
-                sort: sortConfig.field === field ? { ...sortConfig } : null
-            };
-            applyModal.sourceField = field;
-        };
-
-        const openApplyModal = (field) => {
-            previousFocus.value = document.activeElement;
-            if (!copiedConfig.value || copiedConfig.value.field !== field) {
-                copyColumnConfig(field);
-            }
-            applyModal.show = true;
-            applyModal.selected = [];
-            applyModal.search = '';
-            applyModal.applyFilter = true;
-            applyModal.applyTransform = true;
-            applyModal.applySort = false;
-            applyModal.override = false;
-
-            // 自动聚焦到弹窗
-            nextTick(() => {
-                const modal = document.querySelector('.modal');
-                if (modal) modal.focus();
-            });
-        };
-
-        const closeApplyModal = () => {
-            applyModal.show = false;
-            // 恢复之前焦点
-            nextTick(() => {
-                if (previousFocus.value && previousFocus.value.focus) {
-                    previousFocus.value.focus();
-                    previousFocus.value = null;
-                }
-            });
-        };
-
-        const selectAll = () => {
-            applyModal.selected = filteredApplyTargets.value.map(f => f.name);
-        };
-
-        const clearAll = () => { applyModal.selected = []; };
-
-        const selectByPrefix = () => {
-            const src = applyModal.sourceField || '';
-            const prefix = src.match(/^[A-Z_]+/)?.[0] || src;
-            applyModal.selected = filteredApplyTargets.value
-                .filter(f => f.name.startsWith(prefix))
-                .map(f => f.name);
-        };
-
-        const selectByType = () => {
-            const src = targetModelFields.value.find(f => f.name === applyModal.sourceField);
-            if (!src) return;
-            applyModal.selected = filteredApplyTargets.value
-                .filter(f => f.type === src.type)
-                .map(f => f.name);
-        };
-
-        const applyColumnConfig = () => {
-            if (!copiedConfig.value) return;
-
-            applyModal.selected.forEach(target => {
-                if (applyModal.applyFilter && copiedConfig.value.filter) {
-                    if (applyModal.override || !isFilterActive(target)) {
-                        filterConfigs[target] = JSON.parse(JSON.stringify(copiedConfig.value.filter));
-                        addHistory('filter', '筛选', `${target} 复制筛选配置`, target);
-                    }
-                }
-
-                if (applyModal.applyTransform && copiedConfig.value.transform) {
-                    if (applyModal.override || !transforms[target]) {
-                        transforms[target] = JSON.parse(JSON.stringify(copiedConfig.value.transform));
-                        addHistory('transform', '数据转换', `${target} 复制转换配置`, target);
-                    }
-                }
-
-                if (applyModal.applySort && copiedConfig.value.sort) {
-                    sortConfig.field = target;
-                    sortConfig.order = copiedConfig.value.sort.order || 'asc';
-                    addHistory('sort', '排序', `${target} ${sortConfig.order === 'asc' ? '升序' : '降序'}`, target);
-                }
-            });
-
-            closeApplyModal();
-        };
-
-        const successModal = reactive({ show: false });
-
-        const goToStep = (index) => {
-            if (index <= currentStep.value || canProceed.value) currentStep.value = index;
-        };
-        const prevStep = () => { if (currentStep.value > 0) currentStep.value--; };
-        const nextStep = () => { if (currentStep.value < steps.length - 1 && canProceed.value) currentStep.value++; };
-
-        const canProceed = computed(() => {
-            switch (currentStep.value) {
-                case 0: return selectedModel.value && uploadedFiles.value.length > 0;
-                case 1: return Object.keys(mappings.value).length > 0;
-                default: return true;
-            }
-        });
-
-        const triggerFileInput = () => { fileInput.value.click(); };
-        const handleFileSelect = (e) => { if (e.target.files.length > 0) addFiles(e.target.files); };
-        const handleDrop = (e) => { dragOver.value = false; if (e.dataTransfer.files.length > 0) addFiles(e.dataTransfer.files); };
-
-        const addFiles = (files) => {
-            for (let i = 0; i < files.length; i++) {
-                if (uploadedFiles.value.length >= 2) break;
-                const file = files[i];
-                const sourceId = uploadedFiles.value.length === 0 ? 'table_a' : 'table_b';
-
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const text = e.target.result;
-                    const { headers, data } = parseCSV(text);
-
-                    const fields = headers.map(h => ({
-                        key: `${sourceId}_${h}`,
-                        sourceId: sourceId,
-                        name: h,
-                        sampleValue: data[0]?.[h] || ''
-                    }));
-
-                    fileData.value.push({
-                        name: file.name,
-                        sourceId: sourceId,
-                        headers: headers,
-                        fields: fields,
-                        data: data,
+{
+  "Date":{
+    "0":"2026-02-09",
+    "1":"2026-02-09",
+    "2":"2026-02-09",
+    "3":"2026-02-09",
+    "4":"2026-02-09",
+    "5":"2026-02-09",
+    "6":"2026-02-09",
+    "7":"2026-02-09",
+    "8":"2026-02-09",
+    "9":"2026-02-09",
+    "10":"2026-02-09",
+    "11":"2026-02-09",
+    "12":"2026-02-09",
+    "13":"2026-02-09",
+    "14":"2026-02-09",
+    "15":"2026-02-09",
+    "16":"2026-02-09",
+    "17":"2026-02-09",
+    "18":"2026-02-09",
+    "19":"2026-02-09",
+    "20":"2026-02-09",
+    "21":"2026-02-09",
+    "22":"2026-02-09",
+    "23":"2026-02-09",
+    "24":"2026-02-09",
+    "25":"2026-02-09",
+    "26":"2026-02-09",
+    "27":"2026-02-09",
+    "28":"2026-02-09",
+    "29":"2026-02-09",
+    "30":"2026-02-09",
+    "31":"2026-02-09",
+    "32":"2026-02-09",
+    "33":"2026-02-09",
+    "34":"2026-02-09",
+    "35":"2026-02-09",
+    "36":"2026-02-09",
+    "37":"2026-02-09",
+    "38":"2026-02-09",
+    "39":"2026-02-09",
+    "40":"2026-02-09",
+    "41":"2026-02-09",
+    "42":"2026-02-09",
+    "43":"2026-02-09",
+    "44":"2026-02-09",
+    "45":"2026-02-09",
+    "46":"2026-02-09",
+    "47":"2026-02-09",
+    "48":"2026-02-09",
+    "49":"2026-02-09",
+    "50":"2026-02-09",
+    "51":"2026-02-09",
+    "52":"2026-02-09",
+    "53":"2026-02-09",
+    "54":"2026-02-09",
+    "55":"2026-02-09",
+    "56":"2026-02-09",
+    "57":"2026-02-09",
+    "58":"2026-02-09",
+    "59":"2026-02-09",
+    "60":"2026-02-09",
+    "61":"2026-02-09",
+    "62":"2026-02-09",
+    "63":"2026-02-09",
+    "64":"2026-02-09",
+    "65":"2026-02-09",
+    "66":"2026-02-09",
+    "67":"2026-02-09",
+    "68":"2026-02-09",
+    "69":"2026-02-09",
+    "70":"2026-02-09",
+    "71":"2026-02-09",
+    "72":"2026-02-09",
+    "73":"2026-02-09",
+    "74":"2026-02-09",
+    "75":"2026-02-09",
+    "76":"2026-02-09",
+    "77":"2026-02-09",
+    "78":"2026-02-09",
+    "79":"2026-02-09",
+    "80":"2026-02-09",
+    "81":"2026-02-09",
+    "82":"2026-02-09",
+    "83":"2026-02-09",
+    "84":"2026-02-09",
+    "85":"2026-02-09",
+    "86":"2026-02-09",
+    "87":"2026-02-09",
+    "88":"2026-02-09",
+    "89":"2026-02-09",
+    "90":"2026-02-09",
+    "91":"2026-02-09",
+    "92":"2026-02-09",
+    "93":"2026-02-09",
+    "94":"2026-02-09",
+    "95":"2026-02-09",
+    "96":"2026-02-09",
+    "97":"2026-02-09",
+    "98":"2026-02-09",
+    "99":"2026-02-09",
+    "100":"2026-02-09",
+    "101":"2026-02-09",
+    "102":"2026-02-09",
+    "103":"2026-02-09",
+    "104":"2026-02-09",
+    "105":"2026-02-09",
+    "106":"2026-02-09",
+    "107":"2026-02-09",
+    "108":"2026-02-09",
+    "109":"2026-02-09",
+    "110":"2026-02-09",
+    "111":"2026-02-09",
+    "112":"2026-02-09",
+    "113":"2026-02-09",
+    "114":"2026-02-09",
+    "115":"2026-02-09",
+    "116":"2026-02-09",
+    "117":"2026-02-09",
+    "118":"2026-02-09",
+    "119":"2026-02-09",
+    "120":"2026-02-09",
+    "121":"2026-02-09",
+    "122":"2026-02-09",
+    "123":"2026-02-09",
+    "124":"2026-02-09",
+    "125":"2026-02-09",
+    "126":"2026-02-09",
+    "127":"2026-02-09",
+    "128":"2026-02-09",
+    "129":"2026-02-09",
+    "130":"2026-02-09",
+    "131":"2026-02-09",
+    "132":"2026-02-09",
+    "133":"2026-02-09",
+    "134":"2026-02-09",
+    "135":"2026-02-09",
+    "136":"2026-02-09",
+    "137":"2026-02-09",
+    "138":"2026-02-09",
+    "139":"2026-02-09",
+    "140":"2026-02-09",
+    "141":"2026-02-09",
+    "142":"2026-02-09",
+    "143":"2026-02-09",
+    "144":"2026-02-09",
+    "145":"2026-02-09",
+    "146":"2026-02-09",
+    "147":"2026-02-09",
+    "148":"2026-02-09",
+    "149":"2026-02-09",
+    "150":"2026-02-09",
+    "151":"2026-02-09",
+    "152":"2026-02-09",
+    "153":"2026-02-09",
+    "154":"2026-02-09",
+    "155":"2026-02-09",
+    "156":"2026-02-09",
+    "157":"2026-02-09",
+    "158":"2026-02-09",
+    "159":"2026-02-09",
+    "160":"2026-02-09",
+    "161":"2026-02-09",
+    "162":"2026-02-09",
+    "163":"2026-02-09",
+    "164":"2026-02-09",
+    "165":"2026-02-09",
+    "166":"2026-02-09",
+    "167":"2026-02-09",
+    "168":"2026-02-09",
+    "169":"2026-02-09",
+    "170":"2026-02-09",
+    "171":"2026-02-09",
+    "172":"2026-02-09",
+    "173":"2026-02-09",
+    "174":"2026-02-09",
+    "175":"2026-02-09",
+    "176":"2026-02-09",
+    "177":"2026-02-09",
+    "178":"2026-02-09",
+    "179":"2026-02-09",
+    "180":"2026-02-09",
+    "181":"2026-02-09",
+    "182":"2026-02-09",
+    "183":"2026-02-09",
+    "184":"2026-02-09",
+    "185":"2026-02-09",
+    "186":"2026-02-09",
+    "187":"2026-02-09",
+    "188":"2026-02-09",
+    "189":"2026-02-09",
+    "190":"2026-02-09",
+    "191":"2026-02-09",
+    "192":"2026-02-09",
+    "193":"2026-02-09",
+    "194":"2026-02-09",
+    "195":"2026-02-09",
+    "196":"2026-02-09",
+    "197":"2026-02-09",
+    "198":"2026-02-09",
+    "199":"2026-02-09",
+    "200":"2026-02-09",
+    "201":"2026-02-09",
+    "202":"2026-02-09",
+    "203":"2026-02-09",
+    "204":"2026-02-09",
+    "205":"2026-02-09",
+    "206":"2026-02-09",
+    "207":"2026-02-09",
+    "208":"2026-02-09",
+    "209":"2026-02-09",
+    "210":"2026-02-09",
+    "211":"2026-02-09",
+    "212":"2026-02-09",
+    "213":"2026-02-09",
+    "214":"2026-02-09",
+    "215":"2026-02-09",
+    "216":"2026-02-09",
+    "217":"2026-02-09",
+    "218":"2026-02-09",
+    "219":"2026-02-09",
+    "220":"2026-02-09",
+    "221":"2026-02-09",
+    "222":"2026-02-09",
+    "223":"2026-02-09",
+    "224":"2026-02-09",
+    "225":"2026-02-09",
+    "226":"2026-02-09",
+    "227":"2026-02-09",
+    "228":"2026-02-09",
+    "229":"2026-02-09",
+    "230":"2026-02-09",
+    "231":"2026-02-09",
+    "232":"2026-02-09",
+    "233":"2026-02-09",
+    "234":"2026-02-09",
+    "235":"2026-02-09",
+    "236":"2026-02-09",
+    "237":"2026-02-09",
+    "238":"2026-02-09",
+    "239":"2026-02-09",
+    "240":"2026-02-09",
+    "241":"2026-02-09",
+    "242":"2026-02-09",
+    "243":"2026-02-09",
+    "244":"2026-02-09",
+    "245":"2026-02-09",
+    "246":"2026-02-09",
+    "247":"2026-02-09",
+    "248":"2026-02-09",
+    "249":"2026-02-09",
+    "250":"2026-02-09",
+    "251":"2026-02-09",
+    "252":"2026-02-09",
+    "253":"2026-02-09",
+    "254":"2026-02-09",
+    "255":"2026-02-09",
+    "256":"2026-02-09",
+    "257":"2026-02-09",
+    "258":"2026-02-09",
+    "259":"2026-02-09",
+    "260":"2026-02-09",
+    "261":"2026-02-09",
+    "262":"2026-02-09",
+    "263":"2026-02-09",
+    "264":"2026-02-09",
+    "265":"2026-02-09",
+    "266":"2026-02-09",
+    "267":"2026-02-09",
+    "268":"2026-02-09",
+    "269":"2026-02-09",
+    "270":"2026-02-09",
+    "271":"2026-02-09",
+    "272":"2026-02-09",
+    "273":"2026-02-09",
+    "274":"2026-02-09",
+    "275":"2026-02-09",
+    "276":"2026-02-09",
+    "277":"2026-02-09",
+    "278":"2026-02-09",
+    "279":"2026-02-09",
+    "280":"2026-02-09",
+    "281":"2026-02-09",
+    "282":"2026-02-09",
+    "283":"2026-02-09",
+    "284":"2026-02-09",
+    "285":"2026-02-09",
+    "286":"2026-02-09",
+    "287":"2026-02-09",
+    "288":"2026-02-09",
+    "289":"2026-02-09",
+    "290":"2026-02-09",
+    "291":"2026-02-09",
+    "292":"2026-02-09",
+    "293":"2026-02-09",
+    "294":"2026-02-09",
+    "295":"2026-02-09",
+    "296":"2026-02-09",
+    "297":"2026-02-09",
+    "298":"2026-02-09",
+    "299":"2026-02-09",
+    "300":"2026-02-09",
+    "301":"2026-02-09",
+    "302":"2026-02-09",
+    "303":"2026-02-09",
+    "304":"2026-02-09",
+    "305":"2026-02-09",
+    "306":"2026-02-09",
+    "307":"2026-02-09",
+    "308":"2026-02-09",
+    "309":"2026-02-09",
+    "310":"2026-02-09",
+    "311":"2026-02-09",
+    "312":"2026-02-09",
+    "313":"2026-02-09",
+    "314":"2026-02-09",
+    "315":"2026-02-09",
+    "316":"2026-02-09",
+    "317":"2026-02-09",
+    "318":"2026-02-09",
+    "319":"2026-02-09",
+    "320":"2026-02-09",
+    "321":"2026-02-09",
+    "322":"2026-02-09",
+    "323":"2026-02-09",
+    "324":"2026-02-09",
+    "325":"2026-02-09",
+    "326":"2026-02-09",
+    "327":"2026-02-09",
+    "328":"2026-02-09",
+    "329":"2026-02-09",
+    "330":"2026-02-09",
+    "331":"2026-02-09",
+    "332":"2026-02-09",
+    "333":"2026-02-09",
+    "334":"2026-02-09",
+    "335":"2026-02-09",
+    "336":"2026-02-09",
+    "337":"2026-02-09",
+    "338":"2026-02-09",
+    "339":"2026-02-09",
+    "340":"2026-02-09",
+    "341":"2026-02-09",
+    "342":"2026-02-09",
+    "343":"2026-02-09",
+    "344":"2026-02-09",
+    "345":"2026-02-09",
+    "346":"2026-02-09",
+    "347":"2026-02-09",
+    "348":"2026-02-09",
+    "349":"2026-02-09",
+    "350":"2026-02-09",
+    "351":"2026-02-09",
+    "352":"2026-02-09",
+    "353":"2026-02-09",
+    "354":"2026-02-09",
+    "355":"2026-02-09",
+    "356":"2026-02-09",
+    "357":"2026-02-09",
+    "358":"2026-02-09",
+    "359":"2026-02-09",
+    "360":"2026-02-09",
+    "361":"2026-02-09",
+    "362":"2026-02-09",
+    "363":"2026-02-09",
+    "364":"2026-02-09",
+    "365":"2026-02-09",
+    "366":"2026-02-09",
+    "367":"2026-02-09",
+    "368":"2026-02-09",
+    "369":"2026-02-09",
+    "370":"2026-02-09",
+    "371":"2026-02-09",
+    "372":"2026-02-09",
+    "373":"2026-02-09",
+    "374":"2026-02-09",
+    "375":"2026-02-09",
+    "376":"2026-02-09",
+    "377":"2026-02-09",
+    "378":"2026-02-09",
+    "379":"2026-02-09",
+    "380":"2026-02-09",
+    "381":"2026-02-09",
+    "382":"2026-02-09",
+    "383":"2026-02-09",
+    "384":"2026-02-09",
+    "385":"2026-02-09",
+    "386":"2026-02-09",
+    "387":"2026-02-09",
+    "388":"2026-02-09",
+    "389":"2026-02-09",
+    "390":"2026-02-09",
+    "391":"2026-02-09",
+    "392":"2026-02-09",
+    "393":"2026-02-09",
+    "394":"2026-02-09",
+    "395":"2026-02-09",
+    "396":"2026-02-09",
+    "397":"2026-02-09",
+    "398":"2026-02-09",
+    "399":"2026-02-09",
+    "400":"2026-02-09",
+    "401":"2026-02-09",
+    "402":"2026-02-09",
+    "403":"2026-02-09",
+    "404":"2026-02-09",
+    "405":"2026-02-09",
+    "406":"2026-02-09",
+    "407":"2026-02-09",
+    "408":"2026-02-09",
+    "409":"2026-02-09",
+    "410":"2026-02-09",
+    "411":"2026-02-09",
+    "412":"2026-02-09",
+    "413":"2026-02-09",
+    "414":"2026-02-09",
+    "415":"2026-02-09",
+    "416":"2026-02-09",
+    "417":"2026-02-09",
+    "418":"2026-02-09",
+    "419":"2026-02-09",
+    "420":"2026-02-09",
+    "421":"2026-02-09",
+    "422":"2026-02-09",
+    "423":"2026-02-09",
+    "424":"2026-02-09",
+    "425":"2026-02-09",
+    "426":"2026-02-09",
+    "427":"2026-02-09",
+    "428":"2026-02-09",
+    "429":"2026-02-09",
+    "430":"2026-02-09",
+    "431":"2026-02-09",
+    "432":"2026-02-09",
+    "433":"2026-02-09",
+    "434":"2026-02-09",
+    "435":"2026-02-09",
+    "436":"2026-02-09",
+    "437":"2026-02-09",
+    "438":"2026-02-09",
+    "439":"2026-02-09",
+    "440":"2026-02-09",
+    "441":"2026-02-09",
+    "442":"2026-02-09",
+    "443":"2026-02-09",
+    "444":"2026-02-09",
+    "445":"2026-02-09",
+    "446":"2026-02-09",
+    "447":"2026-02-09",
+    "448":"2026-02-09",
+    "449":"2026-02-09",
+    "450":"2026-02-09",
+    "451":"2026-02-09",
+    "452":"2026-02-09",
+    "453":"2026-02-09",
+    "454":"2026-02-09",
+    "455":"2026-02-09",
+    "456":"2026-02-09",
+    "457":"2026-02-09",
+    "458":"2026-02-09",
+    "459":"2026-02-09",
+    "460":"2026-02-09",
+    "461":"2026-02-09",
+    "462":"2026-02-09",
+    "463":"2026-02-09",
+    "464":"2026-02-09",
+    "465":"2026-02-09",
+    "466":"2026-02-09",
+    "467":"2026-02-09",
+    "468":"2026-02-09",
+    "469":"2026-02-09",
+    "470":"2026-02-09",
+    "471":"2026-02-09",
+    "472":"2026-02-09",
+    "473":"2026-02-09",
+    "474":"2026-02-09",
+    "475":"2026-02-09",
+    "476":"2026-02-09",
+    "477":"2026-02-09",
+    "478":"2026-02-09",
+    "479":"2026-02-09",
+    "480":"2026-02-09",
+    "481":"2026-02-09",
+    "482":"2026-02-09",
+    "483":"2026-02-09",
+    "484":"2026-02-09",
+    "485":"2026-02-09",
+    "486":"2026-02-09",
+    "487":"2026-02-09",
+    "488":"2026-02-09",
+    "489":"2026-02-09",
+    "490":"2026-02-09",
+    "491":"2026-02-09",
+    "492":"2026-02-09",
+    "493":"2026-02-09",
+    "494":"2026-02-09",
+    "495":"2026-02-09",
+    "496":"2026-02-09",
+    "497":"2026-02-09",
+    "498":"2026-02-09",
+    "499":"2026-02-09",
+    "500":"2026-02-09",
+    "501":"2026-02-09",
+    "502":"2026-02-09",
+    "503":"2026-02-09"
+  },
+  "Time":{
+    "0":"00:00",
+    "1":"00:00",
+    "2":"00:00",
+    "3":"00:00",
+    "4":"00:00",
+    "5":"00:00",
+    "6":"00:00",
+    "7":"00:00",
+    "8":"00:00",
+    "9":"00:00",
+    "10":"00:00",
+    "11":"00:00",
+    "12":"00:00",
+    "13":"00:00",
+    "14":"00:00",
+    "15":"00:00",
+    "16":"00:00",
+    "17":"00:00",
+    "18":"00:00",
+    "19":"00:00",
+    "20":"00:00",
+    "21":"01:00",
+    "22":"01:00",
+    "23":"01:00",
+    "24":"01:00",
+    "25":"01:00",
+    "26":"01:00",
+    "27":"01:00",
+    "28":"01:00",
+    "29":"01:00",
+    "30":"01:00",
+    "31":"01:00",
+    "32":"01:00",
+    "33":"01:00",
+    "34":"01:00",
+    "35":"01:00",
+    "36":"01:00",
+    "37":"01:00",
+    "38":"01:00",
+    "39":"01:00",
+    "40":"01:00",
+    "41":"01:00",
+    "42":"02:00",
+    "43":"02:00",
+    "44":"02:00",
+    "45":"02:00",
+    "46":"02:00",
+    "47":"02:00",
+    "48":"02:00",
+    "49":"02:00",
+    "50":"02:00",
+    "51":"02:00",
+    "52":"02:00",
+    "53":"02:00",
+    "54":"02:00",
+    "55":"02:00",
+    "56":"02:00",
+    "57":"02:00",
+    "58":"02:00",
+    "59":"02:00",
+    "60":"02:00",
+    "61":"02:00",
+    "62":"02:00",
+    "63":"03:00",
+    "64":"03:00",
+    "65":"03:00",
+    "66":"03:00",
+    "67":"03:00",
+    "68":"03:00",
+    "69":"03:00",
+    "70":"03:00",
+    "71":"03:00",
+    "72":"03:00",
+    "73":"03:00",
+    "74":"03:00",
+    "75":"03:00",
+    "76":"03:00",
+    "77":"03:00",
+    "78":"03:00",
+    "79":"03:00",
+    "80":"03:00",
+    "81":"03:00",
+    "82":"03:00",
+    "83":"03:00",
+    "84":"04:00",
+    "85":"04:00",
+    "86":"04:00",
+    "87":"04:00",
+    "88":"04:00",
+    "89":"04:00",
+    "90":"04:00",
+    "91":"04:00",
+    "92":"04:00",
+    "93":"04:00",
+    "94":"04:00",
+    "95":"04:00",
+    "96":"04:00",
+    "97":"04:00",
+    "98":"04:00",
+    "99":"04:00",
+    "100":"04:00",
+    "101":"04:00",
+    "102":"04:00",
+    "103":"04:00",
+    "104":"04:00",
+    "105":"05:00",
+    "106":"05:00",
+    "107":"05:00",
+    "108":"05:00",
+    "109":"05:00",
+    "110":"05:00",
+    "111":"05:00",
+    "112":"05:00",
+    "113":"05:00",
+    "114":"05:00",
+    "115":"05:00",
+    "116":"05:00",
+    "117":"05:00",
+    "118":"05:00",
+    "119":"05:00",
+    "120":"05:00",
+    "121":"05:00",
+    "122":"05:00",
+    "123":"05:00",
+    "124":"05:00",
+    "125":"05:00",
+    "126":"06:00",
+    "127":"06:00",
+    "128":"06:00",
+    "129":"06:00",
+    "130":"06:00",
+    "131":"06:00",
+    "132":"06:00",
+    "133":"06:00",
+    "134":"06:00",
+    "135":"06:00",
+    "136":"06:00",
+    "137":"06:00",
+    "138":"06:00",
+    "139":"06:00",
+    "140":"06:00",
+    "141":"06:00",
+    "142":"06:00",
+    "143":"06:00",
+    "144":"06:00",
+    "145":"06:00",
+    "146":"06:00",
+    "147":"07:00",
+    "148":"07:00",
+    "149":"07:00",
+    "150":"07:00",
+    "151":"07:00",
+    "152":"07:00",
+    "153":"07:00",
+    "154":"07:00",
+    "155":"07:00",
+    "156":"07:00",
+    "157":"07:00",
+    "158":"07:00",
+    "159":"07:00",
+    "160":"07:00",
+    "161":"07:00",
+    "162":"07:00",
+    "163":"07:00",
+    "164":"07:00",
+    "165":"07:00",
+    "166":"07:00",
+    "167":"07:00",
+    "168":"08:00",
+    "169":"08:00",
+    "170":"08:00",
+    "171":"08:00",
+    "172":"08:00",
+    "173":"08:00",
+    "174":"08:00",
+    "175":"08:00",
+    "176":"08:00",
+    "177":"08:00",
+    "178":"08:00",
+    "179":"08:00",
+    "180":"08:00",
+    "181":"08:00",
+    "182":"08:00",
+    "183":"08:00",
+    "184":"08:00",
+    "185":"08:00",
+    "186":"08:00",
+    "187":"08:00",
+    "188":"08:00",
+    "189":"09:00",
+    "190":"09:00",
+    "191":"09:00",
+    "192":"09:00",
+    "193":"09:00",
+    "194":"09:00",
+    "195":"09:00",
+    "196":"09:00",
+    "197":"09:00",
+    "198":"09:00",
+    "199":"09:00",
+    "200":"09:00",
+    "201":"09:00",
+    "202":"09:00",
+    "203":"09:00",
+    "204":"09:00",
+    "205":"09:00",
+    "206":"09:00",
+    "207":"09:00",
+    "208":"09:00",
+    "209":"09:00",
+    "210":"10:00",
+    "211":"10:00",
+    "212":"10:00",
+    "213":"10:00",
+    "214":"10:00",
+    "215":"10:00",
+    "216":"10:00",
+    "217":"10:00",
+    "218":"10:00",
+    "219":"10:00",
+    "220":"10:00",
+    "221":"10:00",
+    "222":"10:00",
+    "223":"10:00",
+    "224":"10:00",
+    "225":"10:00",
+    "226":"10:00",
+    "227":"10:00",
+    "228":"10:00",
+    "229":"10:00",
+    "230":"10:00",
+    "231":"11:00",
+    "232":"11:00",
+    "233":"11:00",
+    "234":"11:00",
+    "235":"11:00",
+    "236":"11:00",
+    "237":"11:00",
+    "238":"11:00",
+    "239":"11:00",
+    "240":"11:00",
+    "241":"11:00",
+    "242":"11:00",
+    "243":"11:00",
+    "244":"11:00",
+    "245":"11:00",
+    "246":"11:00",
+    "247":"11:00",
+    "248":"11:00",
+    "249":"11:00",
+    "250":"11:00",
+    "251":"11:00",
+    "252":"12:00",
+    "253":"12:00",
+    "254":"12:00",
+    "255":"12:00",
+    "256":"12:00",
+    "257":"12:00",
+    "258":"12:00",
+    "259":"12:00",
+    "260":"12:00",
+    "261":"12:00",
+    "262":"12:00",
+    "263":"12:00",
+    "264":"12:00",
+    "265":"12:00",
+    "266":"12:00",
+    "267":"12:00",
+    "268":"12:00",
+    "269":"12:00",
+    "270":"12:00",
+    "271":"12:00",
+    "272":"12:00",
+    "273":"13:00",
+    "274":"13:00",
+    "275":"13:00",
+    "276":"13:00",
+    "277":"13:00",
+    "278":"13:00",
+    "279":"13:00",
+    "280":"13:00",
+    "281":"13:00",
+    "282":"13:00",
+    "283":"13:00",
+    "284":"13:00",
+    "285":"13:00",
+    "286":"13:00",
+    "287":"13:00",
+    "288":"13:00",
+    "289":"13:00",
+    "290":"13:00",
+    "291":"13:00",
+    "292":"13:00",
+    "293":"13:00",
+    "294":"14:00",
+    "295":"14:00",
+    "296":"14:00",
+    "297":"14:00",
+    "298":"14:00",
+    "299":"14:00",
+    "300":"14:00",
+    "301":"14:00",
+    "302":"14:00",
+    "303":"14:00",
+    "304":"14:00",
+    "305":"14:00",
+    "306":"14:00",
+    "307":"14:00",
+    "308":"14:00",
+    "309":"14:00",
+    "310":"14:00",
+    "311":"14:00",
+    "312":"14:00",
+    "313":"14:00",
+    "314":"14:00",
+    "315":"15:00",
+    "316":"15:00",
+    "317":"15:00",
+    "318":"15:00",
+    "319":"15:00",
+    "320":"15:00",
+    "321":"15:00",
+    "322":"15:00",
+    "323":"15:00",
+    "324":"15:00",
+    "325":"15:00",
+    "326":"15:00",
+    "327":"15:00",
+    "328":"15:00",
+    "329":"15:00",
+    "330":"15:00",
+    "331":"15:00",
+    "332":"15:00",
+    "333":"15:00",
+    "334":"15:00",
+    "335":"15:00",
+    "336":"16:00",
+    "337":"16:00",
+    "338":"16:00",
+    "339":"16:00",
+    "340":"16:00",
+    "341":"16:00",
+    "342":"16:00",
+    "343":"16:00",
+    "344":"16:00",
+    "345":"16:00",
+    "346":"16:00",
+    "347":"16:00",
+    "348":"16:00",
+    "349":"16:00",
+    "350":"16:00",
+    "351":"16:00",
+    "352":"16:00",
+    "353":"16:00",
+    "354":"16:00",
+    "355":"16:00",
+    "356":"16:00",
+    "357":"17:00",
+    "358":"17:00",
+    "359":"17:00",
+    "360":"17:00",
+    "361":"17:00",
+    "362":"17:00",
+    "363":"17:00",
+    "364":"17:00",
+    "365":"17:00",
+    "366":"17:00",
+    "367":"17:00",
+    "368":"17:00",
+    "369":"17:00",
+    "370":"17:00",
+    "371":"17:00",
+    "372":"17:00",
+    "373":"17:00",
+    "374":"17:00",
+    "375":"17:00",
+    "376":"17:00",
+    "377":"17:00",
+    "378":"18:00",
+    "379":"18:00",
+    "380":"18:00",
+    "381":"18:00",
+    "382":"18:00",
+    "383":"18:00",
+    "384":"18:00",
+    "385":"18:00",
+    "386":"18:00",
+    "387":"18:00",
+    "388":"18:00",
+    "389":"18:00",
+    "390":"18:00",
+    "391":"18:00",
+    "392":"18:00",
+    "393":"18:00",
+    "394":"18:00",
+    "395":"18:00",
+    "396":"18:00",
+    "397":"18:00",
+    "398":"18:00",
+    "399":"19:00",
+    "400":"19:00",
+    "401":"19:00",
+    "402":"19:00",
+    "403":"19:00",
+    "404":"19:00",
+    "405":"19:00",
+    "406":"19:00",
+    "407":"19:00",
+    "408":"19:00",
+    "409":"19:00",
+    "410":"19:00",
+    "411":"19:00",
+    "412":"19:00",
+    "413":"19:00",
+    "414":"19:00",
+    "415":"19:00",
+    "416":"19:00",
+    "417":"19:00",
+    "418":"19:00",
+    "419":"19:00",
+    "420":"20:00",
+    "421":"20:00",
+    "422":"20:00",
+    "423":"20:00",
+    "424":"20:00",
+    "425":"20:00",
+    "426":"20:00",
+    "427":"20:00",
+    "428":"20:00",
+    "429":"20:00",
+    "430":"20:00",
+    "431":"20:00",
+    "432":"20:00",
+    "433":"20:00",
+    "434":"20:00",
+    "435":"20:00",
+    "436":"20:00",
+    "437":"20:00",
+    "438":"20:00",
+    "439":"20:00",
+    "440":"20:00",
+    "441":"21:00",
+    "442":"21:00",
+    "443":"21:00",
+    "444":"21:00",
+    "445":"21:00",
+    "446":"21:00",
+    "447":"21:00",
+    "448":"21:00",
+    "449":"21:00",
+    "450":"21:00",
+    "451":"21:00",
+    "452":"21:00",
+    "453":"21:00",
+    "454":"21:00",
+    "455":"21:00",
+    "456":"21:00",
+    "457":"21:00",
+    "458":"21:00",
+    "459":"21:00",
+    "460":"21:00",
+    "461":"21:00",
+    "462":"22:00",
+    "463":"22:00",
+    "464":"22:00",
+    "465":"22:00",
+    "466":"22:00",
+    "467":"22:00",
+    "468":"22:00",
+    "469":"22:00",
+    "470":"22:00",
+    "471":"22:00",
+    "472":"22:00",
+    "473":"22:00",
+    "474":"22:00",
+    "475":"22:00",
+    "476":"22:00",
+    "477":"22:00",
+    "478":"22:00",
+    "479":"22:00",
+    "480":"22:00",
+    "481":"22:00",
+    "482":"22:00",
+    "483":"23:00",
+    "484":"23:00",
+    "485":"23:00",
+    "486":"23:00",
+    "487":"23:00",
+    "488":"23:00",
+    "489":"23:00",
+    "490":"23:00",
+    "491":"23:00",
+    "492":"23:00",
+    "493":"23:00",
+    "494":"23:00",
+    "495":"23:00",
+    "496":"23:00",
+    "497":"23:00",
+    "498":"23:00",
+    "499":"23:00",
+    "500":"23:00",
+    "501":"23:00",
+    "502":"23:00",
+    "503":"23:00"
+  },
+  "eNodeB Name":{
+    "0":"TAJUKMC",
+    "1":"TAJUKMC",
+    "2":"TAJUKMC",
+    "3":"TAJUKMC",
+    "4":"TAJUKMC",
+    "5":"TAJUKMC",
+    "6":"TAJUKMC",
+    "7":"TAJUKMC",
+    "8":"TAJUKMC",
+    "9":"PELJEM_SKV59_(XA)",
+    "10":"PELJEM_SKV59_(XA)",
+    "11":"PELJEM_SKV59_(XA)",
+    "12":"PELJEM_SKV59_(XA)",
+    "13":"PELJEM_SKV59_(XA)",
+    "14":"PELJEM_SKV59_(XA)",
+    "15":"PELJEM_SKV59_(XA)",
+    "16":"PELJEM_SKV59_(XA)",
+    "17":"PELJEM_SKV59_(XA)",
+    "18":"PELJEM_SKV59_(XA)",
+    "19":"PELJEM_SKV59_(XA)",
+    "20":"PELJEM_SKV59_(XA)",
+    "21":"TAJUKMC",
+    "22":"TAJUKMC",
+    "23":"TAJUKMC",
+    "24":"TAJUKMC",
+    "25":"TAJUKMC",
+    "26":"TAJUKMC",
+    "27":"TAJUKMC",
+    "28":"TAJUKMC",
+    "29":"TAJUKMC",
+    "30":"PELJEM_SKV59_(XA)",
+    "31":"PELJEM_SKV59_(XA)",
+    "32":"PELJEM_SKV59_(XA)",
+    "33":"PELJEM_SKV59_(XA)",
+    "34":"PELJEM_SKV59_(XA)",
+    "35":"PELJEM_SKV59_(XA)",
+    "36":"PELJEM_SKV59_(XA)",
+    "37":"PELJEM_SKV59_(XA)",
+    "38":"PELJEM_SKV59_(XA)",
+    "39":"PELJEM_SKV59_(XA)",
+    "40":"PELJEM_SKV59_(XA)",
+    "41":"PELJEM_SKV59_(XA)",
+    "42":"TAJUKMC",
+    "43":"TAJUKMC",
+    "44":"TAJUKMC",
+    "45":"TAJUKMC",
+    "46":"TAJUKMC",
+    "47":"TAJUKMC",
+    "48":"TAJUKMC",
+    "49":"TAJUKMC",
+    "50":"TAJUKMC",
+    "51":"PELJEM_SKV59_(XA)",
+    "52":"PELJEM_SKV59_(XA)",
+    "53":"PELJEM_SKV59_(XA)",
+    "54":"PELJEM_SKV59_(XA)",
+    "55":"PELJEM_SKV59_(XA)",
+    "56":"PELJEM_SKV59_(XA)",
+    "57":"PELJEM_SKV59_(XA)",
+    "58":"PELJEM_SKV59_(XA)",
+    "59":"PELJEM_SKV59_(XA)",
+    "60":"PELJEM_SKV59_(XA)",
+    "61":"PELJEM_SKV59_(XA)",
+    "62":"PELJEM_SKV59_(XA)",
+    "63":"TAJUKMC",
+    "64":"TAJUKMC",
+    "65":"TAJUKMC",
+    "66":"TAJUKMC",
+    "67":"TAJUKMC",
+    "68":"TAJUKMC",
+    "69":"TAJUKMC",
+    "70":"TAJUKMC",
+    "71":"TAJUKMC",
+    "72":"PELJEM_SKV59_(XA)",
+    "73":"PELJEM_SKV59_(XA)",
+    "74":"PELJEM_SKV59_(XA)",
+    "75":"PELJEM_SKV59_(XA)",
+    "76":"PELJEM_SKV59_(XA)",
+    "77":"PELJEM_SKV59_(XA)",
+    "78":"PELJEM_SKV59_(XA)",
+    "79":"PELJEM_SKV59_(XA)",
+    "80":"PELJEM_SKV59_(XA)",
+    "81":"PELJEM_SKV59_(XA)",
+    "82":"PELJEM_SKV59_(XA)",
+    "83":"PELJEM_SKV59_(XA)",
+    "84":"TAJUKMC",
+    "85":"TAJUKMC",
+    "86":"TAJUKMC",
+    "87":"TAJUKMC",
+    "88":"TAJUKMC",
+    "89":"TAJUKMC",
+    "90":"TAJUKMC",
+    "91":"TAJUKMC",
+    "92":"TAJUKMC",
+    "93":"PELJEM_SKV59_(XA)",
+    "94":"PELJEM_SKV59_(XA)",
+    "95":"PELJEM_SKV59_(XA)",
+    "96":"PELJEM_SKV59_(XA)",
+    "97":"PELJEM_SKV59_(XA)",
+    "98":"PELJEM_SKV59_(XA)",
+    "99":"PELJEM_SKV59_(XA)",
+    "100":"PELJEM_SKV59_(XA)",
+    "101":"PELJEM_SKV59_(XA)",
+    "102":"PELJEM_SKV59_(XA)",
+    "103":"PELJEM_SKV59_(XA)",
+    "104":"PELJEM_SKV59_(XA)",
+    "105":"TAJUKMC",
+    "106":"TAJUKMC",
+    "107":"TAJUKMC",
+    "108":"TAJUKMC",
+    "109":"TAJUKMC",
+    "110":"TAJUKMC",
+    "111":"TAJUKMC",
+    "112":"TAJUKMC",
+    "113":"TAJUKMC",
+    "114":"PELJEM_SKV59_(XA)",
+    "115":"PELJEM_SKV59_(XA)",
+    "116":"PELJEM_SKV59_(XA)",
+    "117":"PELJEM_SKV59_(XA)",
+    "118":"PELJEM_SKV59_(XA)",
+    "119":"PELJEM_SKV59_(XA)",
+    "120":"PELJEM_SKV59_(XA)",
+    "121":"PELJEM_SKV59_(XA)",
+    "122":"PELJEM_SKV59_(XA)",
+    "123":"PELJEM_SKV59_(XA)",
+    "124":"PELJEM_SKV59_(XA)",
+    "125":"PELJEM_SKV59_(XA)",
+    "126":"TAJUKMC",
+    "127":"TAJUKMC",
+    "128":"TAJUKMC",
+    "129":"TAJUKMC",
+    "130":"TAJUKMC",
+    "131":"TAJUKMC",
+    "132":"TAJUKMC",
+    "133":"TAJUKMC",
+    "134":"TAJUKMC",
+    "135":"PELJEM_SKV59_(XA)",
+    "136":"PELJEM_SKV59_(XA)",
+    "137":"PELJEM_SKV59_(XA)",
+    "138":"PELJEM_SKV59_(XA)",
+    "139":"PELJEM_SKV59_(XA)",
+    "140":"PELJEM_SKV59_(XA)",
+    "141":"PELJEM_SKV59_(XA)",
+    "142":"PELJEM_SKV59_(XA)",
+    "143":"PELJEM_SKV59_(XA)",
+    "144":"PELJEM_SKV59_(XA)",
+    "145":"PELJEM_SKV59_(XA)",
+    "146":"PELJEM_SKV59_(XA)",
+    "147":"TAJUKMC",
+    "148":"TAJUKMC",
+    "149":"TAJUKMC",
+    "150":"TAJUKMC",
+    "151":"TAJUKMC",
+    "152":"TAJUKMC",
+    "153":"TAJUKMC",
+    "154":"TAJUKMC",
+    "155":"TAJUKMC",
+    "156":"PELJEM_SKV59_(XA)",
+    "157":"PELJEM_SKV59_(XA)",
+    "158":"PELJEM_SKV59_(XA)",
+    "159":"PELJEM_SKV59_(XA)",
+    "160":"PELJEM_SKV59_(XA)",
+    "161":"PELJEM_SKV59_(XA)",
+    "162":"PELJEM_SKV59_(XA)",
+    "163":"PELJEM_SKV59_(XA)",
+    "164":"PELJEM_SKV59_(XA)",
+    "165":"PELJEM_SKV59_(XA)",
+    "166":"PELJEM_SKV59_(XA)",
+    "167":"PELJEM_SKV59_(XA)",
+    "168":"TAJUKMC",
+    "169":"TAJUKMC",
+    "170":"TAJUKMC",
+    "171":"TAJUKMC",
+    "172":"TAJUKMC",
+    "173":"TAJUKMC",
+    "174":"TAJUKMC",
+    "175":"TAJUKMC",
+    "176":"TAJUKMC",
+    "177":"PELJEM_SKV59_(XA)",
+    "178":"PELJEM_SKV59_(XA)",
+    "179":"PELJEM_SKV59_(XA)",
+    "180":"PELJEM_SKV59_(XA)",
+    "181":"PELJEM_SKV59_(XA)",
+    "182":"PELJEM_SKV59_(XA)",
+    "183":"PELJEM_SKV59_(XA)",
+    "184":"PELJEM_SKV59_(XA)",
+    "185":"PELJEM_SKV59_(XA)",
+    "186":"PELJEM_SKV59_(XA)",
+    "187":"PELJEM_SKV59_(XA)",
+    "188":"PELJEM_SKV59_(XA)",
+    "189":"TAJUKMC",
+    "190":"TAJUKMC",
+    "191":"TAJUKMC",
+    "192":"TAJUKMC",
+    "193":"TAJUKMC",
+    "194":"TAJUKMC",
+    "195":"TAJUKMC",
+    "196":"TAJUKMC",
+    "197":"TAJUKMC",
+    "198":"PELJEM_SKV59_(XA)",
+    "199":"PELJEM_SKV59_(XA)",
+    "200":"PELJEM_SKV59_(XA)",
+    "201":"PELJEM_SKV59_(XA)",
+    "202":"PELJEM_SKV59_(XA)",
+    "203":"PELJEM_SKV59_(XA)",
+    "204":"PELJEM_SKV59_(XA)",
+    "205":"PELJEM_SKV59_(XA)",
+    "206":"PELJEM_SKV59_(XA)",
+    "207":"PELJEM_SKV59_(XA)",
+    "208":"PELJEM_SKV59_(XA)",
+    "209":"PELJEM_SKV59_(XA)",
+    "210":"TAJUKMC",
+    "211":"TAJUKMC",
+    "212":"TAJUKMC",
+    "213":"TAJUKMC",
+    "214":"TAJUKMC",
+    "215":"TAJUKMC",
+    "216":"TAJUKMC",
+    "217":"TAJUKMC",
+    "218":"TAJUKMC",
+    "219":"PELJEM_SKV59_(XA)",
+    "220":"PELJEM_SKV59_(XA)",
+    "221":"PELJEM_SKV59_(XA)",
+    "222":"PELJEM_SKV59_(XA)",
+    "223":"PELJEM_SKV59_(XA)",
+    "224":"PELJEM_SKV59_(XA)",
+    "225":"PELJEM_SKV59_(XA)",
+    "226":"PELJEM_SKV59_(XA)",
+    "227":"PELJEM_SKV59_(XA)",
+    "228":"PELJEM_SKV59_(XA)",
+    "229":"PELJEM_SKV59_(XA)",
+    "230":"PELJEM_SKV59_(XA)",
+    "231":"TAJUKMC",
+    "232":"TAJUKMC",
+    "233":"TAJUKMC",
+    "234":"TAJUKMC",
+    "235":"TAJUKMC",
+    "236":"TAJUKMC",
+    "237":"TAJUKMC",
+    "238":"TAJUKMC",
+    "239":"TAJUKMC",
+    "240":"PELJEM_SKV59_(XA)",
+    "241":"PELJEM_SKV59_(XA)",
+    "242":"PELJEM_SKV59_(XA)",
+    "243":"PELJEM_SKV59_(XA)",
+    "244":"PELJEM_SKV59_(XA)",
+    "245":"PELJEM_SKV59_(XA)",
+    "246":"PELJEM_SKV59_(XA)",
+    "247":"PELJEM_SKV59_(XA)",
+    "248":"PELJEM_SKV59_(XA)",
+    "249":"PELJEM_SKV59_(XA)",
+    "250":"PELJEM_SKV59_(XA)",
+    "251":"PELJEM_SKV59_(XA)",
+    "252":"TAJUKMC",
+    "253":"TAJUKMC",
+    "254":"TAJUKMC",
+    "255":"TAJUKMC",
+    "256":"TAJUKMC",
+    "257":"TAJUKMC",
+    "258":"TAJUKMC",
+    "259":"TAJUKMC",
+    "260":"TAJUKMC",
+    "261":"PELJEM_SKV59_(XA)",
+    "262":"PELJEM_SKV59_(XA)",
+    "263":"PELJEM_SKV59_(XA)",
+    "264":"PELJEM_SKV59_(XA)",
+    "265":"PELJEM_SKV59_(XA)",
+    "266":"PELJEM_SKV59_(XA)",
+    "267":"PELJEM_SKV59_(XA)",
+    "268":"PELJEM_SKV59_(XA)",
+    "269":"PELJEM_SKV59_(XA)",
+    "270":"PELJEM_SKV59_(XA)",
+    "271":"PELJEM_SKV59_(XA)",
+    "272":"PELJEM_SKV59_(XA)",
+    "273":"TAJUKMC",
+    "274":"TAJUKMC",
+    "275":"TAJUKMC",
+    "276":"TAJUKMC",
+    "277":"TAJUKMC",
+    "278":"TAJUKMC",
+    "279":"TAJUKMC",
+    "280":"TAJUKMC",
+    "281":"TAJUKMC",
+    "282":"PELJEM_SKV59_(XA)",
+    "283":"PELJEM_SKV59_(XA)",
+    "284":"PELJEM_SKV59_(XA)",
+    "285":"PELJEM_SKV59_(XA)",
+    "286":"PELJEM_SKV59_(XA)",
+    "287":"PELJEM_SKV59_(XA)",
+    "288":"PELJEM_SKV59_(XA)",
+    "289":"PELJEM_SKV59_(XA)",
+    "290":"PELJEM_SKV59_(XA)",
+    "291":"PELJEM_SKV59_(XA)",
+    "292":"PELJEM_SKV59_(XA)",
+    "293":"PELJEM_SKV59_(XA)",
+    "294":"TAJUKMC",
+    "295":"TAJUKMC",
+    "296":"TAJUKMC",
+    "297":"TAJUKMC",
+    "298":"TAJUKMC",
+    "299":"TAJUKMC",
+    "300":"TAJUKMC",
+    "301":"TAJUKMC",
+    "302":"TAJUKMC",
+    "303":"PELJEM_SKV59_(XA)",
+    "304":"PELJEM_SKV59_(XA)",
+    "305":"PELJEM_SKV59_(XA)",
+    "306":"PELJEM_SKV59_(XA)",
+    "307":"PELJEM_SKV59_(XA)",
+    "308":"PELJEM_SKV59_(XA)",
+    "309":"PELJEM_SKV59_(XA)",
+    "310":"PELJEM_SKV59_(XA)",
+    "311":"PELJEM_SKV59_(XA)",
+    "312":"PELJEM_SKV59_(XA)",
+    "313":"PELJEM_SKV59_(XA)",
+    "314":"PELJEM_SKV59_(XA)",
+    "315":"TAJUKMC",
+    "316":"TAJUKMC",
+    "317":"TAJUKMC",
+    "318":"TAJUKMC",
+    "319":"TAJUKMC",
+    "320":"TAJUKMC",
+    "321":"TAJUKMC",
+    "322":"TAJUKMC",
+    "323":"TAJUKMC",
+    "324":"PELJEM_SKV59_(XA)",
+    "325":"PELJEM_SKV59_(XA)",
+    "326":"PELJEM_SKV59_(XA)",
+    "327":"PELJEM_SKV59_(XA)",
+    "328":"PELJEM_SKV59_(XA)",
+    "329":"PELJEM_SKV59_(XA)",
+    "330":"PELJEM_SKV59_(XA)",
+    "331":"PELJEM_SKV59_(XA)",
+    "332":"PELJEM_SKV59_(XA)",
+    "333":"PELJEM_SKV59_(XA)",
+    "334":"PELJEM_SKV59_(XA)",
+    "335":"PELJEM_SKV59_(XA)",
+    "336":"TAJUKMC",
+    "337":"TAJUKMC",
+    "338":"TAJUKMC",
+    "339":"TAJUKMC",
+    "340":"TAJUKMC",
+    "341":"TAJUKMC",
+    "342":"TAJUKMC",
+    "343":"TAJUKMC",
+    "344":"TAJUKMC",
+    "345":"PELJEM_SKV59_(XA)",
+    "346":"PELJEM_SKV59_(XA)",
+    "347":"PELJEM_SKV59_(XA)",
+    "348":"PELJEM_SKV59_(XA)",
+    "349":"PELJEM_SKV59_(XA)",
+    "350":"PELJEM_SKV59_(XA)",
+    "351":"PELJEM_SKV59_(XA)",
+    "352":"PELJEM_SKV59_(XA)",
+    "353":"PELJEM_SKV59_(XA)",
+    "354":"PELJEM_SKV59_(XA)",
+    "355":"PELJEM_SKV59_(XA)",
+    "356":"PELJEM_SKV59_(XA)",
+    "357":"TAJUKMC",
+    "358":"TAJUKMC",
+    "359":"TAJUKMC",
+    "360":"TAJUKMC",
+    "361":"TAJUKMC",
+    "362":"TAJUKMC",
+    "363":"TAJUKMC",
+    "364":"TAJUKMC",
+    "365":"TAJUKMC",
+    "366":"PELJEM_SKV59_(XA)",
+    "367":"PELJEM_SKV59_(XA)",
+    "368":"PELJEM_SKV59_(XA)",
+    "369":"PELJEM_SKV59_(XA)",
+    "370":"PELJEM_SKV59_(XA)",
+    "371":"PELJEM_SKV59_(XA)",
+    "372":"PELJEM_SKV59_(XA)",
+    "373":"PELJEM_SKV59_(XA)",
+    "374":"PELJEM_SKV59_(XA)",
+    "375":"PELJEM_SKV59_(XA)",
+    "376":"PELJEM_SKV59_(XA)",
+    "377":"PELJEM_SKV59_(XA)",
+    "378":"TAJUKMC",
+    "379":"TAJUKMC",
+    "380":"TAJUKMC",
+    "381":"TAJUKMC",
+    "382":"TAJUKMC",
+    "383":"TAJUKMC",
+    "384":"TAJUKMC",
+    "385":"TAJUKMC",
+    "386":"TAJUKMC",
+    "387":"PELJEM_SKV59_(XA)",
+    "388":"PELJEM_SKV59_(XA)",
+    "389":"PELJEM_SKV59_(XA)",
+    "390":"PELJEM_SKV59_(XA)",
+    "391":"PELJEM_SKV59_(XA)",
+    "392":"PELJEM_SKV59_(XA)",
+    "393":"PELJEM_SKV59_(XA)",
+    "394":"PELJEM_SKV59_(XA)",
+    "395":"PELJEM_SKV59_(XA)",
+    "396":"PELJEM_SKV59_(XA)",
+    "397":"PELJEM_SKV59_(XA)",
+    "398":"PELJEM_SKV59_(XA)",
+    "399":"TAJUKMC",
+    "400":"TAJUKMC",
+    "401":"TAJUKMC",
+    "402":"TAJUKMC",
+    "403":"TAJUKMC",
+    "404":"TAJUKMC",
+    "405":"TAJUKMC",
+    "406":"TAJUKMC",
+    "407":"TAJUKMC",
+    "408":"PELJEM_SKV59_(XA)",
+    "409":"PELJEM_SKV59_(XA)",
+    "410":"PELJEM_SKV59_(XA)",
+    "411":"PELJEM_SKV59_(XA)",
+    "412":"PELJEM_SKV59_(XA)",
+    "413":"PELJEM_SKV59_(XA)",
+    "414":"PELJEM_SKV59_(XA)",
+    "415":"PELJEM_SKV59_(XA)",
+    "416":"PELJEM_SKV59_(XA)",
+    "417":"PELJEM_SKV59_(XA)",
+    "418":"PELJEM_SKV59_(XA)",
+    "419":"PELJEM_SKV59_(XA)",
+    "420":"TAJUKMC",
+    "421":"TAJUKMC",
+    "422":"TAJUKMC",
+    "423":"TAJUKMC",
+    "424":"TAJUKMC",
+    "425":"TAJUKMC",
+    "426":"TAJUKMC",
+    "427":"TAJUKMC",
+    "428":"TAJUKMC",
+    "429":"PELJEM_SKV59_(XA)",
+    "430":"PELJEM_SKV59_(XA)",
+    "431":"PELJEM_SKV59_(XA)",
+    "432":"PELJEM_SKV59_(XA)",
+    "433":"PELJEM_SKV59_(XA)",
+    "434":"PELJEM_SKV59_(XA)",
+    "435":"PELJEM_SKV59_(XA)",
+    "436":"PELJEM_SKV59_(XA)",
+    "437":"PELJEM_SKV59_(XA)",
+    "438":"PELJEM_SKV59_(XA)",
+    "439":"PELJEM_SKV59_(XA)",
+    "440":"PELJEM_SKV59_(XA)",
+    "441":"TAJUKMC",
+    "442":"TAJUKMC",
+    "443":"TAJUKMC",
+    "444":"TAJUKMC",
+    "445":"TAJUKMC",
+    "446":"TAJUKMC",
+    "447":"TAJUKMC",
+    "448":"TAJUKMC",
+    "449":"TAJUKMC",
+    "450":"PELJEM_SKV59_(XA)",
+    "451":"PELJEM_SKV59_(XA)",
+    "452":"PELJEM_SKV59_(XA)",
+    "453":"PELJEM_SKV59_(XA)",
+    "454":"PELJEM_SKV59_(XA)",
+    "455":"PELJEM_SKV59_(XA)",
+    "456":"PELJEM_SKV59_(XA)",
+    "457":"PELJEM_SKV59_(XA)",
+    "458":"PELJEM_SKV59_(XA)",
+    "459":"PELJEM_SKV59_(XA)",
+    "460":"PELJEM_SKV59_(XA)",
+    "461":"PELJEM_SKV59_(XA)",
+    "462":"TAJUKMC",
+    "463":"TAJUKMC",
+    "464":"TAJUKMC",
+    "465":"TAJUKMC",
+    "466":"TAJUKMC",
+    "467":"TAJUKMC",
+    "468":"TAJUKMC",
+    "469":"TAJUKMC",
+    "470":"TAJUKMC",
+    "471":"PELJEM_SKV59_(XA)",
+    "472":"PELJEM_SKV59_(XA)",
+    "473":"PELJEM_SKV59_(XA)",
+    "474":"PELJEM_SKV59_(XA)",
+    "475":"PELJEM_SKV59_(XA)",
+    "476":"PELJEM_SKV59_(XA)",
+    "477":"PELJEM_SKV59_(XA)",
+    "478":"PELJEM_SKV59_(XA)",
+    "479":"PELJEM_SKV59_(XA)",
+    "480":"PELJEM_SKV59_(XA)",
+    "481":"PELJEM_SKV59_(XA)",
+    "482":"PELJEM_SKV59_(XA)",
+    "483":"TAJUKMC",
+    "484":"TAJUKMC",
+    "485":"TAJUKMC",
+    "486":"TAJUKMC",
+    "487":"TAJUKMC",
+    "488":"TAJUKMC",
+    "489":"TAJUKMC",
+    "490":"TAJUKMC",
+    "491":"TAJUKMC",
+    "492":"PELJEM_SKV59_(XA)",
+    "493":"PELJEM_SKV59_(XA)",
+    "494":"PELJEM_SKV59_(XA)",
+    "495":"PELJEM_SKV59_(XA)",
+    "496":"PELJEM_SKV59_(XA)",
+    "497":"PELJEM_SKV59_(XA)",
+    "498":"PELJEM_SKV59_(XA)",
+    "499":"PELJEM_SKV59_(XA)",
+    "500":"PELJEM_SKV59_(XA)",
+    "501":"PELJEM_SKV59_(XA)",
+    "502":"PELJEM_SKV59_(XA)",
+    "503":"PELJEM_SKV59_(XA)"
+  },
+  "eNodeB identity":{
+    "0":834043.0,
+    "1":834043.0,
+    "2":834043.0,
+    "3":834043.0,
+    "4":834043.0,
+    "5":834043.0,
+    "6":834043.0,
+    "7":834043.0,
+    "8":834043.0,
+    "9":813513.0,
+    "10":813513.0,
+    "11":813513.0,
+    "12":813513.0,
+    "13":813513.0,
+    "14":813513.0,
+    "15":813513.0,
+    "16":813513.0,
+    "17":813513.0,
+    "18":813513.0,
+    "19":813513.0,
+    "20":813513.0,
+    "21":834043.0,
+    "22":834043.0,
+    "23":834043.0,
+    "24":834043.0,
+    "25":834043.0,
+    "26":834043.0,
+    "27":834043.0,
+    "28":834043.0,
+    "29":834043.0,
+    "30":813513.0,
+    "31":813513.0,
+    "32":813513.0,
+    "33":813513.0,
+    "34":813513.0,
+    "35":813513.0,
+    "36":813513.0,
+    "37":813513.0,
+    "38":813513.0,
+    "39":813513.0,
+    "40":813513.0,
+    "41":813513.0,
+    "42":834043.0,
+    "43":834043.0,
+    "44":834043.0,
+    "45":834043.0,
+    "46":834043.0,
+    "47":834043.0,
+    "48":834043.0,
+    "49":834043.0,
+    "50":834043.0,
+    "51":813513.0,
+    "52":813513.0,
+    "53":813513.0,
+    "54":813513.0,
+    "55":813513.0,
+    "56":813513.0,
+    "57":813513.0,
+    "58":813513.0,
+    "59":813513.0,
+    "60":813513.0,
+    "61":813513.0,
+    "62":813513.0,
+    "63":834043.0,
+    "64":834043.0,
+    "65":834043.0,
+    "66":834043.0,
+    "67":834043.0,
+    "68":834043.0,
+    "69":834043.0,
+    "70":834043.0,
+    "71":834043.0,
+    "72":813513.0,
+    "73":813513.0,
+    "74":813513.0,
+    "75":813513.0,
+    "76":813513.0,
+    "77":813513.0,
+    "78":813513.0,
+    "79":813513.0,
+    "80":813513.0,
+    "81":813513.0,
+    "82":813513.0,
+    "83":813513.0,
+    "84":834043.0,
+    "85":834043.0,
+    "86":834043.0,
+    "87":834043.0,
+    "88":834043.0,
+    "89":834043.0,
+    "90":834043.0,
+    "91":834043.0,
+    "92":834043.0,
+    "93":813513.0,
+    "94":813513.0,
+    "95":813513.0,
+    "96":813513.0,
+    "97":813513.0,
+    "98":813513.0,
+    "99":813513.0,
+    "100":813513.0,
+    "101":813513.0,
+    "102":813513.0,
+    "103":813513.0,
+    "104":813513.0,
+    "105":834043.0,
+    "106":834043.0,
+    "107":834043.0,
+    "108":834043.0,
+    "109":834043.0,
+    "110":834043.0,
+    "111":834043.0,
+    "112":834043.0,
+    "113":834043.0,
+    "114":813513.0,
+    "115":813513.0,
+    "116":813513.0,
+    "117":813513.0,
+    "118":813513.0,
+    "119":813513.0,
+    "120":813513.0,
+    "121":813513.0,
+    "122":813513.0,
+    "123":813513.0,
+    "124":813513.0,
+    "125":813513.0,
+    "126":834043.0,
+    "127":834043.0,
+    "128":834043.0,
+    "129":834043.0,
+    "130":834043.0,
+    "131":834043.0,
+    "132":834043.0,
+    "133":834043.0,
+    "134":834043.0,
+    "135":813513.0,
+    "136":813513.0,
+    "137":813513.0,
+    "138":813513.0,
+    "139":813513.0,
+    "140":813513.0,
+    "141":813513.0,
+    "142":813513.0,
+    "143":813513.0,
+    "144":813513.0,
+    "145":813513.0,
+    "146":813513.0,
+    "147":834043.0,
+    "148":834043.0,
+    "149":834043.0,
+    "150":834043.0,
+    "151":834043.0,
+    "152":834043.0,
+    "153":834043.0,
+    "154":834043.0,
+    "155":834043.0,
+    "156":813513.0,
+    "157":813513.0,
+    "158":813513.0,
+    "159":813513.0,
+    "160":813513.0,
+    "161":813513.0,
+    "162":813513.0,
+    "163":813513.0,
+    "164":813513.0,
+    "165":813513.0,
+    "166":813513.0,
+    "167":813513.0,
+    "168":834043.0,
+    "169":834043.0,
+    "170":834043.0,
+    "171":834043.0,
+    "172":834043.0,
+    "173":834043.0,
+    "174":834043.0,
+    "175":834043.0,
+    "176":834043.0,
+    "177":813513.0,
+    "178":813513.0,
+    "179":813513.0,
+    "180":813513.0,
+    "181":813513.0,
+    "182":813513.0,
+    "183":813513.0,
+    "184":813513.0,
+    "185":813513.0,
+    "186":813513.0,
+    "187":813513.0,
+    "188":813513.0,
+    "189":834043.0,
+    "190":834043.0,
+    "191":834043.0,
+    "192":834043.0,
+    "193":834043.0,
+    "194":834043.0,
+    "195":834043.0,
+    "196":834043.0,
+    "197":834043.0,
+    "198":813513.0,
+    "199":813513.0,
+    "200":813513.0,
+    "201":813513.0,
+    "202":813513.0,
+    "203":813513.0,
+    "204":813513.0,
+    "205":813513.0,
+    "206":813513.0,
+    "207":813513.0,
+    "208":813513.0,
+    "209":813513.0,
+    "210":834043.0,
+    "211":834043.0,
+    "212":834043.0,
+    "213":834043.0,
+    "214":834043.0,
+    "215":834043.0,
+    "216":834043.0,
+    "217":834043.0,
+    "218":834043.0,
+    "219":813513.0,
+    "220":813513.0,
+    "221":813513.0,
+    "222":813513.0,
+    "223":813513.0,
+    "224":813513.0,
+    "225":813513.0,
+    "226":813513.0,
+    "227":813513.0,
+    "228":813513.0,
+    "229":813513.0,
+    "230":813513.0,
+    "231":834043.0,
+    "232":834043.0,
+    "233":834043.0,
+    "234":834043.0,
+    "235":834043.0,
+    "236":834043.0,
+    "237":834043.0,
+    "238":834043.0,
+    "239":834043.0,
+    "240":813513.0,
+    "241":813513.0,
+    "242":813513.0,
+    "243":813513.0,
+    "244":813513.0,
+    "245":813513.0,
+    "246":813513.0,
+    "247":813513.0,
+    "248":813513.0,
+    "249":813513.0,
+    "250":813513.0,
+    "251":813513.0,
+    "252":834043.0,
+    "253":834043.0,
+    "254":834043.0,
+    "255":834043.0,
+    "256":834043.0,
+    "257":834043.0,
+    "258":834043.0,
+    "259":834043.0,
+    "260":834043.0,
+    "261":813513.0,
+    "262":813513.0,
+    "263":813513.0,
+    "264":813513.0,
+    "265":813513.0,
+    "266":813513.0,
+    "267":813513.0,
+    "268":813513.0,
+    "269":813513.0,
+    "270":813513.0,
+    "271":813513.0,
+    "272":813513.0,
+    "273":834043.0,
+    "274":834043.0,
+    "275":834043.0,
+    "276":834043.0,
+    "277":834043.0,
+    "278":834043.0,
+    "279":834043.0,
+    "280":834043.0,
+    "281":834043.0,
+    "282":813513.0,
+    "283":813513.0,
+    "284":813513.0,
+    "285":813513.0,
+    "286":813513.0,
+    "287":813513.0,
+    "288":813513.0,
+    "289":813513.0,
+    "290":813513.0,
+    "291":813513.0,
+    "292":813513.0,
+    "293":813513.0,
+    "294":834043.0,
+    "295":834043.0,
+    "296":834043.0,
+    "297":834043.0,
+    "298":834043.0,
+    "299":834043.0,
+    "300":834043.0,
+    "301":834043.0,
+    "302":834043.0,
+    "303":813513.0,
+    "304":813513.0,
+    "305":813513.0,
+    "306":813513.0,
+    "307":813513.0,
+    "308":813513.0,
+    "309":813513.0,
+    "310":813513.0,
+    "311":813513.0,
+    "312":813513.0,
+    "313":813513.0,
+    "314":813513.0,
+    "315":834043.0,
+    "316":834043.0,
+    "317":834043.0,
+    "318":834043.0,
+    "319":834043.0,
+    "320":834043.0,
+    "321":834043.0,
+    "322":834043.0,
+    "323":834043.0,
+    "324":813513.0,
+    "325":813513.0,
+    "326":813513.0,
+    "327":813513.0,
+    "328":813513.0,
+    "329":813513.0,
+    "330":813513.0,
+    "331":813513.0,
+    "332":813513.0,
+    "333":813513.0,
+    "334":813513.0,
+    "335":813513.0,
+    "336":834043.0,
+    "337":834043.0,
+    "338":834043.0,
+    "339":834043.0,
+    "340":834043.0,
+    "341":834043.0,
+    "342":834043.0,
+    "343":834043.0,
+    "344":834043.0,
+    "345":813513.0,
+    "346":813513.0,
+    "347":813513.0,
+    "348":813513.0,
+    "349":813513.0,
+    "350":813513.0,
+    "351":813513.0,
+    "352":813513.0,
+    "353":813513.0,
+    "354":813513.0,
+    "355":813513.0,
+    "356":813513.0,
+    "357":834043.0,
+    "358":834043.0,
+    "359":834043.0,
+    "360":834043.0,
+    "361":834043.0,
+    "362":834043.0,
+    "363":834043.0,
+    "364":834043.0,
+    "365":834043.0,
+    "366":813513.0,
+    "367":813513.0,
+    "368":813513.0,
+    "369":813513.0,
+    "370":813513.0,
+    "371":813513.0,
+    "372":813513.0,
+    "373":813513.0,
+    "374":813513.0,
+    "375":813513.0,
+    "376":813513.0,
+    "377":813513.0,
+    "378":834043.0,
+    "379":834043.0,
+    "380":834043.0,
+    "381":834043.0,
+    "382":834043.0,
+    "383":834043.0,
+    "384":834043.0,
+    "385":834043.0,
+    "386":834043.0,
+    "387":813513.0,
+    "388":813513.0,
+    "389":813513.0,
+    "390":813513.0,
+    "391":813513.0,
+    "392":813513.0,
+    "393":813513.0,
+    "394":813513.0,
+    "395":813513.0,
+    "396":813513.0,
+    "397":813513.0,
+    "398":813513.0,
+    "399":834043.0,
+    "400":834043.0,
+    "401":834043.0,
+    "402":834043.0,
+    "403":834043.0,
+    "404":834043.0,
+    "405":834043.0,
+    "406":834043.0,
+    "407":834043.0,
+    "408":813513.0,
+    "409":813513.0,
+    "410":813513.0,
+    "411":813513.0,
+    "412":813513.0,
+    "413":813513.0,
+    "414":813513.0,
+    "415":813513.0,
+    "416":813513.0,
+    "417":813513.0,
+    "418":813513.0,
+    "419":813513.0,
+    "420":834043.0,
+    "421":834043.0,
+    "422":834043.0,
+    "423":834043.0,
+    "424":834043.0,
+    "425":834043.0,
+    "426":834043.0,
+    "427":834043.0,
+    "428":834043.0,
+    "429":813513.0,
+    "430":813513.0,
+    "431":813513.0,
+    "432":813513.0,
+    "433":813513.0,
+    "434":813513.0,
+    "435":813513.0,
+    "436":813513.0,
+    "437":813513.0,
+    "438":813513.0,
+    "439":813513.0,
+    "440":813513.0,
+    "441":834043.0,
+    "442":834043.0,
+    "443":834043.0,
+    "444":834043.0,
+    "445":834043.0,
+    "446":834043.0,
+    "447":834043.0,
+    "448":834043.0,
+    "449":834043.0,
+    "450":813513.0,
+    "451":813513.0,
+    "452":813513.0,
+    "453":813513.0,
+    "454":813513.0,
+    "455":813513.0,
+    "456":813513.0,
+    "457":813513.0,
+    "458":813513.0,
+    "459":813513.0,
+    "460":813513.0,
+    "461":813513.0,
+    "462":834043.0,
+    "463":834043.0,
+    "464":834043.0,
+    "465":834043.0,
+    "466":834043.0,
+    "467":834043.0,
+    "468":834043.0,
+    "469":834043.0,
+    "470":834043.0,
+    "471":813513.0,
+    "472":813513.0,
+    "473":813513.0,
+    "474":813513.0,
+    "475":813513.0,
+    "476":813513.0,
+    "477":813513.0,
+    "478":813513.0,
+    "479":813513.0,
+    "480":813513.0,
+    "481":813513.0,
+    "482":813513.0,
+    "483":834043.0,
+    "484":834043.0,
+    "485":834043.0,
+    "486":834043.0,
+    "487":834043.0,
+    "488":834043.0,
+    "489":834043.0,
+    "490":834043.0,
+    "491":834043.0,
+    "492":813513.0,
+    "493":813513.0,
+    "494":813513.0,
+    "495":813513.0,
+    "496":813513.0,
+    "497":813513.0,
+    "498":813513.0,
+    "499":813513.0,
+    "500":813513.0,
+    "501":813513.0,
+    "502":813513.0,
+    "503":813513.0
+  },
+  "Cell FDD TDD Indication":{
+    "0":"CELL_FDD",
+    "1":"CELL_FDD",
+    "2":"CELL_FDD",
+    "3":"CELL_FDD",
+    "4":"CELL_FDD",
+    "5":"CELL_FDD",
+    "6":"CELL_FDD",
+    "7":"CELL_FDD",
+    "8":"CELL_FDD",
+    "9":"CELL_FDD",
+    "10":"CELL_FDD",
+    "11":"CELL_FDD",
+    "12":"CELL_FDD",
+    "13":"CELL_FDD",
+    "14":"CELL_FDD",
+    "15":"CELL_FDD",
+    "16":"CELL_FDD",
+    "17":"CELL_FDD",
+    "18":"CELL_FDD",
+    "19":"CELL_FDD",
+    "20":"CELL_FDD",
+    "21":"CELL_FDD",
+    "22":"CELL_FDD",
+    "23":"CELL_FDD",
+    "24":"CELL_FDD",
+    "25":"CELL_FDD",
+    "26":"CELL_FDD",
+    "27":"CELL_FDD",
+    "28":"CELL_FDD",
+    "29":"CELL_FDD",
+    "30":"CELL_FDD",
+    "31":"CELL_FDD",
+    "32":"CELL_FDD",
+    "33":"CELL_FDD",
+    "34":"CELL_FDD",
+    "35":"CELL_FDD",
+    "36":"CELL_FDD",
+    "37":"CELL_FDD",
+    "38":"CELL_FDD",
+    "39":"CELL_FDD",
+    "40":"CELL_FDD",
+    "41":"CELL_FDD",
+    "42":"CELL_FDD",
+    "43":"CELL_FDD",
+    "44":"CELL_FDD",
+    "45":"CELL_FDD",
+    "46":"CELL_FDD",
+    "47":"CELL_FDD",
+    "48":"CELL_FDD",
+    "49":"CELL_FDD",
+    "50":"CELL_FDD",
+    "51":"CELL_FDD",
+    "52":"CELL_FDD",
+    "53":"CELL_FDD",
+    "54":"CELL_FDD",
+    "55":"CELL_FDD",
+    "56":"CELL_FDD",
+    "57":"CELL_FDD",
+    "58":"CELL_FDD",
+    "59":"CELL_FDD",
+    "60":"CELL_FDD",
+    "61":"CELL_FDD",
+    "62":"CELL_FDD",
+    "63":"CELL_FDD",
+    "64":"CELL_FDD",
+    "65":"CELL_FDD",
+    "66":"CELL_FDD",
+    "67":"CELL_FDD",
+    "68":"CELL_FDD",
+    "69":"CELL_FDD",
+    "70":"CELL_FDD",
+    "71":"CELL_FDD",
+    "72":"CELL_FDD",
+    "73":"CELL_FDD",
+    "74":"CELL_FDD",
+    "75":"CELL_FDD",
+    "76":"CELL_FDD",
+    "77":"CELL_FDD",
+    "78":"CELL_FDD",
+    "79":"CELL_FDD",
+    "80":"CELL_FDD",
+    "81":"CELL_FDD",
+    "82":"CELL_FDD",
+    "83":"CELL_FDD",
+    "84":"CELL_FDD",
+    "85":"CELL_FDD",
+    "86":"CELL_FDD",
+    "87":"CELL_FDD",
+    "88":"CELL_FDD",
+    "89":"CELL_FDD",
+    "90":"CELL_FDD",
+    "91":"CELL_FDD",
+    "92":"CELL_FDD",
+    "93":"CELL_FDD",
+    "94":"CELL_FDD",
+    "95":"CELL_FDD",
+    "96":"CELL_FDD",
+    "97":"CELL_FDD",
+    "98":"CELL_FDD",
+    "99":"CELL_FDD",
+    "100":"CELL_FDD",
+    "101":"CELL_FDD",
+    "102":"CELL_FDD",
+    "103":"CELL_FDD",
+    "104":"CELL_FDD",
+    "105":"CELL_FDD",
+    "106":"CELL_FDD",
+    "107":"CELL_FDD",
+    "108":"CELL_FDD",
+    "109":"CELL_FDD",
+    "110":"CELL_FDD",
+    "111":"CELL_FDD",
+    "112":"CELL_FDD",
+    "113":"CELL_FDD",
+    "114":"CELL_FDD",
+    "115":"CELL_FDD",
+    "116":"CELL_FDD",
+    "117":"CELL_FDD",
+    "118":"CELL_FDD",
+    "119":"CELL_FDD",
+    "120":"CELL_FDD",
+    "121":"CELL_FDD",
+    "122":"CELL_FDD",
+    "123":"CELL_FDD",
+    "124":"CELL_FDD",
+    "125":"CELL_FDD",
+    "126":"CELL_FDD",
+    "127":"CELL_FDD",
+    "128":"CELL_FDD",
+    "129":"CELL_FDD",
+    "130":"CELL_FDD",
+    "131":"CELL_FDD",
+    "132":"CELL_FDD",
+    "133":"CELL_FDD",
+    "134":"CELL_FDD",
+    "135":"CELL_FDD",
+    "136":"CELL_FDD",
+    "137":"CELL_FDD",
+    "138":"CELL_FDD",
+    "139":"CELL_FDD",
+    "140":"CELL_FDD",
+    "141":"CELL_FDD",
+    "142":"CELL_FDD",
+    "143":"CELL_FDD",
+    "144":"CELL_FDD",
+    "145":"CELL_FDD",
+    "146":"CELL_FDD",
+    "147":"CELL_FDD",
+    "148":"CELL_FDD",
+    "149":"CELL_FDD",
+    "150":"CELL_FDD",
+    "151":"CELL_FDD",
+    "152":"CELL_FDD",
+    "153":"CELL_FDD",
+    "154":"CELL_FDD",
+    "155":"CELL_FDD",
+    "156":"CELL_FDD",
+    "157":"CELL_FDD",
+    "158":"CELL_FDD",
+    "159":"CELL_FDD",
+    "160":"CELL_FDD",
+    "161":"CELL_FDD",
+    "162":"CELL_FDD",
+    "163":"CELL_FDD",
+    "164":"CELL_FDD",
+    "165":"CELL_FDD",
+    "166":"CELL_FDD",
+    "167":"CELL_FDD",
+    "168":"CELL_FDD",
+    "169":"CELL_FDD",
+    "170":"CELL_FDD",
+    "171":"CELL_FDD",
+    "172":"CELL_FDD",
+    "173":"CELL_FDD",
+    "174":"CELL_FDD",
+    "175":"CELL_FDD",
+    "176":"CELL_FDD",
+    "177":"CELL_FDD",
+    "178":"CELL_FDD",
+    "179":"CELL_FDD",
+    "180":"CELL_FDD",
+    "181":"CELL_FDD",
+    "182":"CELL_FDD",
+    "183":"CELL_FDD",
+    "184":"CELL_FDD",
+    "185":"CELL_FDD",
+    "186":"CELL_FDD",
+    "187":"CELL_FDD",
+    "188":"CELL_FDD",
+    "189":"CELL_FDD",
+    "190":"CELL_FDD",
+    "191":"CELL_FDD",
+    "192":"CELL_FDD",
+    "193":"CELL_FDD",
+    "194":"CELL_FDD",
+    "195":"CELL_FDD",
+    "196":"CELL_FDD",
+    "197":"CELL_FDD",
+    "198":"CELL_FDD",
+    "199":"CELL_FDD",
+    "200":"CELL_FDD",
+    "201":"CELL_FDD",
+    "202":"CELL_FDD",
+    "203":"CELL_FDD",
+    "204":"CELL_FDD",
+    "205":"CELL_FDD",
+    "206":"CELL_FDD",
+    "207":"CELL_FDD",
+    "208":"CELL_FDD",
+    "209":"CELL_FDD",
+    "210":"CELL_FDD",
+    "211":"CELL_FDD",
+    "212":"CELL_FDD",
+    "213":"CELL_FDD",
+    "214":"CELL_FDD",
+    "215":"CELL_FDD",
+    "216":"CELL_FDD",
+    "217":"CELL_FDD",
+    "218":"CELL_FDD",
+    "219":"CELL_FDD",
+    "220":"CELL_FDD",
+    "221":"CELL_FDD",
+    "222":"CELL_FDD",
+    "223":"CELL_FDD",
+    "224":"CELL_FDD",
+    "225":"CELL_FDD",
+    "226":"CELL_FDD",
+    "227":"CELL_FDD",
+    "228":"CELL_FDD",
+    "229":"CELL_FDD",
+    "230":"CELL_FDD",
+    "231":"CELL_FDD",
+    "232":"CELL_FDD",
+    "233":"CELL_FDD",
+    "234":"CELL_FDD",
+    "235":"CELL_FDD",
+    "236":"CELL_FDD",
+    "237":"CELL_FDD",
+    "238":"CELL_FDD",
+    "239":"CELL_FDD",
+    "240":"CELL_FDD",
+    "241":"CELL_FDD",
+    "242":"CELL_FDD",
+    "243":"CELL_FDD",
+    "244":"CELL_FDD",
+    "245":"CELL_FDD",
+    "246":"CELL_FDD",
+    "247":"CELL_FDD",
+    "248":"CELL_FDD",
+    "249":"CELL_FDD",
+    "250":"CELL_FDD",
+    "251":"CELL_FDD",
+    "252":"CELL_FDD",
+    "253":"CELL_FDD",
+    "254":"CELL_FDD",
+    "255":"CELL_FDD",
+    "256":"CELL_FDD",
+    "257":"CELL_FDD",
+    "258":"CELL_FDD",
+    "259":"CELL_FDD",
+    "260":"CELL_FDD",
+    "261":"CELL_FDD",
+    "262":"CELL_FDD",
+    "263":"CELL_FDD",
+    "264":"CELL_FDD",
+    "265":"CELL_FDD",
+    "266":"CELL_FDD",
+    "267":"CELL_FDD",
+    "268":"CELL_FDD",
+    "269":"CELL_FDD",
+    "270":"CELL_FDD",
+    "271":"CELL_FDD",
+    "272":"CELL_FDD",
+    "273":"CELL_FDD",
+    "274":"CELL_FDD",
+    "275":"CELL_FDD",
+    "276":"CELL_FDD",
+    "277":"CELL_FDD",
+    "278":"CELL_FDD",
+    "279":"CELL_FDD",
+    "280":"CELL_FDD",
+    "281":"CELL_FDD",
+    "282":"CELL_FDD",
+    "283":"CELL_FDD",
+    "284":"CELL_FDD",
+    "285":"CELL_FDD",
+    "286":"CELL_FDD",
+    "287":"CELL_FDD",
+    "288":"CELL_FDD",
+    "289":"CELL_FDD",
+    "290":"CELL_FDD",
+    "291":"CELL_FDD",
+    "292":"CELL_FDD",
+    "293":"CELL_FDD",
+    "294":"CELL_FDD",
+    "295":"CELL_FDD",
+    "296":"CELL_FDD",
+    "297":"CELL_FDD",
+    "298":"CELL_FDD",
+    "299":"CELL_FDD",
+    "300":"CELL_FDD",
+    "301":"CELL_FDD",
+    "302":"CELL_FDD",
+    "303":"CELL_FDD",
+    "304":"CELL_FDD",
+    "305":"CELL_FDD",
+    "306":"CELL_FDD",
+    "307":"CELL_FDD",
+    "308":"CELL_FDD",
+    "309":"CELL_FDD",
+    "310":"CELL_FDD",
+    "311":"CELL_FDD",
+    "312":"CELL_FDD",
+    "313":"CELL_FDD",
+    "314":"CELL_FDD",
+    "315":"CELL_FDD",
+    "316":"CELL_FDD",
+    "317":"CELL_FDD",
+    "318":"CELL_FDD",
+    "319":"CELL_FDD",
+    "320":"CELL_FDD",
+    "321":"CELL_FDD",
+    "322":"CELL_FDD",
+    "323":"CELL_FDD",
+    "324":"CELL_FDD",
+    "325":"CELL_FDD",
+    "326":"CELL_FDD",
+    "327":"CELL_FDD",
+    "328":"CELL_FDD",
+    "329":"CELL_FDD",
+    "330":"CELL_FDD",
+    "331":"CELL_FDD",
+    "332":"CELL_FDD",
+    "333":"CELL_FDD",
+    "334":"CELL_FDD",
+    "335":"CELL_FDD",
+    "336":"CELL_FDD",
+    "337":"CELL_FDD",
+    "338":"CELL_FDD",
+    "339":"CELL_FDD",
+    "340":"CELL_FDD",
+    "341":"CELL_FDD",
+    "342":"CELL_FDD",
+    "343":"CELL_FDD",
+    "344":"CELL_FDD",
+    "345":"CELL_FDD",
+    "346":"CELL_FDD",
+    "347":"CELL_FDD",
+    "348":"CELL_FDD",
+    "349":"CELL_FDD",
+    "350":"CELL_FDD",
+    "351":"CELL_FDD",
+    "352":"CELL_FDD",
+    "353":"CELL_FDD",
+    "354":"CELL_FDD",
+    "355":"CELL_FDD",
+    "356":"CELL_FDD",
+    "357":"CELL_FDD",
+    "358":"CELL_FDD",
+    "359":"CELL_FDD",
+    "360":"CELL_FDD",
+    "361":"CELL_FDD",
+    "362":"CELL_FDD",
+    "363":"CELL_FDD",
+    "364":"CELL_FDD",
+    "365":"CELL_FDD",
+    "366":"CELL_FDD",
+    "367":"CELL_FDD",
+    "368":"CELL_FDD",
+    "369":"CELL_FDD",
+    "370":"CELL_FDD",
+    "371":"CELL_FDD",
+    "372":"CELL_FDD",
+    "373":"CELL_FDD",
+    "374":"CELL_FDD",
+    "375":"CELL_FDD",
+    "376":"CELL_FDD",
+    "377":"CELL_FDD",
+    "378":"CELL_FDD",
+    "379":"CELL_FDD",
+    "380":"CELL_FDD",
+    "381":"CELL_FDD",
+    "382":"CELL_FDD",
+    "383":"CELL_FDD",
+    "384":"CELL_FDD",
+    "385":"CELL_FDD",
+    "386":"CELL_FDD",
+    "387":"CELL_FDD",
+    "388":"CELL_FDD",
+    "389":"CELL_FDD",
+    "390":"CELL_FDD",
+    "391":"CELL_FDD",
+    "392":"CELL_FDD",
+    "393":"CELL_FDD",
+    "394":"CELL_FDD",
+    "395":"CELL_FDD",
+    "396":"CELL_FDD",
+    "397":"CELL_FDD",
+    "398":"CELL_FDD",
+    "399":"CELL_FDD",
+    "400":"CELL_FDD",
+    "401":"CELL_FDD",
+    "402":"CELL_FDD",
+    "403":"CELL_FDD",
+    "404":"CELL_FDD",
+    "405":"CELL_FDD",
+    "406":"CELL_FDD",
+    "407":"CELL_FDD",
+    "408":"CELL_FDD",
+    "409":"CELL_FDD",
+    "410":"CELL_FDD",
+    "411":"CELL_FDD",
+    "412":"CELL_FDD",
+    "413":"CELL_FDD",
+    "414":"CELL_FDD",
+    "415":"CELL_FDD",
+    "416":"CELL_FDD",
+    "417":"CELL_FDD",
+    "418":"CELL_FDD",
+    "419":"CELL_FDD",
+    "420":"CELL_FDD",
+    "421":"CELL_FDD",
+    "422":"CELL_FDD",
+    "423":"CELL_FDD",
+    "424":"CELL_FDD",
+    "425":"CELL_FDD",
+    "426":"CELL_FDD",
+    "427":"CELL_FDD",
+    "428":"CELL_FDD",
+    "429":"CELL_FDD",
+    "430":"CELL_FDD",
+    "431":"CELL_FDD",
+    "432":"CELL_FDD",
+    "433":"CELL_FDD",
+    "434":"CELL_FDD",
+    "435":"CELL_FDD",
+    "436":"CELL_FDD",
+    "437":"CELL_FDD",
+    "438":"CELL_FDD",
+    "439":"CELL_FDD",
+    "440":"CELL_FDD",
+    "441":"CELL_FDD",
+    "442":"CELL_FDD",
+    "443":"CELL_FDD",
+    "444":"CELL_FDD",
+    "445":"CELL_FDD",
+    "446":"CELL_FDD",
+    "447":"CELL_FDD",
+    "448":"CELL_FDD",
+    "449":"CELL_FDD",
+    "450":"CELL_FDD",
+    "451":"CELL_FDD",
+    "452":"CELL_FDD",
+    "453":"CELL_FDD",
+    "454":"CELL_FDD",
+    "455":"CELL_FDD",
+    "456":"CELL_FDD",
+    "457":"CELL_FDD",
+    "458":"CELL_FDD",
+    "459":"CELL_FDD",
+    "460":"CELL_FDD",
+    "461":"CELL_FDD",
+    "462":"CELL_FDD",
+    "463":"CELL_FDD",
+    "464":"CELL_FDD",
+    "465":"CELL_FDD",
+    "466":"CELL_FDD",
+    "467":"CELL_FDD",
+    "468":"CELL_FDD",
+    "469":"CELL_FDD",
+    "470":"CELL_FDD",
+    "471":"CELL_FDD",
+    "472":"CELL_FDD",
+    "473":"CELL_FDD",
+    "474":"CELL_FDD",
+    "475":"CELL_FDD",
+    "476":"CELL_FDD",
+    "477":"CELL_FDD",
+    "478":"CELL_FDD",
+    "479":"CELL_FDD",
+    "480":"CELL_FDD",
+    "481":"CELL_FDD",
+    "482":"CELL_FDD",
+    "483":"CELL_FDD",
+    "484":"CELL_FDD",
+    "485":"CELL_FDD",
+    "486":"CELL_FDD",
+    "487":"CELL_FDD",
+    "488":"CELL_FDD",
+    "489":"CELL_FDD",
+    "490":"CELL_FDD",
+    "491":"CELL_FDD",
+    "492":"CELL_FDD",
+    "493":"CELL_FDD",
+    "494":"CELL_FDD",
+    "495":"CELL_FDD",
+    "496":"CELL_FDD",
+    "497":"CELL_FDD",
+    "498":"CELL_FDD",
+    "499":"CELL_FDD",
+    "500":"CELL_FDD",
+    "501":"CELL_FDD",
+    "502":"CELL_FDD",
+    "503":"CELL_FDD"
+  },
