@@ -1,0 +1,11 @@
+experiment_name: example_baseline
+model: resnet50
+backend: pytorch
+precision: fp32
+batch_size: 1
+prompt_length: 0
+generate_length: 0
+warmup_iters: 20
+measure_iters: 100
+seed: 42
+output_dir: experiments/runs/example_baseline
