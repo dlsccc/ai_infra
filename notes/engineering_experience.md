@@ -85,7 +85,34 @@ measure_iters: 100
 
 ---
 
-## 05. 条目模板（后续追加）
+## 05. 常用指令：计算机性能指标查看（Windows/Linux）
+
+说明：
+1. 优先使用低权限可执行的命令。
+2. 部分命令可能需要管理员权限。
+
+| 指标类别 | Windows 指令 | Linux 指令 | 用途 | 备注 |
+|---|---|---|---|---|
+| GPU 概览 | `nvidia-smi` | `nvidia-smi` | 查看 GPU 型号、驱动、显存占用、利用率 | NVIDIA 环境必备 |
+| GPU 实时监控 | `nvidia-smi -l 1` | `nvidia-smi -l 1` | 每 1 秒刷新一次 GPU 状态 | 压测时常用 |
+| GPU 指标导出 | `nvidia-smi --query-gpu=name,memory.total,memory.used,utilization.gpu,temperature.gpu --format=csv,noheader` | `nvidia-smi --query-gpu=name,memory.total,memory.used,utilization.gpu,temperature.gpu --format=csv,noheader` | 结构化输出核心指标 | 适合写日志 |
+| GPU 进程占用 | `nvidia-smi --query-compute-apps=pid,process_name,used_memory --format=csv` | `nvidia-smi --query-compute-apps=pid,process_name,used_memory --format=csv` | 查看谁在占用显存 | 定位显存泄漏 |
+| CPU 逻辑线程数 | `python -c "import os; print(os.cpu_count())"` | `nproc` | 查看可用逻辑 CPU 数 | 便于设定线程参数 |
+| CPU 使用率 | `Get-Counter '\\Processor(_Total)\\% Processor Time'` | `mpstat 1 1` | 查看当前 CPU 总占用 | Linux 需 `sysstat` |
+| 内存可用量 | `Get-Counter '\\Memory\\Available MBytes'` | `free -h` | 查看可用内存 | 判断是否内存瓶颈 |
+| 进程 CPU Top10 | `Get-Process | Sort-Object CPU -Descending | Select-Object -First 10 ProcessName,CPU,WorkingSet` | `top -b -n 1 -o %CPU` | 找高 CPU 占用进程 | 排查后台干扰 |
+| 磁盘容量 | `Get-PSDrive -PSProvider FileSystem` | `df -h` | 查看各盘容量与剩余空间 | 模型/日志落盘前检查 |
+| 磁盘吞吐 | `Get-Counter '\\PhysicalDisk(_Total)\\Disk Read Bytes/sec','\\PhysicalDisk(_Total)\\Disk Write Bytes/sec'` | `iostat -dx 1 3` | 观察磁盘读写压力 | Linux 需 `sysstat` |
+| PyTorch 设备可用性 | `python -c "import torch; print(torch.cuda.is_available()); print(torch.cuda.device_count())"` | `python -c "import torch; print(torch.cuda.is_available()); print(torch.cuda.device_count())"` | 验证 PyTorch 是否识别 GPU | 训练/推理前先跑 |
+| PyTorch 设备信息 | `python -c "import torch; print(torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'no cuda')"` | `python -c "import torch; print(torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'no cuda')"` | 输出当前 GPU 名称 | 多环境核对 |
+
+常见坑：
+1. `nvidia-smi` 正常不代表 PyTorch 一定能用 CUDA，还需要单独检查 `torch.cuda.is_available()`。
+2. 后台进程占用 GPU/CPU 会污染 benchmark 结果，测前先清场。
+
+---
+
+## 06. 条目模板（后续追加）
 
 ````markdown
 ## XX. 主题名称
@@ -109,3 +136,4 @@ measure_iters: 100
 实践建议：
 1. 
 ````
+

@@ -173,7 +173,7 @@ ai_infra/
 2. `docs/weekly/week04.md`
 
 验收标准：
-1. 能解释“为什么 KV cache 不用连续内存”。
+1. 能解释“为什么 KV cache 不用连续内存，KV cache如何分页”。
 
 ### Week 5：Attention 与 FlashAttention 基础
 本周目标：
@@ -246,10 +246,11 @@ ai_infra/
 
 验收标准：
 1. 能回答当前瓶颈更偏向算力、显存还是调度。
+2. 写技术博客，《vllm深度解析，如何验证2x性能提升》
 
 ### Week 9：ONNX Runtime / TensorRT 对比实验
 本周目标：
-1. 跑通至少一个模型的多后端对比（PyTorch / ORT / TRT）。
+1. 跑通至少一个模型的多后端对比（PyTorch / ORT(ONNX Runtime) / TRT(Tensor RT)）。
 
 任务：
 1. 先选小模型跑通全流程，后尝试 7B 的部分子路径。
@@ -259,16 +260,14 @@ ai_infra/
 本周产出：
 1. 对比表格与结论文档
 2. 问题清单（失败原因 + 修复思路）
-
-验收标准：
-1. 有可复现结论，不要求“全部成功”。
+3. 撰写一份完整的benchmark报告
 
 ### Week 10：量化实战（AWQ/GPTQ）
 本周目标：
 1. 在远程 GPU 上完成一次真实量化实验。
 
 任务：
-1. 选择一个 7B 模型跑 AWQ/GPTQ（至少一种完整跑通）。
+1. 选择一个 7B 模型（llama2-7B）跑 AWQ/GPTQ（至少一种完整跑通）。
 2. 输出精度损失和性能收益。
 3. 形成“量化决策表”（场景 -> 推荐方案）。
 
@@ -278,15 +277,18 @@ ai_infra/
 
 验收标准：
 1. 能说清“当前业务下是否值得量化”。
+2. 输出技术报告《大模型推理性能优化checklist》
 
 ### Week 11：CUDA 基础 Kernel（从 0 到 1）
 本周目标：
-1. 真正开始写 CUDA kernel（可先小尺寸）。
+1. gpu架构认知，SM，warp,shard memory, occupancy, tensor core
+2. 真正开始写 CUDA kernel（可先小尺寸）。
 
 任务：
-1. 手写 `vector_add`、`reduce_sum`、`softmax`。
-2. 对比 naive 实现与优化实现。
-3. 用 Nsight Systems 进行初步分析。
+1. 画出gpu结构图，写一篇gpu执行模型笔记 ，可以用nsys分析瓶颈
+2. 手写 `vector_add`、`reduce_sum`、`softmax`。
+3. 对比 naive 实现与优化实现。
+4. 用 Nsight Systems 进行初步分析。
 
 本周产出：
 1. 三个 kernel 代码
@@ -303,6 +305,7 @@ ai_infra/
 1. 实现 naive matmul。
 2. 实现 1D/2D tiling。
 3. 跑不同 tile size 并分析性能变化。
+4. nsys profile初步分析，看SM occupancy为什么低，找到优化点
 
 本周产出：
 1. matmul 版本演进记录
@@ -317,16 +320,18 @@ ai_infra/
 
 ### Week 13：Matmul 高级优化
 目标：
-1. 继续做 double buffering、bank conflict 优化。
+1. 继续做 double buffering、bank conflict 优化，达到10x naive性能。
 2. 对比 cuBLAS，定位差距来源。
 
-验收：
-1. 写清楚“差距来自哪里”，比“盲目追绝对性能”更重要。
+产出：
+1. 完整的nsys report
+2. roofline分析
+3. 产出技术博客《cuda matmul优化实战：从1x到10x的旅程》
 
 ### Week 14：Attention Kernel 简化版
 目标：
 1. 写一个固定 shape 的简化 forward（可不做动态优化）。
-2. 理解 FlashAttention 的工程实现思路。
+2. 阅读源码，理解 FlashAttention 的工程实现思路。
 
 验收：
 1. 代码正确 + 有 profiling 数据。
@@ -334,7 +339,8 @@ ai_infra/
 ### Week 15：Triton Inference Server 入门
 目标：
 1. 部署一个动态 batching 服务。
-2. 测试并发请求下的延迟变化。
+2. 理解ensemble模型调用
+3. 测试并发请求下的延迟变化，优化并发请求处理。
 
 验收：
 1. 提供并发测试结果与参数调优记录。
@@ -345,7 +351,9 @@ ai_infra/
 2. 掌握共享 GPU 的常见策略。
 
 验收：
-1. 输出一份“流量突增应对方案”。
+1. 输出一份“流量突增应对方案”，多模型共享gpu调度策略。
+2. 设计一个支持1000QPS的推理服务架构
+3. 画出完整的数据流图（从http请求到gpu计算）
 
 ### Week 17：TensorRT Plugin 入门实战
 目标：
@@ -357,11 +365,18 @@ ai_infra/
 
 ### Week 18：端到端优化案例（第一次）
 目标：
-1. 选择一个开源模型做完整优化。
+1. 选择一个开源模型做完整优化，chatglm3-6B, qwen-7B。
 2. 从基线到优化形成完整报告。
 
+优化方向：  
+1. 模型转换（Pytorch -- ONNX -- TensorRT）
+2. 量化（FP16/INT8）
+3. 算子融合
+4. KV cache优化
+
 验收：
-1. 产出《模型推理优化报告 v1》。
+1. first token latency < 100ms， throughput > 50tokens/s/user
+2. 产出《模型推理优化报告 v1》。
 
 ---
 
@@ -375,6 +390,60 @@ ai_infra/
 
 产出：
 1. 设计文档（背景、目标、方案、风险、里程碑）
+
+##### 项目1 vLLM Prefix Caching 优化
+**optionA:Prefix Caching优化**
+```
+#为vLLm实现更高效的prefix cache
+#场景：RAG应用中system prompt重复率高
+#目标：减少30%重复计算
+```
+**optionB:Multi-LoRA支持改进**
+```
+#优化vLLM的LoRA切换延迟
+#目标：支持100+个LoRA动态加载
+```
+**optionC:新型量化算法集成**
+```
+#集成AWQ/SqueezeLLM到vLLM
+#提供完整的精度评测
+```
+输出：  
+pull Request到vLLM官方仓库  
+输出技术博客，说明设计思路 
+
+##### 项目2 推理性能分析工具
+```
+# llm_profiler.py
+class LLMProfiler:
+    def profile(self, model_path, batch_sizes, seq_lengths):
+        """
+        自动测试：
+        - Prefill latency
+        - Decode throughput  
+        - Memory usage
+        - GPU utilization
+        生成报告（HTML+图表）
+        """
+        pass
+```
+技术栈：  
+nsys/nvprof集成  
+数据可视化（Plotly）  
+支持多种推理框架 
+
+##### 项目3 分布式推理系统
+支持Ray的多机多卡推理服务  
+```
+1. 支持70B模型跨4卡部署（Tensor Parallel）
+2. 多个7B模型并行服务（Model Parallel）
+3. 自动failover和负载均衡
+```
+技术要点：  
+NCCL通信优化  
+GPU拓扑感知调度  
+请求队列优化  
+
 
 ### Week 20-21：主项目开发冲刺
 要求：
@@ -410,6 +479,20 @@ ai_infra/
 2. 面试问答手册
 
 ---
+#### 简历项目描述
+##### 项目1：vLLM Prefix Caching优化
+```
+- 为vLLM实现细粒度prefix cache, 减少RAG场景重复计算30%
+- 设计LRU替换策略，支持10000+不同prefix开发
+- 提交PR到官方仓库，获得120+ stars
+技术栈：Python, CUDA, Pytorch, profiling(nsys)
+```
+##### 项目2：大模型推理性能自动化分析工具
+```
+- 开发端到端prefiling工具，支持vLLM/TensorRT/ONNX Runtime
+- 自动生成性能报告（latency P50/p99, gpu利用率，memory）
+- 帮助团队将平均推理延迟从150ms降至80ms
+```
 
 ## 4. 每周固定交付模板（强制执行）
 
@@ -432,7 +515,7 @@ ai_infra/
 
 ---
 
-## 5. 成果目标（改为“相对提升”，不被硬件绑定）
+## 5. 成果目标
 不再用单一绝对值（如“必须 <100ms”），改为双指标：
 1. 相对提升：同一环境下吞吐提升 >=30% 或延迟下降 >=25%
 2. 工程质量：实验可复现、脚本可重跑、结论可解释
@@ -441,12 +524,3 @@ ai_infra/
 1. 7B 模型 first token latency 进入目标区间
 2. decode throughput 达到业务要求
 
----
-
-## 6. 你的学习优先级（遇到时间不够时按这个顺序）
-1. 先保“实验可复现”
-2. 再做“性能优化”
-3. 最后追“极限指标”
-
-一句话原则：
-先成为一个“能稳定做实验并产出结论的人”，再成为“能把指标拉满的人”。

@@ -1,0 +1,28 @@
+{
+  "mode": "real_pytorch",
+  "experiment_name": "week01_resnet_cpu",
+  "model": "resnet50",
+  "device": "cpu",
+  "batch_size": 16,
+  "warmup_iters": 20,
+  "measure_iters": 100,
+  "num_threads": 8,
+  "input_shape": [
+    3,
+    224,
+    224
+  ],
+  "p50_latency_ms": 1751.2891,
+  "p95_latency_ms": 1900.4081,
+  "throughput_samples_per_s": 9.1361,
+  "phase_p50_ms": {
+    "preprocess": 36.6,
+    "forward": 1706.0234,
+    "postprocess": 0.5084
+  },
+  "phase_p95_ms": {
+    "preprocess": 58.7177,
+    "forward": 1851.6486,
+    "postprocess": 0.6764
+  }
+}

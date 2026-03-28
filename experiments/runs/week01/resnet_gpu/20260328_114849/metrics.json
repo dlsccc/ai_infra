@@ -1,0 +1,28 @@
+{
+  "mode": "real_pytorch",
+  "experiment_name": "week01_resnet_gpu",
+  "model": "resnet50",
+  "device": "cuda",
+  "batch_size": 1,
+  "warmup_iters": 20,
+  "measure_iters": 100,
+  "num_threads": 0,
+  "input_shape": [
+    3,
+    224,
+    224
+  ],
+  "p50_latency_ms": 6.734,
+  "p95_latency_ms": 8.0563,
+  "throughput_samples_per_s": 148.5001,
+  "phase_p50_ms": {
+    "preprocess": 0.0381,
+    "forward": 4.3632,
+    "postprocess": 2.4076
+  },
+  "phase_p95_ms": {
+    "preprocess": 0.0793,
+    "forward": 7.3485,
+    "postprocess": 3.0034
+  }
+}

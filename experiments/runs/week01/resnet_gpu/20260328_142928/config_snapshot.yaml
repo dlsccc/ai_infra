@@ -1,0 +1,12 @@
+experiment_name: week01_resnet_gpu
+model: resnet50
+device: cuda
+batch_size: 2
+warmup_iters: 20
+measure_iters: 100
+num_threads: 0
+input_shape:
+- 3
+- 224
+- 224
+output_dir: experiments/runs/week01/resnet_gpu

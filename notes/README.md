@@ -4,3 +4,5 @@
 
 ## 文件导航
 - [工程化经验手册](E:/ai_infra/notes/engineering_experience.md)
+- [推理加速学习树（持续迭代）](E:/ai_infra/notes/inference_acceleration_learning_tree.md)
+
