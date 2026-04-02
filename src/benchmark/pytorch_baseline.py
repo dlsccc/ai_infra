@@ -39,25 +39,53 @@ def build_model(model_name: str, device: torch.device) -> torch.nn.Module:
 def run_one_iter(model: torch.nn.Module, device: torch.device, batch_size: int, input_shape: tuple[int, int, int]) -> dict:
     c, h, w = input_shape
 
-    # 初始化一个随机张量，模拟输入数据进行读取的预处理时间
-    t0 = time.perf_counter()
-    x = torch.randn(batch_size, c, h, w, dtype=torch.float32, device=device)
-    t1 = time.perf_counter()
-
-    with torch.inference_mode():
-        y = model(x)
-    t2 = time.perf_counter()
-
-    _ = torch.argmax(y, dim=1)
+    # CUDA path: use CUDA events for stage timing.
+    # This avoids putting multiple explicit synchronize() calls in the hot path.
     if device.type == 'cuda':
-        torch.cuda.synchronize(device)
-    t3 = time.perf_counter()
+        e0 = torch.cuda.Event(enable_timing=True)
+        e1 = torch.cuda.Event(enable_timing=True)
+        e2 = torch.cuda.Event(enable_timing=True)
+        e3 = torch.cuda.Event(enable_timing=True)
+
+        e0.record()
+        x = torch.randn(batch_size, c, h, w, dtype=torch.float32, device=device)
+        e1.record()
+
+        with torch.inference_mode():
+            y = model(x)
+        e2.record()
+
+        _ = torch.argmax(y, dim=1)
+        e3.record()
+
+        e3.synchronize()
+
+        preprocess_ms = float(e0.elapsed_time(e1))
+        forward_ms = float(e1.elapsed_time(e2))
+        postprocess_ms = float(e2.elapsed_time(e3))
+        total_ms = float(e0.elapsed_time(e3))
+    else:
+        t0 = time.perf_counter()
+        x = torch.randn(batch_size, c, h, w, dtype=torch.float32, device=device)
+        t1 = time.perf_counter()
+
+        with torch.inference_mode():
+            y = model(x)
+        t2 = time.perf_counter()
+
+        _ = torch.argmax(y, dim=1)
+        t3 = time.perf_counter()
+
+        preprocess_ms = (t1 - t0) * 1000.0
+        forward_ms = (t2 - t1) * 1000.0
+        postprocess_ms = (t3 - t2) * 1000.0
+        total_ms = (t3 - t0) * 1000.0
 
     return {
-        'preprocess_ms': (t1 - t0) * 1000.0,
-        'forward_ms': (t2 - t1) * 1000.0,
-        'postprocess_ms': (t3 - t2) * 1000.0,
-        'total_ms': (t3 - t0) * 1000.0,
+        'preprocess_ms': preprocess_ms,
+        'forward_ms': forward_ms,
+        'postprocess_ms': postprocess_ms,
+        'total_ms': total_ms,
     }
 
 
@@ -118,6 +146,7 @@ def main() -> None:
 
     result = {
         'mode': 'real_pytorch',
+        'timing_backend': 'cuda_event' if device.type == 'cuda' else 'perf_counter',
         'experiment_name': exp_name,
         'model': model_name,
         'device': device_name,
@@ -151,6 +180,7 @@ def main() -> None:
         '# Week1 PyTorch Baseline Summary\n\n'
         f"- run_id: `{run_id}`\n"
         f"- mode: `{result['mode']}`\n"
+        f"- timing_backend: `{result['timing_backend']}`\n"
         f"- device: `{device_name}`\n"
         f"- model: `{model_name}`\n"
         f"- batch_size: `{batch_size}`\n"

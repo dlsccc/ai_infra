@@ -1,0 +1,15 @@
+experiment_name: week01_bert_cpu
+model_name: bert-base-uncased
+device: cpu
+batch_sizes:
+- 1
+- 4
+- 8
+seq_lens:
+- 32
+- 128
+- 256
+warmup_iters: 20
+measure_iters: 100
+approx_words: 256
+output_dir: experiments/runs/week01/bert_cpu

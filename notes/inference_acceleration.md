@@ -117,19 +117,85 @@ L4 架构与内核（后续周深入）：
       一般实践时用 `model.eval()` + `torch.inference_mode()`
    2. `torch.utils.benchmark.Timer`
       1. 在统计gpu时间时，不能用 `time.time()`计时，因为gpu是异步执行的
+      2. `torch.utils.benchmark`有哪些模块
+         | 类/模块 | 核心能力 |	关键方法 |
+         |:---:|:---:|:---:|
+         | Timer | 壁钟计时 + warmup + CUDA同步 | blocked_autorange, adaptive_autorange, timeit |
+         | Timer | 指令计数 | collect_callgrind |
+         | Measurement | 结果存储 + 统计量 | .median, .iqr, .merge() |
+         | CallgrindStats | Callgrind 结果分析 | .stats(), .delta(), .as_standardized() |
+         | unctionCounts | 函数级指令操作 | .filter(), .transform(), .denoise(), 加减法 |
+         | Compare |	多结果格式化对比 | .colorize(), .print(), .trim_significant_figures() |
+         | Fuzzer | 随机输入生成（隐藏功能） | .take(n) → 随机张量生成器 |
 
-      | 类/模块 | 核心能力 |	关键方法 |
-      |:---:|:---:|:---:|
-      | Timer | 壁钟计时 + warmup + CUDA同步 | blocked_autorange, adaptive_autorange, timeit |
-      | Timer | 指令计数 | collect_callgrind |
-      | Measurement | 结果存储 + 统计量 | .median, .iqr, .merge() |
-      | CallgrindStats | Callgrind 结果分析 | .stats(), .delta(), .as_standardized() |
-      | unctionCounts | 函数级指令操作 | .filter(), .transform(), .denoise(), 加减法 |
-      | Compare |	多结果格式化对比 | .colorize(), .print(), .trim_significant_figures() |
-      | Fuzzer | 随机输入生成（隐藏功能） | .take(n) → 随机张量生成器 |
 
+   3. `torch.cuda.Event` 与 `torch.utils.benchmark.Timer` 的关系
 
+      - 两者都是计时工具，但口径不同。
+      - `Timer` 更偏“Python侧/端到端代码段计时”，适合统一管理warmup、重复测量和统计。
+      - `torch.cuda.Event` 更偏“GPU设备侧计时”，能更准确测 kernel 执行时间，不把大量 CPU 等待/调度开销混进来。
+      - 实践建议：
+         1. 要看端到端请求时延：优先 `Timer`（或 `perf_counter`）+ 明确同步策略。
+         2. 要做 GPU 阶段拆分（pre/forward/post）：优先 `cuda.Event`。
 
+   4. `torch.cuda.Event` 原理与用法
+
+      原理：
+      - CUDA 默认异步执行。CPU 提交算子后会很快返回。
+      - `torch.cuda.Event` 会在 CUDA stream 中打时间戳。
+      - `start.elapsed_time(end)` 返回的是 GPU 设备侧从 `start` 到 `end` 的耗时（毫秒）。
+      - 必须在读取结果前确保事件已完成（通常 `end.synchronize()` 或全局 `torch.cuda.synchronize()`）。
+
+      标准用法：
+
+      ```python
+      start = torch.cuda.Event(enable_timing=True)
+      end = torch.cuda.Event(enable_timing=True)
+
+      start.record()
+      # GPU work
+      y = model(x)
+      end.record()
+
+      end.synchronize()  # 或 torch.cuda.synchronize()
+      ms = start.elapsed_time(end)
+      ```
+
+         阶段拆分用法（pre/forward/post）：
+
+      ```python
+      e0 = torch.cuda.Event(enable_timing=True)
+      e1 = torch.cuda.Event(enable_timing=True)
+      e2 = torch.cuda.Event(enable_timing=True)
+      e3 = torch.cuda.Event(enable_timing=True)
+
+      e0.record()
+      x = torch.randn(..., device='cuda')
+      e1.record()
+
+      with torch.inference_mode():
+         y = model(x)
+      e2.record()
+
+      _ = torch.argmax(y, dim=1)
+      e3.record()
+
+      e3.synchronize()
+
+      pre_ms = e0.elapsed_time(e1)
+      fwd_ms = e1.elapsed_time(e2)
+      post_ms = e2.elapsed_time(e3)
+      total_ms = e0.elapsed_time(e3)
+      ```
+
+      常见误区：
+      1. 只在 `model(x)` 前后用 `perf_counter`，但不做同步，得到的 GPU 时间会偏小。
+      2. 每个阶段都强行 `torch.cuda.synchronize()`，会把额外等待开销放大，导致小 batch 下延迟异常增大。
+      3. 混用不同计时口径（device-time vs wall-time）后直接横向比较，结论会失真。
+
+      建议在报告里标注计时口径：
+      - `timing_backend = cuda_event`（设备侧）
+      - `timing_backend = perf_counter`（墙钟时间）
 
 ##### 参考资料
 [1] https://zhuanlan.zhihu.com/p/1983137653336585901

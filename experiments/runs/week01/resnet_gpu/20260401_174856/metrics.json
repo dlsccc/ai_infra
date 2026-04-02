@@ -1,5 +1,6 @@
 {
   "mode": "real_pytorch",
+  "timing_backend": "cuda_event",
   "experiment_name": "week01_resnet_gpu",
   "model": "resnet50",
   "device": "cuda",
@@ -12,17 +13,17 @@
     224,
     224
   ],
-  "p50_latency_ms": 39.8119,
-  "p95_latency_ms": 41.0712,
-  "throughput_samples_per_s": 200.9449,
+  "p50_latency_ms": 39.3968,
+  "p95_latency_ms": 47.5134,
+  "throughput_samples_per_s": 203.0623,
   "phase_p50_ms": {
-    "preprocess": 0.2258,
-    "forward": 22.091,
-    "postprocess": 17.6021
+    "preprocess": 0.1188,
+    "forward": 39.2684,
+    "postprocess": 0.0092
   },
   "phase_p95_ms": {
-    "preprocess": 0.3849,
-    "forward": 36.6124,
-    "postprocess": 22.0409
+    "preprocess": 0.3648,
+    "forward": 46.6094,
+    "postprocess": 0.2551
   }
 }

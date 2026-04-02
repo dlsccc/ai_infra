@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>INFERENCE EXPLAINER</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <p class="wordmark">模型推理可视化</p>
+      <h1>INFERENCE EXPLAINER</h1>
+      <p class="subtitle">用可交互结构图展示神经网络推理过程。当前包含 ResNet 和 BERT，并可持续扩展到更多模型。</p>
+    </header>
+
+    <section class="toolbar">
+      <div class="model-switch" role="tablist" aria-label="Model switch">
+        <button class="model-btn active" data-model="resnet" role="tab" aria-selected="true">ResNet</button>
+        <button class="model-btn" data-model="bert" role="tab" aria-selected="false">BERT</button>
+      </div>
+
+      <div class="controls">
+        <button id="prevStep" class="ctrl-btn">上一步</button>
+        <button id="playPause" class="ctrl-btn primary">自动播放</button>
+        <button id="nextStep" class="ctrl-btn">下一步</button>
+      </div>
+    </section>
+
+    <section class="content-grid">
+      <article class="panel graph-panel">
+        <div class="panel-title-row">
+          <h2 id="graphTitle">模型结构视图</h2>
+          <span id="stepBadge" class="step-badge">步骤 1 / 1</span>
+        </div>
+        <svg id="graph" viewBox="0 0 1180 520" aria-label="Model graph"></svg>
+      </article>
+
+      <aside class="panel info-panel">
+        <h2>当前步骤</h2>
+        <h3 id="stepTitle">-</h3>
+        <p id="stepDesc">-</p>
+
+        <div class="kv-list">
+          <div class="kv-item">
+            <span>输入 / 输出</span>
+            <strong id="stepIO">-</strong>
+          </div>
+          <div class="kv-item">
+            <span>核心算子</span>
+            <strong id="stepOp">-</strong>
+          </div>
+          <div class="kv-item">
+            <span>可视化提示</span>
+            <strong id="stepHint">-</strong>
+          </div>
+        </div>
+
+        <div class="attention-wrap">
+          <h4>注意力热力图（BERT）</h4>
+          <div id="attentionGrid" class="attention-grid empty"></div>
+        </div>
+      </aside>
+    </section>
+
+    <section id="bertExamplePanel" class="panel bert-example-panel hidden" aria-live="polite">
+      <div class="bert-example-head">
+        <h2>BERT 输入到输出示例</h2>
+        <p>示例任务：句子情感分类（展示 batch_size=3）</p>
+      </div>
+
+      <div class="example-flow">
+        <article id="flowCardTokenize" class="flow-card">
+          <h3>1) 文本与 Tokenizer</h3>
+          <pre id="exRawText" class="mono-block"></pre>
+          <pre id="exTokens" class="mono-block"></pre>
+        </article>
+
+        <div class="flow-arrow">→</div>
+
+        <article id="flowCardTensorIn" class="flow-card">
+          <h3>2) Tokenizer 输出张量</h3>
+          <pre id="exInputIds" class="mono-block"></pre>
+          <pre id="exAttentionMask" class="mono-block"></pre>
+          <pre id="exTokenTypeIds" class="mono-block"></pre>
+        </article>
+
+        <div class="flow-arrow">→</div>
+
+        <article id="flowCardBertTensor" class="flow-card">
+          <h3>3) BERT 编码输出</h3>
+          <pre id="exHiddenShape" class="mono-block"></pre>
+          <pre id="exPoolerShape" class="mono-block"></pre>
+          <pre id="exHiddenSample" class="mono-block"></pre>
+        </article>
+
+        <div class="flow-arrow">→</div>
+
+        <article id="flowCardClsHead" class="flow-card">
+          <h3>4) 取 [CLS] + 分类头</h3>
+          <pre id="exClsCalc" class="mono-block"></pre>
+          <pre id="exLogits" class="mono-block"></pre>
+          <pre id="exProbs" class="mono-block"></pre>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>
