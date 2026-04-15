@@ -13,9 +13,7 @@
 2. 证据卡：至少 1 组真实实验数据（表格 + 结论 + 反例）。
 3. 表达卡：沉淀 1 条“面试可直接讲”的 STAR/问题-分析-结论话术。
 
----
-
-## 1. 学习树总览（v0）
+### 0.1 学习树总览（v0）
 
 L1 指标与测量基础：
 - latency、throughput、warmup、percentile（P50/P95/P99）
@@ -39,9 +37,9 @@ L4 架构与内核（后续周深入）：
 
 ---
 
-## 2. Week1 先修概念
+## 1. Week1 
 
-### 2.1 必补概念
+### 1.1 必补概念
 
 1. 推理性能指标 
    1. Latency vs. Throughput
@@ -203,7 +201,7 @@ L4 架构与内核（后续周深入）：
 
 ---
 
-## 3. Week1 学习资料（按优先级）
+### 1.2 Week1 学习资料（按优先级）
 
 P0（本周必读）：
 1. PyTorch `inference_mode` 文档（理解推理时为何比 `no_grad` 更少开销）
@@ -225,17 +223,51 @@ P1（建议预读，为 Week2/Week8 铺垫）：
 
 ---
 
-## 4. Week1 最小完成标准（可直接打勾）
+### 1.3 Week1 最小完成标准（可直接打勾）
 
-- [ ] 我能解释 latency / throughput / warmup / P50-P95 的定义和关系。
-- [ ] 我能解释为何 batch 上升时吞吐上升但单请求延迟可能变差。
-- [ ] 我有一张 stage breakdown 表（preprocess/forward/postprocess）。
-- [ ] 我有一张 batch sweep 表（>=3 组 batch）并给出结论。
-- [ ] 我记录了测量协议（warmup、测量轮次、输入、版本）。
+- [x] 我能解释 latency / throughput / warmup / P50-P95 的定义和关系。
+- [x] 我能解释为何 batch 上升时吞吐上升但单请求延迟可能变差。
+- [x] 我有一张 stage breakdown 表（preprocess/forward/postprocess）。
+- [x] 我有一张 batch sweep 表（>=3 组 batch）并给出结论。
+- [x] 我记录了测量协议（warmup、测量轮次、输入、版本）。
 
 ---
 
-## 5. 周更模板（复制到后续 Week）
+## 2. Week2
+
+### 2.1 `torch.compile`
+1. 解释 torch.compile 的编译链路和适用场景。
+   适合场景：
+   1. 模型会被重复调用很多次（推理服务、训练循环），能摊薄首次编译开销。
+   2. 算子链较长、Python 调度开销明显，图融合后有收益。
+   3. 输入形状相对稳定，或者你已做好 dynamic shape 策略。
+   4. 愿意做 benchmark 和少量排障（因为这个不是“一键必快”工具）。
+   不适合场景：
+   1. 只跑几次就结束的脚本
+   2. 控制流非常复杂，频繁graph break的代码
+   3. 输入shape乱跳且没做动态策略时
+2. torch.compile(..., mode=...) 的模式差异（default / reduce-overhead / max-autotune）
+   1. `default`模式：平衡“编译开销”和“运行性能”
+   2. `reduce-overhead`目标是降低python调用开销，重点依赖 CUDA Graph 路径，在小 batch、调用特别频繁的 GPU 推理常见有效，在 CPU 上通常不是主力模式
+   3. `max-autotune`：更激进地做 autotune（例如 matmul/conv 相关内核选择），通常编译更慢，但长时间稳定运行时可能更快
+3. graph break 是什么，为什么会让加速效果变差
+   1. graph指可被编译器整体优化的一段计算图（FX graph）
+   2. `graph break`：Dynamo追踪时遇到无法纳入图的代码，会把图截断。就会发生“图编译执行 -- python执行 -- 新建图编译执行”
+4. 输入 shape 变化为什么会触发重新编译
+   1. 编译后的图不是“无限通用”，它带有 guards（有效条件），比如某维度必须等于某值或满足某约束。
+   2. 新输入 shape 触发 guard 失败，就会 recompile。
+5. 如何用 TORCH_LOGS 定位问题
+   1. `TORCH_LOGS="graph_breaks,recompiles,dynamic,guards,perf_hints,graph_code"` 可用这几个常用的。
+      1. `graph_breaks`：查看哪里断图，为什么断
+      2. `recompiles`：哪次重编译，哪个guard失败
+      3. `dynamic`：动态shape相关决策
+      4. `guards`：编译假设条件
+      5. `perf_hints`：性能提示
+      6. `graph_mode`：Dynamo产出的图代码
+
+---
+
+## 周更模板（复制到后续 Week）
 
 ````markdown
 ## WeekXX 增量
@@ -261,9 +293,3 @@ P1（建议预读，为 Week2/Week8 铺垫）：
 
 ---
 
-## 6. 面向跳槽的沉淀原则
-
-1. 每个概念都要绑定至少一个真实数据证据。
-2. 每个实验都要能回答“为什么这样测、为什么这样变”。
-3. 每周至少产出 1 条可复述的性能优化故事。
-4. 你的最终目标不是“知道术语”，而是“能做取舍并证明结果”。

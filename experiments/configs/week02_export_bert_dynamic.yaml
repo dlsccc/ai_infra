@@ -1,0 +1,12 @@
+﻿experiment_name: week02_export_bert_dynamic
+model_family: bert
+model_name: bert-base-uncased
+opset_version: 17
+dummy_batch_size: 1
+dummy_seq_len: 128
+dynamic_batch: true
+dynamic_seq: true
+use_token_type_ids: true
+hf_cache_dir: .cache/huggingface
+onnx_output_path: artifacts/onnx/week02/bert_base_dynamic.onnx
+output_dir: experiments/runs/week02/export/bert

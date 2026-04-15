@@ -1,2 +1,36 @@
-﻿__pycache__/
-*.pyc
+﻿# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual env / local env
+.venv/
+venv/
+env/
+
+# Tool caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/*.code-workspace
+
+# Local package/user cache
+.cache/
+
+# Logs
+*.log
+
+# Build / binary artifacts
+artifacts/**/*.onnx
+artifacts/**/*.engine
+artifacts/**/*.plan
+artifacts/**/*.trt
+
+# Benchmark/profiling raw runs (keep only curated reports in docs/)
+experiments/runs/**
+!experiments/runs/.gitkeep

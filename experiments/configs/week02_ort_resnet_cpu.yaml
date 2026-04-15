@@ -1,0 +1,16 @@
+﻿experiment_name: week02_ort_resnet_cpu
+model_family: resnet
+onnx_model_path: artifacts/onnx/week02/resnet50_dynamic.onnx
+providers: [CPUExecutionProvider]
+graph_optimization_level: ORT_ENABLE_ALL
+intra_op_num_threads: 8
+inter_op_num_threads: 0
+input_shape: [3, 224, 224]
+warmup_iters: 20
+measure_iters: 100
+cases:
+  - batch_size: 1
+  - batch_size: 4
+  - batch_size: 8
+  - batch_size: 16
+output_dir: experiments/runs/week02/ort/resnet_cpu

@@ -1,0 +1,22 @@
+﻿experiment_name: week02_ort_bert_cpu
+model_family: bert
+onnx_model_path: artifacts/onnx/week02/bert_base_dynamic.onnx
+providers: [CPUExecutionProvider]
+graph_optimization_level: ORT_ENABLE_ALL
+intra_op_num_threads: 8
+inter_op_num_threads: 0
+vocab_size: 30522
+warmup_iters: 20
+measure_iters: 100
+cases:
+  - batch_size: 1
+    seq_len: 32
+  - batch_size: 1
+    seq_len: 128
+  - batch_size: 1
+    seq_len: 256
+  - batch_size: 4
+    seq_len: 128
+  - batch_size: 8
+    seq_len: 128
+output_dir: experiments/runs/week02/ort/bert_cpu

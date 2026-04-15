@@ -7,3 +7,5 @@ torch==2.6.0+cu124
 torchvision==0.21.0+cu124
 transformers>=4.48,<5.0
 tokenizers>=0.21,<1.0
+onnx>=1.16,<2.0
+onnxruntime>=1.19,<2.0
