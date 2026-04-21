@@ -210,10 +210,16 @@ Week:  0  2  4  6  8  10  12  14  16  18  20  22  24
 2. 理解 FlashAttention 的核心思想（减少 HBM 往返）。
 
 任务：
-1. 写 naive attention（可用小尺寸张量）。
-2. 用不同 sequence length 对比耗时与显存。
-3. 阅读 FlashAttention/FlashAttention-2/3 核心思想并做笔记。
-4.   FlashAttention v1
+1. 写 naive attention基线实现（可用小尺寸张量）。
+2. 用不同 sequence length 记录时延和显存峰值。
+3. 对比Pytorch SDPA后端（math/flash/mem-efficient）可用哪个用哪个
+4. 产出FlashAttention/FlashAttention-2/3对比笔记
+5. 产出两张图：latency vs seq_len，peak memory vs seq_len
+
+理解核心内容：
+1. 为什么attention在长序列上变慢且更吃显存
+2. 什么是IO瓶颈
+3.   FlashAttention v1
       └── 核心贡献：Tiling + Recomputation，减少 HBM 读写
     FlashAttention v2
       └── 核心贡献：更好的并行策略，减少非矩阵乘法计算占比

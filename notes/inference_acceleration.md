@@ -267,6 +267,108 @@ P1（建议预读，为 Week2/Week8 铺垫）：
 
 ---
 
+## 3. Week3
+
+### 3.1 transformer
+
+1. 输入表示（Embedding + Positional Encoding）
+- 词向量：把 token id 映射到连续向量空间。
+- 位置编码：给模型注入顺序信息（因为纯 attention 本身不含顺序）。
+- 最终输入可写为：
+  \[
+  X = E_{token} + E_{position}
+  \]
+
+2. 正余弦位置编码（Sinusoidal Positional Encoding）
+- 论文中的固定位置编码定义：
+  \[
+  PE_{(pos,2i)} = \sin\left(\frac{pos}{10000^{2i/d_{model}}}\right),
+  \quad
+  PE_{(pos,2i+1)} = \cos\left(\frac{pos}{10000^{2i/d_{model}}}\right)
+  \]
+- 含义：
+  - \(pos\)：位置索引（第几个 token）。
+  - \(i\)：通道维度索引，不同维度对应不同频率。
+  - 偶数维用 \(\sin\)，奇数维用 \(\cos\)。
+- 直觉：
+  - 低频维度负责更“平滑、全局”的位置信息。
+  - 高频维度负责更“细粒度、局部”的位置信息。
+  - 多频率叠加后，模型更容易分辨不同位置和相对位移关系。
+- 为什么常说它有外推能力：
+  - 这是解析函数，不是查表参数；遇到训练中没见过的位置，也能按公式直接计算编码。
+- 实践提醒：
+  - 原始 Transformer 用固定正余弦；很多现代大模型改用可学习绝对位置、RoPE、ALiBi 等方案以获得更好的长上下文效果。
+
+3. 缩放点积注意力（Scaled Dot-Product Attention）
+- 先做线性映射：
+  \[
+  Q = XW_Q,\; K = XW_K,\; V = XW_V
+  \]
+- 核心公式：
+  \[
+  \text{Attention}(Q,K,V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V
+  \]
+- 直觉：
+  - \(QK^T\)：查询和键的相关性打分。
+  - softmax：把打分归一化成权重。
+  - 乘 \(V\)：按权重对 value 做加权求和。
+
+4. 为什么要除以 \(\sqrt{d_k}\)（缩放因子）
+- 当 \(d_k\) 很大时，点积值方差会变大，softmax 容易饱和（接近 one-hot）。
+- softmax 饱和后梯度变小，训练不稳定。
+- 除以 \(\sqrt{d_k}\) 可以把数值拉回更稳定范围，改善优化过程。
+
+5. 多头注意力（Multi-Head Attention, MHA）
+- 单头表达：
+  \[
+  \text{head}_i = \text{Attention}(QW_Q^{(i)}, KW_K^{(i)}, VW_V^{(i)})
+  \]
+- 拼接并线性变换：
+  \[
+  \text{MHA}(Q,K,V)=\text{Concat}(\text{head}_1,\ldots,\text{head}_h)W_O
+  \]
+- 作用：不同头可以学习不同关系（局部/全局、语义/语法等），提升表达能力。
+
+6. Transformer Block 的标准流程
+- Encoder block：
+  1) MHA
+  2) Add & LayerNorm（残差连接 + 归一化）
+  3) FFN
+  4) Add & LayerNorm
+- FFN 常见形式：
+  \[
+  \text{FFN}(x)=\sigma(xW_1+b_1)W_2+b_2
+  \]
+  其中 \(\sigma\) 常用 ReLU/GELU。
+
+7. Decoder 与自回归（Auto-regressive）
+- Decoder 的 self-attention 使用 causal mask，保证“当前位置只能看见过去 token”。
+- 自回归生成：第 \(t\) 步预测依赖 \(1\ldots t-1\) 的上下文。
+- 你在推理中看到的 prefill/decode，本质就是：
+  - prefill：并行处理已有上下文，建立状态（如 KV cache）
+  - decode：逐 token 迭代生成
+
+8. 复杂度与推理瓶颈（为什么后续有 FlashAttention）
+- 对序列长度 \(n\)，attention score 矩阵是 \(n\times n\)。
+- 时间/显存核心开销随 \(n\) 增长明显（常讨论为 \(O(n^2)\) 级别瓶颈）。
+- 这就是长序列场景下需要 FlashAttention、PagedAttention 等优化的根因。
+
+- ps: **受限自注意力机制**，通过限制每个元素在计算注意力时捕捉的序列范围，降低计算复杂度，牺牲一部分全局依赖建模能力来换取计算效率。将复杂度从 $O(n^2 \cdot d)$降低到 $O(r \cdot n \cdot d)$
+
+9. 必须能讲清的“面试版一句话”
+- Transformer 用“Q-K 相关性 + V 加权聚合”替代了循环结构；多头增强表达，缩放稳定训练；自回归 + mask 保证因果生成；长序列瓶颈来自 attention 的 \(n^2\) 级别计算与内存访问。
+
+10. 常见误区
+- 误区1：attention 权重越尖锐越好。实际上过度尖锐会影响梯度与泛化。
+- 误区2：多头只是参数变多。更关键是“子空间分工建模”。
+- 误区3：Transformer 推理慢只是算力不够。很多时候是显存带宽与数据搬运（IO）瓶颈。
+
+##### 参考资料
+[1] Vaswani et al., Attention Is All You Need, 2017: https://arxiv.org/abs/1706.03762
+[2] Transformer 结构可视化讲解: https://explainer.tubex.chat/
+
+---
+
 ## 周更模板（复制到后续 Week）
 
 ````markdown
@@ -292,4 +394,5 @@ P1（建议预读，为 Week2/Week8 铺垫）：
 ````
 
 ---
+
 

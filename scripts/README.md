@@ -177,3 +177,46 @@ bash scripts/benchmark/run_week02_ort.sh experiments/configs/week02_ort_bert_cpu
 - ORT 结果：`experiments/runs/week02/ort/...`
 - 模型文件：`artifacts/onnx/week02/*.onnx`
 
+
+---
+
+## 7. Week03 Attention Baseline (Naive)
+
+### 7.1 PowerShell（推荐）
+
+CPU:
+```powershell
+$env:PYTHONNOUSERSITE='1'
+& "D:\conda\envs\ai_infra\python.exe" src/benchmark/attention_naive_baseline.py --config experiments/configs/week03_attention_cpu.yaml
+```
+
+GPU:
+```powershell
+$env:PYTHONNOUSERSITE='1'
+& "D:\conda\envs\ai_infra\python.exe" src/benchmark/attention_naive_baseline.py --config experiments/configs/week03_attention_gpu.yaml
+```
+
+### 7.2 Bash 入口
+
+```bash
+bash scripts/benchmark/run_week03_attention.sh experiments/configs/week03_attention_cpu.yaml
+bash scripts/benchmark/run_week03_attention.sh experiments/configs/week03_attention_gpu.yaml
+```
+
+### 7.3 输出目录
+
+- `experiments/runs/week03/attention_cpu/<timestamp>/`
+- `experiments/runs/week03/attention_gpu/<timestamp>/`
+
+输出文件：
+- `config_snapshot.yaml`
+- `metrics.json`
+- `summary.md`
+
+### 7.4 指标说明
+
+1. `forward_p50_ms` / `forward_p95_ms`: 核心 attention 前向耗时。
+2. `total_p50_ms` / `total_p95_ms`: 包含输入构造与后处理的总耗时。
+3. `peak_memory_p50_mb`: CUDA 峰值显存统计（CPU 为 0）。
+4. `throughput_tokens_per_s`: 近似 tokens 吞吐，计算方式为 `batch_size * seq_len / total_time`。
+

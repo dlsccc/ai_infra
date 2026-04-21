@@ -1,0 +1,14 @@
+﻿experiment_name: week03_attention_gpu
+device: cuda
+dtype: float16
+batch_size: 1
+num_heads: 8
+head_dim: 64
+seq_lens: [64, 128, 256, 512, 1024]
+implementations: [naive, sdpa]
+is_causal: false
+warmup_iters: 10
+measure_iters: 50
+seed: 42
+check_correctness: true
+output_dir: experiments/runs/week03/attention_gpu
