@@ -72,7 +72,21 @@ L4 架构与内核（后续周深入）：
       - Ramp Up：爬坡测试，修改RPS测试服务性能
       - SLO：Service Level Objective，服务质量目标，确保为客户提供优质服务的关键
       - MFU：Model Flops Utilization，衡量模型对GPU算力资源使用效率
-
+      - JCT：Job Completion Time，任务完成时间，整个agent任务从开始到结束的时间
+   3. KV cache
+      serving系统把之前token的key和value缓存起来，形成KV cache。
+      特点：
+      - 极大加速decode
+      - 占用巨大显存
+      - 长上下文、多并发、多轮agent都会让KV cache压力变大
+      - serving系统决定如何分配、复用、驱逐KV cache
+   4. prefix caching
+      如果多个请求有相同前缀，系统可以缓存这部分的KV，不用重新prefill。agent场景非常适合prefix caching，因为有很多内容反复出现，比如system prompt, tool descriptions, developer instructions, few-shot examples等。但是实际命中不一定高，因为tool schema顺序改变、prompt时间戳、JSON空格/换行不一致、session被路由到不同实例等
+   5. continuous batching
+      - 普通batching：一批请求凑齐，一起跑，等待全部结束了，换下一批。但是LLM请求长度差异大，这样会浪费gpu
+      - continuous batching：每个decode step动态地把活跃请求组成batch，vllm、sglang这类serving engine都是continuous batching
+   6. Disaggregated Inference / PD 分离
+      - 把prefill和decode分开部署，prefill大矩阵计算多，和输入长度相关；decode逐token生成，KV cache访问重，对延迟敏感。把他们放在不同的gpt pool，更好地调度资源。不过这个过程会引入新问题，如：prefill产生的KV cache如何传给decode，网络传输开销有多少，prefill和decode gpu比例怎么分配等
 2. Prefilling & Decoding
 - prefill：预填充，并行处理输入的所有token
    - 一次完整的前向传播，生成KV cache，输出第一个token，这个时间与输入的token有关
@@ -366,6 +380,10 @@ P1（建议预读，为 Week2/Week8 铺垫）：
 ##### 参考资料
 [1] Vaswani et al., Attention Is All You Need, 2017: https://arxiv.org/abs/1706.03762
 [2] Transformer 结构可视化讲解: https://explainer.tubex.chat/
+
+---
+## 4. Week5
+
 
 ---
 
