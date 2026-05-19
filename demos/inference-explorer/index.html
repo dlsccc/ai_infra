@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>INFERENCE EXPLAINER</title>
+  <title>Inference Explainer</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
@@ -12,15 +12,20 @@
 <body>
   <main class="page">
     <header class="hero">
-      <p class="wordmark">模型推理可视化</p>
+      <p class="wordmark">MODEL INFERENCE VISUAL LAB</p>
       <h1>INFERENCE EXPLAINER</h1>
-      <p class="subtitle">用可交互结构图展示神经网络推理过程。当前包含 ResNet 和 BERT，并可持续扩展到更多模型。</p>
+      <p class="subtitle">
+        一个把推理过程拆开看的交互网页。你可以切换到 <strong>ResNet</strong>、<strong>BERT</strong>，
+        也可以进入全新的 <strong>FlashAttention Explorer</strong>，直接看 Q / K / V 矩阵块如何在
+        HBM 与 SRAM 之间流动，以及 online softmax 如何逐步更新。
+      </p>
     </header>
 
     <section class="toolbar">
-      <div class="model-switch" role="tablist" aria-label="Model switch">
+      <div class="model-switch" role="tablist" aria-label="Topic switch">
         <button class="model-btn active" data-model="resnet" role="tab" aria-selected="true">ResNet</button>
         <button class="model-btn" data-model="bert" role="tab" aria-selected="false">BERT</button>
+        <button class="model-btn" data-model="flash" role="tab" aria-selected="false">FlashAttention</button>
       </div>
 
       <div class="controls">
@@ -30,7 +35,7 @@
       </div>
     </section>
 
-    <section class="content-grid">
+    <section id="contentGrid" class="content-grid">
       <article class="panel graph-panel">
         <div class="panel-title-row">
           <h2 id="graphTitle">模型结构视图</h2>
@@ -50,17 +55,17 @@
             <strong id="stepIO">-</strong>
           </div>
           <div class="kv-item">
-            <span>核心算子</span>
+            <span>核心操作</span>
             <strong id="stepOp">-</strong>
           </div>
           <div class="kv-item">
-            <span>可视化提示</span>
+            <span>观察提示</span>
             <strong id="stepHint">-</strong>
           </div>
         </div>
 
         <div class="attention-wrap">
-          <h4>注意力热力图（BERT）</h4>
+          <h4>Attention Heatmap</h4>
           <div id="attentionGrid" class="attention-grid empty"></div>
         </div>
       </aside>
@@ -69,12 +74,12 @@
     <section id="bertExamplePanel" class="panel bert-example-panel hidden" aria-live="polite">
       <div class="bert-example-head">
         <h2>BERT 输入到输出示例</h2>
-        <p>示例任务：句子情感分类（展示 batch_size=3）</p>
+        <p>示例任务：句子情感分类。这里把 tokenizer、张量输入、编码器输出以及 [CLS] 分类头的流向完整展开。</p>
       </div>
 
       <div class="example-flow">
         <article id="flowCardTokenize" class="flow-card">
-          <h3>1) 文本与 Tokenizer</h3>
+          <h3>1) 原始文本到 Tokenizer</h3>
           <pre id="exRawText" class="mono-block"></pre>
           <pre id="exTokens" class="mono-block"></pre>
         </article>
@@ -106,6 +111,198 @@
           <pre id="exProbs" class="mono-block"></pre>
         </article>
       </div>
+    </section>
+
+    <section id="flashExperience" class="flash-experience hidden" aria-live="polite">
+      <div class="flash-experience-head">
+        <div>
+          <p class="flash-kicker">Explorable Article</p>
+          <h2 id="flashSceneTitle">FlashAttention Explorer</h2>
+          <p id="flashSceneDesc" class="flash-scene-desc">-</p>
+        </div>
+
+        <div class="flash-memory-legend">
+          <span class="memory-pill hbm">HBM: 大、慢、片外</span>
+          <span class="memory-pill sram">SRAM: 小、快、片上</span>
+          <span class="memory-pill reg">Registers: 行级状态 m / l / r</span>
+        </div>
+      </div>
+
+      <div id="flashTimeline" class="flash-timeline" role="tablist" aria-label="FlashAttention steps"></div>
+
+      <section class="flash-world">
+        <div class="flash-world-grid">
+          <article class="memory-tier hbm-tier">
+            <div class="tier-head">
+              <div>
+                <h3>HBM</h3>
+                <p>片外大显存。容量大，但来回搬运 tile 很贵。</p>
+              </div>
+              <span id="flashHBMNote" class="tier-badge">global tensors</span>
+            </div>
+
+            <div class="memory-card-grid">
+              <section class="memory-card">
+                <div class="memory-card-head">
+                  <h4>Q</h4>
+                  <span class="matrix-caption">4 x 2</span>
+                </div>
+                <div id="flashHBMQ"></div>
+              </section>
+
+              <section class="memory-card">
+                <div class="memory-card-head">
+                  <h4>K</h4>
+                  <span class="matrix-caption">4 x 2</span>
+                </div>
+                <div id="flashHBMK"></div>
+              </section>
+
+              <section class="memory-card">
+                <div class="memory-card-head">
+                  <h4>V</h4>
+                  <span class="matrix-caption">4 x 2</span>
+                </div>
+                <div id="flashHBMV"></div>
+              </section>
+
+              <section class="memory-card">
+                <div class="memory-card-head">
+                  <h4>O</h4>
+                  <span class="matrix-caption">4 x 2</span>
+                </div>
+                <div id="flashHBMO"></div>
+              </section>
+
+              <section class="memory-card">
+                <div class="memory-card-head">
+                  <h4>Row State</h4>
+                  <span class="matrix-caption">m / l / Oᵢ in HBM</span>
+                </div>
+                <div id="flashHBMState"></div>
+              </section>
+
+              <section class="memory-card ghost-card">
+                <div class="memory-card-head">
+                  <h4>S = QKᵀ</h4>
+                  <span class="matrix-caption">4 x 4</span>
+                </div>
+                <div id="flashHBMS"></div>
+                <p id="flashSNote" class="ghost-note">-</p>
+              </section>
+
+              <section class="memory-card ghost-card">
+                <div class="memory-card-head">
+                  <h4>P = softmax(S)</h4>
+                  <span class="matrix-caption">4 x 4</span>
+                </div>
+                <div id="flashHBMP"></div>
+                <p id="flashPNote" class="ghost-note">-</p>
+              </section>
+            </div>
+          </article>
+
+          <article class="transfer-column">
+            <div class="transfer-pipe">
+              <div class="transfer-label">HBM → SRAM Streaming</div>
+              <div class="transfer-rail"></div>
+              <div id="flashTransferChips" class="transfer-chips"></div>
+            </div>
+
+            <div class="transfer-log">
+              <h3>Current Traffic</h3>
+              <ul id="flashTransferList" class="transfer-list"></ul>
+            </div>
+          </article>
+
+          <article class="memory-tier sram-tier">
+            <div class="tier-head">
+              <div>
+                <h3>SRAM / Registers</h3>
+                <p>片上工作区。当前 Q tile、K/V tile、局部 score 和在线状态都在这里更新。</p>
+              </div>
+              <span id="flashSRAMNote" class="tier-badge">on-chip state</span>
+            </div>
+
+            <div class="sram-grid">
+              <section class="memory-card">
+                <div class="memory-card-head">
+                  <h4>Qᵢ tile</h4>
+                  <span class="matrix-caption">Br x d</span>
+                </div>
+                <div id="flashSRAMQ"></div>
+              </section>
+
+              <section class="memory-card">
+                <div class="memory-card-head">
+                  <h4>Kⱼ tile</h4>
+                  <span class="matrix-caption">Bc x d</span>
+                </div>
+                <div id="flashSRAMK"></div>
+              </section>
+
+              <section class="memory-card">
+                <div class="memory-card-head">
+                  <h4>Vⱼ tile</h4>
+                  <span class="matrix-caption">Bc x d</span>
+                </div>
+                <div id="flashSRAMV"></div>
+              </section>
+
+              <section class="memory-card wide">
+                <div class="memory-card-head">
+                  <h4>Local Score Tile Sᵢⱼ</h4>
+                  <span class="matrix-caption">Br x Bc</span>
+                </div>
+                <div id="flashSRAMS"></div>
+              </section>
+
+              <section class="memory-card wide">
+                <div class="memory-card-head">
+                  <h4>Online State for q1</h4>
+                  <span class="matrix-caption">register view</span>
+                </div>
+                <div id="flashRegisters" class="register-strip"></div>
+                <pre id="flashRegisterNarrative" class="mono-block"></pre>
+              </section>
+            </div>
+          </article>
+        </div>
+
+        <div class="flash-explain-grid">
+          <article class="formula-card">
+            <h3>What Happens Now</h3>
+            <pre id="flashNarrative" class="mono-block"></pre>
+          </article>
+
+          <article class="formula-card">
+            <h3>Math on This Step</h3>
+            <pre id="flashMath" class="mono-block"></pre>
+          </article>
+
+          <article class="formula-card">
+            <h3>Why This Matters</h3>
+            <pre id="flashInsight" class="mono-block"></pre>
+          </article>
+        </div>
+
+        <section class="flash-proof-grid">
+          <article class="formula-card">
+            <h3>Standard Attention Complexity</h3>
+            <pre id="flashStandardComplexity" class="mono-block"></pre>
+          </article>
+
+          <article class="formula-card">
+            <h3>FlashAttention Complexity</h3>
+            <pre id="flashFlashComplexity" class="mono-block"></pre>
+          </article>
+
+          <article class="formula-card">
+            <h3>HBM Access and Derivation</h3>
+            <pre id="flashHBMComplexity" class="mono-block"></pre>
+          </article>
+        </section>
+      </section>
     </section>
   </main>
 

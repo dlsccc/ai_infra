@@ -6,11 +6,11 @@
 3. Summarize FlashAttention v1/v2/v3 key improvements.
 
 ## TODO
-- [ ] Run CPU baseline (`week03_attention_cpu.yaml`).
+- [x] Skip CPU baseline for this week and focus on concept closure.
 - [x] Run GPU baseline (`week03_attention_gpu.yaml`).
 - [x] Plot latency vs seq_len and memory vs seq_len.
 - [x] Fill report `docs/reports/week03_attention_flash_baseline.md`.
-- [ ] Write `FlashAttention` notes.
+- [x] Write `FlashAttention` notes.
 
 ## 实验tips
 1. `torch.matmul` 在高维中的含义
@@ -42,4 +42,12 @@
 - 对比前先保证同一输入、同一 mask、同一 dtype。
 
 ## Weekly Conclusion
-- 
+- 本周的实验目标已经完成：基于 GPU 跑通了 `naive attention vs PyTorch SDPA` 的基线对比，并得到了 latency / memory 随 `seq_len` 增长的趋势图。
+- 实验上观察到的现象和论文理解是一致的：`sdpa` 在长序列下不仅更快，而且显存增长明显更缓，这支持了“attention 优化的核心收益来自减少 `N x N` 中间矩阵的 HBM 访问”这一判断。
+- 本周真正完成的不是“会背 FlashAttention 公式”，而是把三件事串起来了：
+  1. `tiling`：把 `Q/K/V` 切成小块在 SRAM 中流式处理；
+  2. `online softmax`：维护行级状态 `m / l / O_i`，在看不到整行 score 时仍然精确更新 softmax；
+  3. `recomputation`：前向不存完整 `S/P`，反向按 tile 重算局部结果。
+- 一个重要的纠偏是：`K^T` 是为了矩阵乘法维度匹配，不是把单个向量倒序；`m / l / O_i` 是行状态，跨 tile 的实现中需要在 HBM 和片上工作区之间反复读写，而不是永远只存在于寄存器里。
+- 这一周不再补 CPU baseline。对当前学习目标来说，继续补一组 CPU 数据的收益已经低于把论文理解、实验现象和工程直觉真正收口。
+- 下周进入 Week04，重点是带着本周形成的 attention / IO / tile 视角去看 vLLM 的 `attention backend`、`scheduler` 和 `KV cache`，开始从单个 kernel 的理解走向推理系统级理解。
