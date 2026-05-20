@@ -1,0 +1,29 @@
+# Local environments
+.venv/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Raw benchmark and profiler outputs
+experiments/runs/**
+!experiments/runs/.gitkeep
+*.nsys-rep
+*.qdrep
+*.sqlite
+*.trace.json
+
+# Model artifacts and weights
+models/
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.onnx
+*.engine
+

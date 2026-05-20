@@ -1,0 +1,2 @@
+"""Lightweight cache-aware optimizations."""
+
