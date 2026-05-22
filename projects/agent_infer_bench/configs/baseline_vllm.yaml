@@ -13,17 +13,17 @@ sampling:
 workloads:
   - type: plain_chat
     count: 1
-    prompt_tokens: 128
-    output_tokens: 64
+    prompt_tokens: 64
+    output_tokens: 32
   - type: plain_chat
     count: 1
-    prompt_tokens: 512
-    output_tokens: 128
+    prompt_tokens: 256
+    output_tokens: 64
   - type: single_tool
     count: 1
-    system_tokens: 256
-    tool_count: 5
-    tool_tokens: 120
+    system_tokens: 64
+    tool_count: 3
+    tool_tokens: 20
     turns: 1
     observation_tokens: 0
-
+    output_tokens: 48
