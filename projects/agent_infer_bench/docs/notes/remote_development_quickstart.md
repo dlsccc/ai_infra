@@ -28,8 +28,11 @@ bash scripts/setup/check_gpu_env.sh
 ```
 
 6. Create a Python environment. Prefer conda or uv if available.
-7. Install PyTorch first, then vLLM/SGLang according to their official docs.
-8. Run a tiny model or mock benchmark before downloading large models.
+7. 检查当前驱动最高支持的cuda version
+8. 安装torch，torch.version.cuda版本不能高于driver支持的能力
+9. Install vLLM，通过 https://vllm.ai/releases 检查不同版本vllm对应的cuda，下载合适的版本
+10. Install SGLang
+11. Run a tiny model or mock benchmark before downloading large models.
 
 ## Working Rhythm
 

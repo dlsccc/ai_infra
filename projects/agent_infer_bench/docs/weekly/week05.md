@@ -52,3 +52,12 @@
 - Keep raw large benchmark outputs out of git unless they are small curated samples.
 - Do not expand into speculative decoding or quantization this week.
 
+##### 2026/5/22 vLLM smoke
+vLLM + Qwen2.5-7B-Instruct hello world succeeded
+max_model_len=4096
+gpu_memory_utilization=0.85
+遇到的问题：
+- HF 直连失败，改用 HF_ENDPOINT / hf-mirror
+- vllm版本过高导致torch CUDA 13.0 与 driver CUDA 12.8 不兼容，降低vllm版本
+- tokenizer 版本问题，调整 transformers/tokenizers
+

@@ -1,3 +1,5 @@
+# 定义benchmark核心数据协议
+
 from __future__ import annotations
 
 from dataclasses import dataclass
