@@ -11,22 +11,22 @@
 
 ### Day 1
 
-- [ ] Confirm remote GPU server access.
-- [ ] Run `bash scripts/setup/check_gpu_env.sh` on the server.
-- [ ] Record GPU, CUDA, driver, Python, PyTorch versions.
-- [ ] Run vLLM hello world.
+- [x] Confirm remote GPU server access.
+- [x] Run `bash scripts/setup/check_gpu_env.sh` on the server.
+- [x] Record GPU, CUDA, driver, Python, PyTorch versions.
+- [x] Run vLLM hello world.
 - [ ] Run SGLang hello world.
 
 ### Day 2
 
-- [ ] Finalize benchmark result JSON format.
-- [ ] Validate mock backend locally.
-- [ ] Save smoke test result.
+- [x] Finalize benchmark result JSON format.
+- [x] Validate mock backend locally.
+- [x] Save smoke test result.
 
 ### Day 3
 
-- [ ] Implement or configure vLLM backend MVP.
-- [ ] Run 3 small vLLM cases.
+- [x] Implement or configure vLLM backend MVP.
+- [x] Run 3 small vLLM cases.
 
 ### Day 4
 
@@ -35,7 +35,7 @@
 
 ### Day 5
 
-- [ ] Generate Agent workload samples.
+- [x] Generate Agent workload samples.
 - [ ] Validate token breakdown and prefix overlap proxy.
 
 ### Day 6
@@ -60,4 +60,5 @@ gpu_memory_utilization=0.85
 - HF 直连失败，改用 HF_ENDPOINT / hf-mirror
 - vllm版本过高导致torch CUDA 13.0 与 driver CUDA 12.8 不兼容，降低vllm版本
 - tokenizer 版本问题，调整 transformers/tokenizers
+- 输入超过vllm输入限制会报错，需要保证tokens数小于输入限制
 
