@@ -20,7 +20,7 @@ Fill this after the remote GPU server is available.
 - vLLM: 0.10.1
 - transformers: 4.55.2
 - tokenizers: 0.21.4
-- SGLang:
+- SGLang:  torch 2.9.1+cu128  sglang 0.5.6
 
 ## Validation
 
