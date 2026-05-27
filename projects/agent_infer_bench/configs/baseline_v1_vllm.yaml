@@ -1,0 +1,47 @@
+experiment_name: vllm_baseline_v1
+backend: vllm
+model: Qwen/Qwen2.5-7B-Instruct
+output_dir: experiments/runs/week06/vllm_baseline_v1
+repeat: 3
+engine:
+  tensor_parallel_size: 1
+  gpu_memory_utilization: 0.85
+  max_model_len: 4096
+sampling:
+  temperature: 0.0
+  top_p: 1.0
+  max_tokens: 64
+workloads:
+  - type: plain_chat
+    count: 1
+    prompt_tokens: 64
+    output_tokens: 32
+  - type: plain_chat
+    count: 1
+    prompt_tokens: 256
+    output_tokens: 64
+  - type: single_tool
+    count: 1
+    system_tokens: 64
+    tool_count: 3
+    tool_tokens: 20
+    turns: 1
+    observation_tokens: 0
+    output_tokens: 48
+  - type: multi_tool_serial
+    count: 1
+    system_tokens: 64
+    tool_count: 3
+    tool_tokens: 20
+    turns: 3
+    observation_tokens: 80
+    output_tokens: 48
+  - type: long_observation
+    count: 1
+    system_tokens: 64
+    tool_count: 3
+    tool_tokens: 20
+    turns: 3
+    observation_tokens: 240
+    output_tokens: 48
+

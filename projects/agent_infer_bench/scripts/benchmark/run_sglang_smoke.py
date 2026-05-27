@@ -35,9 +35,11 @@ def main() -> None:
         extra={
             "trace_count": len(traces),
             "workload_types": sorted({trace.workload_type for trace in traces}),
+            "token_source_summary": _token_source_summary(results),
         },
     )
     print(f"Wrote SGLang smoke results to {output_dir / 'results.json'}")
+    print(f"Token accounting: {_token_source_summary(results)}")
 
 
 def _resolve_model_path(model_id: str) -> Path:
@@ -54,3 +56,24 @@ def _resolve_model_path(model_id: str) -> Path:
 
 if __name__ == "__main__":
     main()
+
+
+def _token_source_summary(results: list[object]) -> dict[str, str]:
+    input_sources = sorted(
+        {
+            result.metadata.get("input_token_source", "unknown")
+            for result in results
+            if hasattr(result, "metadata")
+        }
+    )
+    output_sources = sorted(
+        {
+            result.metadata.get("output_token_source", "unknown")
+            for result in results
+            if hasattr(result, "metadata")
+        }
+    )
+    return {
+        "input": ", ".join(input_sources),
+        "output": ", ".join(output_sources),
+    }

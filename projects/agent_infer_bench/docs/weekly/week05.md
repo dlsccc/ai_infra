@@ -15,7 +15,7 @@
 - [x] Run `bash scripts/setup/check_gpu_env.sh` on the server.
 - [x] Record GPU, CUDA, driver, Python, PyTorch versions.
 - [x] Run vLLM hello world.
-- [ ] Run SGLang hello world.
+- [x] Run SGLang hello world.
 
 ### Day 2
 
@@ -30,22 +30,22 @@
 
 ### Day 4
 
-- [ ] Implement or configure SGLang backend MVP.
-- [ ] Run the same 3 small SGLang cases.
+- [x] Implement or configure SGLang backend MVP.
+- [x] Run the same 3 small SGLang cases.
 
 ### Day 5
 
 - [x] Generate Agent workload samples.
-- [ ] Validate token breakdown and prefix overlap proxy.
+- [x] Validate token breakdown and prefix overlap proxy.
 
 ### Day 6
 
-- [ ] Add summary script and first tables.
-- [ ] Write environment setup report.
+- [x] Add summary script and first tables.
+- [x] Write environment setup report.
 
 ### Day 7
 
-- [ ] Buffer day: fix environment, scripts, and docs.
+- [x] Buffer day: fix environment, scripts, and docs.
 
 ## Notes
 

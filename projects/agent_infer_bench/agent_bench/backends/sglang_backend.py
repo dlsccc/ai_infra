@@ -4,7 +4,7 @@ import time
 from typing import Any
 
 from agent_bench.backends.base import GenerationRequest, GenerationResult
-from agent_bench.workloads.token_utils import estimate_tokens
+from agent_bench.tokenization import TokenCounter
 
 
 class SGLangBackend:
@@ -15,6 +15,7 @@ class SGLangBackend:
         self.engine_kwargs = engine_kwargs
         import sglang as sgl
 
+        self._token_counter = TokenCounter(model)
         self._engine = sgl.Engine(model_path=model, **engine_kwargs)
 
     def generate(
@@ -37,8 +38,8 @@ class SGLangBackend:
         results: list[GenerationResult] = []
         for request, output in zip(requests, outputs):
             generated = _extract_text(output)
-            input_tokens = estimate_tokens(request.prompt)
-            output_tokens = estimate_tokens(generated)
+            input_tokens = self._token_counter.count_prompt_tokens(request.prompt)
+            output_tokens = self._token_counter.count_text_tokens(generated)
             results.append(
                 GenerationResult(
                     request_id=request.request_id,
@@ -52,6 +53,9 @@ class SGLangBackend:
                         "backend": self.name,
                         "batch_size": len(requests),
                         "batch_total_latency_ms": total_batch_latency_ms,
+                        "input_token_source": "tokenizer_fallback",
+                        "output_token_source": "tokenizer_fallback",
+                        **self._token_counter.metadata(),
                         "ttft_note": "offline SGLang Engine.generate does not expose real TTFT; use server streaming later",
                     },
                 )

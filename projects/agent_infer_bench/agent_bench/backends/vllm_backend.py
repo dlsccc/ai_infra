@@ -4,7 +4,7 @@ import time
 from typing import Any
 
 from agent_bench.backends.base import GenerationRequest, GenerationResult
-from agent_bench.workloads.token_utils import estimate_tokens
+from agent_bench.tokenization import TokenCounter
 
 
 class VLLMBackend:
@@ -15,6 +15,7 @@ class VLLMBackend:
         self.engine_kwargs = engine_kwargs
         from vllm import LLM
 
+        self._token_counter = TokenCounter(model)
         self._llm = LLM(model=model, **engine_kwargs)
 
     def generate(
@@ -36,12 +37,19 @@ class VLLMBackend:
             generated = output.outputs[0].text if output.outputs else ""
             output_token_ids = output.outputs[0].token_ids if output.outputs else []
             prompt_token_ids = getattr(output, "prompt_token_ids", None)
-            input_tokens = (
-                len(prompt_token_ids)
-                if prompt_token_ids is not None
-                else estimate_tokens(request.prompt)
-            )
-            output_tokens = len(output_token_ids) if output_token_ids else estimate_tokens(generated)
+            if prompt_token_ids is not None:
+                input_tokens = len(prompt_token_ids)
+                input_token_source = "backend_token_ids"
+            else:
+                input_tokens = self._token_counter.count_prompt_tokens(request.prompt)
+                input_token_source = "tokenizer_fallback"
+
+            if output_token_ids:
+                output_tokens = len(output_token_ids)
+                output_token_source = "backend_token_ids"
+            else:
+                output_tokens = self._token_counter.count_text_tokens(generated)
+                output_token_source = "tokenizer_fallback"
             results.append(
                 GenerationResult(
                     request_id=request.request_id,
@@ -55,6 +63,9 @@ class VLLMBackend:
                         "backend": self.name,
                         "batch_size": len(requests),
                         "batch_total_latency_ms": total_batch_latency_ms,
+                        "input_token_source": input_token_source,
+                        "output_token_source": output_token_source,
+                        **self._token_counter.metadata(),
                         "ttft_note": "offline vLLM LLM.generate does not expose real TTFT; use server streaming later",
                     },
                 )
