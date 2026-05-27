@@ -10,13 +10,19 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 
-# Raw benchmark and profiler outputs
-experiments/runs/**
-!experiments/runs/.gitkeep
+# Benchmark and profiler outputs
+# Keep small textual run artifacts in git, but continue ignoring heavy binary outputs.
 *.nsys-rep
 *.qdrep
 *.sqlite
 *.trace.json
+*.parquet
+*.arrow
+*.npz
+*.npy
+*.csv.tmp
+*.jsonl
+*.jsonl.gz
 
 # Model artifacts and weights
 models/
@@ -26,4 +32,3 @@ models/
 *.pth
 *.onnx
 *.engine
-
