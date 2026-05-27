@@ -33,15 +33,14 @@ workloads:
     system_tokens: 64
     tool_count: 3
     tool_tokens: 20
-    turns: 3
-    observation_tokens: 80
+    turns: 2
+    observation_tokens: 40
     output_tokens: 48
   - type: long_observation
     count: 1
     system_tokens: 64
     tool_count: 3
     tool_tokens: 20
-    turns: 3
-    observation_tokens: 240
+    turns: 2
+    observation_tokens: 120
     output_tokens: 48
-
