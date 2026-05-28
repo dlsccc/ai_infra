@@ -22,6 +22,8 @@ class GenerationResult:
     ttft_ms: float | None
     total_latency_ms: float
     metadata: dict[str, Any]
+    decode_latency_ms: float | None = None
+    tpot_ms: float | None = None
 
 
 class Backend(Protocol):
@@ -33,4 +35,3 @@ class Backend(Protocol):
         sampling_params: dict[str, Any],
     ) -> list[GenerationResult]:
         """Generate responses for a batch of requests."""
-

@@ -30,6 +30,8 @@ class MockBackend:
             jitter_ms = self._rng.uniform(0.0, 5.0)
             total_latency_ms = prefill_ms + decode_ms + jitter_ms
             ttft_ms = prefill_ms + self._rng.uniform(0.0, 2.0)
+            decode_latency_ms = max(0.0, total_latency_ms - ttft_ms)
+            tpot_ms = decode_latency_ms / output_tokens if output_tokens > 0 else None
 
             # Keep local smoke tests fast while still producing realistic metrics.
             time.sleep(min(total_latency_ms / 1000.0, 0.02))
@@ -42,6 +44,8 @@ class MockBackend:
                     output_tokens=output_tokens,
                     ttft_ms=ttft_ms,
                     total_latency_ms=total_latency_ms,
+                    decode_latency_ms=decode_latency_ms,
+                    tpot_ms=tpot_ms,
                     metadata={
                         "backend": self.name,
                         "simulated_prefill_ms": prefill_ms,
@@ -51,4 +55,3 @@ class MockBackend:
             )
 
         return results
-

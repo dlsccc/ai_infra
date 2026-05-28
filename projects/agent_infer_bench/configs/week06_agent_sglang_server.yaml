@@ -1,0 +1,39 @@
+experiment_name: week06_agent_sglang_server
+backend: sglang
+model: /root/autodl-tmp/models/Qwen2.5-7B-Instruct
+output_dir: experiments/runs/week06/agent_baseline/sglang_server
+repeat: 3
+concurrency: 1
+server:
+  base_url: http://127.0.0.1:30000
+  api_key: EMPTY
+  timeout_s: 300
+sampling:
+  temperature: 0.0
+  top_p: 1.0
+  max_tokens: 128
+workloads:
+  - type: single_tool
+    count: 1
+    system_tokens: 128
+    tool_count: 4
+    tool_tokens: 48
+    turns: 2
+    observation_tokens: 0
+    output_tokens: 64
+  - type: multi_tool_serial
+    count: 1
+    system_tokens: 128
+    tool_count: 4
+    tool_tokens: 48
+    turns: 4
+    observation_tokens: 96
+    output_tokens: 64
+  - type: long_observation
+    count: 1
+    system_tokens: 128
+    tool_count: 4
+    tool_tokens: 48
+    turns: 4
+    observation_tokens: 384
+    output_tokens: 64

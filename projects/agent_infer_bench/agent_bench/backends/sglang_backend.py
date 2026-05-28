@@ -48,6 +48,8 @@ class SGLangBackend:
                     output_tokens=output_tokens,
                     ttft_ms=None,
                     total_latency_ms=per_request_latency_ms,
+                    decode_latency_ms=None,
+                    tpot_ms=None,
                     metadata={
                         **request.metadata,
                         "backend": self.name,

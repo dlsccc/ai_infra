@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from agent_bench.backends.sglang_backend import SGLangBackend
+from agent_bench.backends.server_backend import SGLangServerBackend, VLLMServerBackend
 from agent_bench.backends.vllm_backend import VLLMBackend
 from agent_bench.metrics.collector import write_run
 from agent_bench.workloads.generator import generate_workloads
@@ -31,12 +32,12 @@ def main() -> None:
     backend = _make_backend(config)
 
     traces = generate_workloads(config)
-    requests = [request for trace in traces for request in trace.requests]
     repeat = int(config.get("repeat", 1))
+    concurrency = int(config.get("concurrency", 1))
 
     all_runs: list[list[Any]] = []
     for _ in range(repeat):
-        all_runs.append(backend.generate(requests, config.get("sampling", {})))
+        all_runs.append(_run_with_concurrency(backend, traces, config.get("sampling", {}), concurrency))
 
     selected_results = all_runs[-1]
     output_dir = ROOT / config["output_dir"]
@@ -48,6 +49,7 @@ def main() -> None:
             "trace_count": len(traces),
             "workload_types": sorted({trace.workload_type for trace in traces}),
             "repeat": repeat,
+            "concurrency": concurrency,
             "repeat_summary": _repeat_summary(all_runs),
             "token_source_summary": _token_source_summary(selected_results),
         },
@@ -67,6 +69,14 @@ def _make_backend(config: dict[str, Any]) -> Any:
     model = str(_resolve_model_path(config["model"]))
     backend_name = config["backend"]
     if backend_name == "vllm":
+        server = config.get("server")
+        if server:
+            return VLLMServerBackend(
+                base_url=str(server["base_url"]),
+                model=str(_resolve_model_path(config["model"])),
+                api_key=server.get("api_key"),
+                timeout_s=float(server.get("timeout_s", 300.0)),
+            )
         engine = config["engine"]
         return VLLMBackend(
             model=model,
@@ -77,6 +87,14 @@ def _make_backend(config: dict[str, Any]) -> Any:
             trust_remote_code=True,
         )
     if backend_name == "sglang":
+        server = config.get("server")
+        if server:
+            return SGLangServerBackend(
+                base_url=str(server["base_url"]),
+                model=str(_resolve_model_path(config["model"])),
+                api_key=server.get("api_key"),
+                timeout_s=float(server.get("timeout_s", 300.0)),
+            )
         engine = config["engine"]
         return SGLangBackend(
             model=model,
@@ -103,12 +121,24 @@ def _repeat_summary(all_runs: list[list[Any]]) -> dict[str, Any]:
     mean_latencies = [
         statistics.fmean(result.total_latency_ms for result in run) for run in all_runs
     ]
+    mean_ttfts = [
+        statistics.fmean(result.ttft_ms for result in run if result.ttft_ms is not None)
+        for run in all_runs
+        if any(result.ttft_ms is not None for result in run)
+    ]
+    mean_tpots = [
+        statistics.fmean(result.tpot_ms for result in run if result.tpot_ms is not None)
+        for run in all_runs
+        if any(result.tpot_ms is not None for result in run)
+    ]
     mean_output_tokens = [
         statistics.fmean(result.output_tokens for result in run) for run in all_runs
     ]
     return {
         "run_count": len(all_runs),
         "mean_latency_ms_by_run": mean_latencies,
+        "mean_ttft_ms_by_run": mean_ttfts,
+        "mean_tpot_ms_by_run": mean_tpots,
         "mean_output_tokens_by_run": mean_output_tokens,
         "mean_latency_ms_mean": statistics.fmean(mean_latencies) if mean_latencies else None,
         "mean_latency_ms_std": statistics.pstdev(mean_latencies) if len(mean_latencies) > 1 else 0.0,
@@ -122,6 +152,26 @@ def _token_source_summary(results: list[Any]) -> dict[str, str]:
         "input": ", ".join(input_sources),
         "output": ", ".join(output_sources),
     }
+
+
+def _run_with_concurrency(
+    backend: Any,
+    traces: list[Any],
+    sampling_params: dict[str, Any],
+    concurrency: int,
+) -> list[Any]:
+    requests = [request for trace in traces for request in trace.requests]
+    results: list[Any] = []
+    batch_index = 0
+    for batch_start in range(0, len(requests), max(1, concurrency)):
+        batch = requests[batch_start : batch_start + max(1, concurrency)]
+        batch_results = backend.generate(batch, sampling_params)
+        for result in batch_results:
+            result.metadata.setdefault("batch_index", batch_index)
+            result.metadata.setdefault("configured_concurrency", concurrency)
+        results.extend(batch_results)
+        batch_index += 1
+    return results
 
 
 if __name__ == "__main__":

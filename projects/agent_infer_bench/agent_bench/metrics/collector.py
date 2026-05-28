@@ -13,6 +13,8 @@ from agent_bench.backends.base import GenerationResult
 def summarize_results(results: list[GenerationResult]) -> dict[str, Any]:
     latencies = [item.total_latency_ms for item in results]
     ttfts = [item.ttft_ms for item in results if item.ttft_ms is not None]
+    decode_latencies = [item.decode_latency_ms for item in results if item.decode_latency_ms is not None]
+    tpot_values = [item.tpot_ms for item in results if item.tpot_ms is not None]
     output_tokens = [item.output_tokens for item in results]
     total_latency_s = sum(latencies) / 1000.0
     total_output_tokens = sum(output_tokens)
@@ -25,7 +27,12 @@ def summarize_results(results: list[GenerationResult]) -> dict[str, Any]:
         "p95_latency_ms": _quantile(latencies, 0.95),
         "mean_ttft_ms": _mean(ttfts) if ttfts else None,
         "p95_ttft_ms": _quantile(ttfts, 0.95) if ttfts else None,
+        "mean_decode_latency_ms": _mean(decode_latencies) if decode_latencies else None,
+        "p95_decode_latency_ms": _quantile(decode_latencies, 0.95) if decode_latencies else None,
+        "mean_tpot_ms": _mean(tpot_values) if tpot_values else None,
+        "p95_tpot_ms": _quantile(tpot_values, 0.95) if tpot_values else None,
         "tokens_per_second": total_output_tokens / total_latency_s if total_latency_s > 0 else None,
+        "requests_per_second": len(results) / total_latency_s if total_latency_s > 0 else None,
     }
 
 
@@ -60,6 +67,8 @@ def _result_to_dict(result: GenerationResult) -> dict[str, Any]:
         "output_tokens": result.output_tokens,
         "ttft_ms": result.ttft_ms,
         "total_latency_ms": result.total_latency_ms,
+        "decode_latency_ms": result.decode_latency_ms,
+        "tpot_ms": result.tpot_ms,
         "metadata": result.metadata,
     }
 
@@ -74,4 +83,3 @@ def _quantile(values: list[float], q: float) -> float | None:
     ordered = sorted(values)
     index = min(len(ordered) - 1, max(0, round((len(ordered) - 1) * q)))
     return ordered[index]
-
