@@ -20,3 +20,5 @@ def test_generate_mock_workloads() -> None:
     assert len(traces) == 2
     assert len(traces[0].requests) == 1
     assert len(traces[1].requests) == 3
+    assert traces[0].metadata["trace_id"] == "plain_chat_cfg00_000"
+    assert traces[1].metadata["trace_id"] == "multi_tool_serial_cfg01_000"

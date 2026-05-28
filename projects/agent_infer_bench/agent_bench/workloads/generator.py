@@ -17,11 +17,11 @@ class WorkloadTrace:
 
 def generate_workloads(config: dict[str, Any]) -> list[WorkloadTrace]:
     traces: list[WorkloadTrace] = []
-    for workload_config in config.get("workloads", []):
+    for workload_group_idx, workload_config in enumerate(config.get("workloads", [])):
         workload_type = workload_config["type"]
         count = int(workload_config.get("count", 1))
         for idx in range(count):
-            trace_id = f"{workload_type}_{idx:03d}"
+            trace_id = f"{workload_type}_cfg{workload_group_idx:02d}_{idx:03d}"
             if workload_type == "plain_chat":
                 traces.append(_plain_chat(trace_id, workload_config))
             else:
@@ -100,4 +100,3 @@ def _agent_trace(trace_id: str, workload_type: str, config: dict[str, Any]) -> W
         previous_prompt = prompt
 
     return WorkloadTrace(workload_type, requests, {"trace_id": trace_id, "turns": turns})
-
