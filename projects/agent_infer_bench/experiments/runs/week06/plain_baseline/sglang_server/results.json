@@ -1,0 +1,180 @@
+{
+  "created_at": "2026-05-28T03:30:18.313843+00:00",
+  "environment": {
+    "python": "3.11.15",
+    "platform": "Linux-5.15.0-101-generic-x86_64-with-glibc2.35"
+  },
+  "config": {
+    "experiment_name": "week06_plain_sglang_server",
+    "backend": "sglang",
+    "model": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+    "output_dir": "experiments/runs/week06/plain_baseline/sglang_server",
+    "repeat": 3,
+    "concurrency": 1,
+    "server": {
+      "base_url": "http://127.0.0.1:30000",
+      "api_key": "EMPTY",
+      "timeout_s": 300
+    },
+    "sampling": {
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "max_tokens": 256
+    },
+    "workloads": [
+      {
+        "type": "plain_chat",
+        "count": 1,
+        "prompt_tokens": 64,
+        "output_tokens": 64
+      },
+      {
+        "type": "plain_chat",
+        "count": 1,
+        "prompt_tokens": 256,
+        "output_tokens": 64
+      },
+      {
+        "type": "plain_chat",
+        "count": 1,
+        "prompt_tokens": 512,
+        "output_tokens": 128
+      }
+    ]
+  },
+  "summary_metrics": {
+    "request_count": 3,
+    "total_output_tokens": 169,
+    "mean_latency_ms": 917.5258328517278,
+    "p50_latency_ms": 928.4120351076126,
+    "p95_latency_ms": 1024.7210040688515,
+    "mean_ttft_ms": 37.90362551808357,
+    "p95_ttft_ms": 40.744900703430176,
+    "mean_decode_latency_ms": 879.6222073336443,
+    "p95_decode_latency_ms": 985.4589477181435,
+    "mean_tpot_ms": 15.633556823660102,
+    "p95_tpot_ms": 15.806240805735191,
+    "tokens_per_second": 61.39699975339746,
+    "requests_per_second": 1.0898875695869372
+  },
+  "requests": [
+    {
+      "request_id": "plain_chat_cfg00_000_turn_00",
+      "input_tokens": 319,
+      "output_tokens": 64,
+      "ttft_ms": 39.26205635070801,
+      "total_latency_ms": 1024.7210040688515,
+      "decode_latency_ms": 985.4589477181435,
+      "tpot_ms": 15.397796058095992,
+      "metadata": {
+        "trace_id": "plain_chat_cfg00_000",
+        "turn": 0,
+        "workload_type": "plain_chat",
+        "expected_output_tokens": 64,
+        "prefix_overlap_tokens": 0,
+        "prefix_overlap_ratio": 0.0,
+        "backend": "sglang_server",
+        "base_url": "http://127.0.0.1:30000",
+        "streaming": true,
+        "finish_reason": "length",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 0,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "plain_chat_cfg01_000_turn_00",
+      "input_tokens": 1435,
+      "output_tokens": 57,
+      "ttft_ms": 33.703919500112534,
+      "total_latency_ms": 928.4120351076126,
+      "decode_latency_ms": 894.7081156075001,
+      "tpot_ms": 15.696633607149124,
+      "metadata": {
+        "trace_id": "plain_chat_cfg01_000",
+        "turn": 0,
+        "workload_type": "plain_chat",
+        "expected_output_tokens": 64,
+        "prefix_overlap_tokens": 0,
+        "prefix_overlap_ratio": 0.0,
+        "backend": "sglang_server",
+        "base_url": "http://127.0.0.1:30000",
+        "streaming": true,
+        "finish_reason": "stop",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 1,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "plain_chat_cfg02_000_turn_00",
+      "input_tokens": 2971,
+      "output_tokens": 48,
+      "ttft_ms": 40.744900703430176,
+      "total_latency_ms": 799.4444593787193,
+      "decode_latency_ms": 758.6995586752892,
+      "tpot_ms": 15.806240805735191,
+      "metadata": {
+        "trace_id": "plain_chat_cfg02_000",
+        "turn": 0,
+        "workload_type": "plain_chat",
+        "expected_output_tokens": 128,
+        "prefix_overlap_tokens": 0,
+        "prefix_overlap_ratio": 0.0,
+        "backend": "sglang_server",
+        "base_url": "http://127.0.0.1:30000",
+        "streaming": true,
+        "finish_reason": "stop",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 2,
+        "configured_concurrency": 1
+      }
+    }
+  ],
+  "extra": {
+    "trace_count": 3,
+    "workload_types": [
+      "plain_chat"
+    ],
+    "repeat": 3,
+    "concurrency": 1,
+    "repeat_summary": {
+      "run_count": 3,
+      "mean_latency_ms_by_run": [
+        936.4860157171885,
+        912.3117712636789,
+        917.5258328517278
+      ],
+      "mean_ttft_ms_by_run": [
+        130.2411953608195,
+        32.9905500014623,
+        37.90362551808357
+      ],
+      "mean_tpot_ms_by_run": [
+        15.632005633716531,
+        15.628725505088134,
+        15.633556823660102
+      ],
+      "mean_output_tokens_by_run": [
+        51.666666666666664,
+        56.333333333333336,
+        56.333333333333336
+      ],
+      "mean_latency_ms_mean": 922.1078732775318,
+      "mean_latency_ms_std": 10.387327040590872
+    },
+    "token_source_summary": {
+      "input": "tokenizer_fallback",
+      "output": "tokenizer_fallback"
+    }
+  }
+}

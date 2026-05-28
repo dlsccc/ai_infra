@@ -1,0 +1,345 @@
+{
+  "created_at": "2026-05-28T03:30:46.714107+00:00",
+  "environment": {
+    "python": "3.11.15",
+    "platform": "Linux-5.15.0-101-generic-x86_64-with-glibc2.35"
+  },
+  "config": {
+    "experiment_name": "week06_agent_sglang_server",
+    "backend": "sglang",
+    "model": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+    "output_dir": "experiments/runs/week06/agent_baseline/sglang_server",
+    "repeat": 3,
+    "concurrency": 1,
+    "server": {
+      "base_url": "http://127.0.0.1:30000",
+      "api_key": "EMPTY",
+      "timeout_s": 300
+    },
+    "sampling": {
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "max_tokens": 128
+    },
+    "workloads": [
+      {
+        "type": "single_tool",
+        "count": 1,
+        "system_tokens": 64,
+        "tool_count": 2,
+        "tool_tokens": 16,
+        "turns": 2,
+        "observation_tokens": 0,
+        "output_tokens": 64
+      },
+      {
+        "type": "multi_tool_serial",
+        "count": 1,
+        "system_tokens": 64,
+        "tool_count": 2,
+        "tool_tokens": 16,
+        "turns": 3,
+        "observation_tokens": 32,
+        "output_tokens": 64
+      },
+      {
+        "type": "long_observation",
+        "count": 1,
+        "system_tokens": 64,
+        "tool_count": 2,
+        "tool_tokens": 16,
+        "turns": 3,
+        "observation_tokens": 96,
+        "output_tokens": 64
+      }
+    ]
+  },
+  "summary_metrics": {
+    "request_count": 8,
+    "total_output_tokens": 470,
+    "mean_latency_ms": 944.8938346467912,
+    "p50_latency_ms": 1019.0760493278503,
+    "p95_latency_ms": 1035.136628895998,
+    "mean_ttft_ms": 33.0977700650692,
+    "p95_ttft_ms": 46.835463494062424,
+    "mean_decode_latency_ms": 911.796064581722,
+    "p95_decode_latency_ms": 991.9871874153614,
+    "mean_tpot_ms": 15.531738711288199,
+    "p95_tpot_ms": 15.669249668717384,
+    "tokens_per_second": 62.1762973212342,
+    "requests_per_second": 1.0583199544039865
+  },
+  "requests": [
+    {
+      "request_id": "single_tool_cfg00_000_turn_00",
+      "input_tokens": 845,
+      "output_tokens": 50,
+      "ttft_ms": 29.62999790906906,
+      "total_latency_ms": 813.0924813449383,
+      "decode_latency_ms": 783.4624834358692,
+      "tpot_ms": 15.669249668717384,
+      "metadata": {
+        "trace_id": "single_tool_cfg00_000",
+        "turn": 0,
+        "workload_type": "single_tool",
+        "expected_output_tokens": 64,
+        "prefix_overlap_tokens": 0,
+        "prefix_overlap_ratio": 0.0,
+        "tool_count": 2,
+        "observation_tokens": 0,
+        "backend": "sglang_server",
+        "base_url": "http://127.0.0.1:30000",
+        "streaming": true,
+        "finish_reason": "stop",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 0,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "single_tool_cfg00_000_turn_01",
+      "input_tokens": 874,
+      "output_tokens": 64,
+      "ttft_ms": 29.96818721294403,
+      "total_latency_ms": 1017.0269720256329,
+      "decode_latency_ms": 987.0587848126888,
+      "tpot_ms": 15.422793512698263,
+      "metadata": {
+        "trace_id": "single_tool_cfg00_000",
+        "turn": 1,
+        "workload_type": "single_tool",
+        "expected_output_tokens": 64,
+        "prefix_overlap_tokens": 118,
+        "prefix_overlap_ratio": 0.6519337016574586,
+        "tool_count": 2,
+        "observation_tokens": 0,
+        "backend": "sglang_server",
+        "base_url": "http://127.0.0.1:30000",
+        "streaming": true,
+        "finish_reason": "length",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 1,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "multi_tool_serial_cfg01_000_turn_00",
+      "input_tokens": 845,
+      "output_tokens": 50,
+      "ttft_ms": 29.801324009895325,
+      "total_latency_ms": 812.8810338675976,
+      "decode_latency_ms": 783.0797098577023,
+      "tpot_ms": 15.661594197154045,
+      "metadata": {
+        "trace_id": "multi_tool_serial_cfg01_000",
+        "turn": 0,
+        "workload_type": "multi_tool_serial",
+        "expected_output_tokens": 64,
+        "prefix_overlap_tokens": 0,
+        "prefix_overlap_ratio": 0.0,
+        "tool_count": 2,
+        "observation_tokens": 32,
+        "backend": "sglang_server",
+        "base_url": "http://127.0.0.1:30000",
+        "streaming": true,
+        "finish_reason": "stop",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 2,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "multi_tool_serial_cfg01_000_turn_01",
+      "input_tokens": 1056,
+      "output_tokens": 64,
+      "ttft_ms": 31.121086329221725,
+      "total_latency_ms": 1019.0760493278503,
+      "decode_latency_ms": 987.9549629986286,
+      "tpot_ms": 15.436796296853572,
+      "metadata": {
+        "trace_id": "multi_tool_serial_cfg01_000",
+        "turn": 1,
+        "workload_type": "multi_tool_serial",
+        "expected_output_tokens": 64,
+        "prefix_overlap_tokens": 118,
+        "prefix_overlap_ratio": 0.5539906103286385,
+        "tool_count": 2,
+        "observation_tokens": 32,
+        "backend": "sglang_server",
+        "base_url": "http://127.0.0.1:30000",
+        "streaming": true,
+        "finish_reason": "length",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 3,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "multi_tool_serial_cfg01_000_turn_02",
+      "input_tokens": 1267,
+      "output_tokens": 64,
+      "ttft_ms": 46.835463494062424,
+      "total_latency_ms": 1035.136628895998,
+      "decode_latency_ms": 988.3011654019356,
+      "tpot_ms": 15.442205709405243,
+      "metadata": {
+        "trace_id": "multi_tool_serial_cfg01_000",
+        "turn": 2,
+        "workload_type": "multi_tool_serial",
+        "expected_output_tokens": 64,
+        "prefix_overlap_tokens": 161,
+        "prefix_overlap_ratio": 0.62890625,
+        "tool_count": 2,
+        "observation_tokens": 32,
+        "backend": "sglang_server",
+        "base_url": "http://127.0.0.1:30000",
+        "streaming": true,
+        "finish_reason": "length",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 4,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "long_observation_cfg02_000_turn_00",
+      "input_tokens": 845,
+      "output_tokens": 50,
+      "ttft_ms": 29.740363359451294,
+      "total_latency_ms": 812.7756826579571,
+      "decode_latency_ms": 783.0353192985058,
+      "tpot_ms": 15.660706385970116,
+      "metadata": {
+        "trace_id": "long_observation_cfg02_000",
+        "turn": 0,
+        "workload_type": "long_observation",
+        "expected_output_tokens": 64,
+        "prefix_overlap_tokens": 0,
+        "prefix_overlap_ratio": 0.0,
+        "tool_count": 2,
+        "observation_tokens": 96,
+        "backend": "sglang_server",
+        "base_url": "http://127.0.0.1:30000",
+        "streaming": true,
+        "finish_reason": "stop",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 5,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "long_observation_cfg02_000_turn_01",
+      "input_tokens": 1440,
+      "output_tokens": 64,
+      "ttft_ms": 32.56166726350784,
+      "total_latency_ms": 1022.0505706965923,
+      "decode_latency_ms": 989.4889034330845,
+      "tpot_ms": 15.460764116141945,
+      "metadata": {
+        "trace_id": "long_observation_cfg02_000",
+        "turn": 1,
+        "workload_type": "long_observation",
+        "expected_output_tokens": 64,
+        "prefix_overlap_tokens": 118,
+        "prefix_overlap_ratio": 0.4259927797833935,
+        "tool_count": 2,
+        "observation_tokens": 96,
+        "backend": "sglang_server",
+        "base_url": "http://127.0.0.1:30000",
+        "streaming": true,
+        "finish_reason": "length",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 6,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "long_observation_cfg02_000_turn_02",
+      "input_tokens": 2035,
+      "output_tokens": 64,
+      "ttft_ms": 35.124070942401886,
+      "total_latency_ms": 1027.1112583577633,
+      "decode_latency_ms": 991.9871874153614,
+      "tpot_ms": 15.499799803365022,
+      "metadata": {
+        "trace_id": "long_observation_cfg02_000",
+        "turn": 2,
+        "workload_type": "long_observation",
+        "expected_output_tokens": 64,
+        "prefix_overlap_tokens": 225,
+        "prefix_overlap_ratio": 0.5859375,
+        "tool_count": 2,
+        "observation_tokens": 96,
+        "backend": "sglang_server",
+        "base_url": "http://127.0.0.1:30000",
+        "streaming": true,
+        "finish_reason": "length",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 7,
+        "configured_concurrency": 1
+      }
+    }
+  ],
+  "extra": {
+    "trace_count": 3,
+    "workload_types": [
+      "long_observation",
+      "multi_tool_serial",
+      "single_tool"
+    ],
+    "repeat": 3,
+    "concurrency": 1,
+    "repeat_summary": {
+      "run_count": 3,
+      "mean_latency_ms_by_run": [
+        980.9322035871446,
+        944.7105126455426,
+        944.8938346467912
+      ],
+      "mean_ttft_ms_by_run": [
+        69.5059378631413,
+        32.9753253608942,
+        33.0977700650692
+      ],
+      "mean_tpot_ms_by_run": [
+        15.525546207500156,
+        15.530837082478683,
+        15.531738711288199
+      ],
+      "mean_output_tokens_by_run": [
+        58.75,
+        58.75,
+        58.75
+      ],
+      "mean_latency_ms_mean": 956.8455169598261,
+      "mean_latency_ms_std": 17.032023881520303
+    },
+    "token_source_summary": {
+      "input": "tokenizer_fallback",
+      "output": "tokenizer_fallback"
+    }
+  }
+}
