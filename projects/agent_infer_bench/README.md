@@ -94,6 +94,16 @@ The server benchmark path records request-level:
 
 Offline backends remain useful for smoke tests, schema validation, and fallback experiments, but not for true TTFT.
 
+If a server request exceeds the model context limit, inspect the real tokenizer length of every generated workload request first:
+
+```bash
+python scripts/analysis/inspect_workload_tokens.py \
+  --config configs/week06_agent_vllm_server.yaml \
+  --context-limit 4096
+```
+
+This prints each `request_id`, its workload type, turn index, real input token count, and flags requests that exceed the provided context limit.
+
 ## Remote GPU Plan
 
 After a remote GPU server is available:
