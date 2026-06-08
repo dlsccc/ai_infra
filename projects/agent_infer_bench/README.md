@@ -1,124 +1,152 @@
 # AgentInferBench
 
-AgentInferBench is a benchmark and analysis project for tool-using Agent LLM serving workloads.
+AgentInferBench is now focused on **Agent Context Compiler** experiments for long-observation tool-using agents.
 
-The short-term goal is to compare vLLM and SGLang on Agent-style multi-turn workloads, then evaluate lightweight cache-aware optimizations such as prompt canonicalization, stable tool ordering, and session-aware routing.
+The current research question is:
 
-## Current Status
+```text
+Can we diagnose and repair cacheability breakdowns in tool-using agent contexts before they enter LLM serving backends?
+```
 
-Week 5 focus:
+## Current Scope
 
-1. Build the project skeleton.
-2. Run a local mock benchmark without GPU.
-3. Prepare remote GPU environment checks.
-4. Add vLLM and SGLang backends after the remote server is ready.
+This project supports:
+
+1. Context compiler MVP: segment parsing, stable layout, deterministic tool serialization, recoverable observation compression.
+2. Cacheability diagnostics: PSR, DPR, CRO and prefix-overlap analysis.
+3. Realistic synthetic workloads: function-calling agents and coding agents with long observations.
+4. Server-backed experiments: vLLM and SGLang through OpenAI-compatible streaming APIs.
+5. Backend metrics snapshots: Prometheus `/metrics` before/after each variant run.
+
+Out of scope for this repository phase:
+
+```text
+KV eviction, KV prefetch, multi-agent KV sharing, tool-result caching, semantic answer caching.
+```
 
 ## Layout
 
 ```text
 agent_bench/
-  backends/       # backend adapters: mock, vLLM, SGLang
-  workloads/      # Agent workload generation
-  metrics/        # latency and result collection
-  analysis/       # result summaries and plots
-  optimizations/  # prompt/routing optimizations
-configs/          # experiment configs
-scripts/          # setup, benchmark, analysis entrypoints
-experiments/      # raw runs and generated reports
-docs/             # weekly notes, reports, blogs
-tests/            # lightweight tests
+  analysis/
+    cacheability_metrics.py     # PSR/DPR/CRO computation
+    summarize.py                # generic result summaries
+    workload_inspector.py        # workload token inspection
+  backends/
+    base.py
+    mock_backend.py
+    server_backend.py            # OpenAI-compatible vLLM/SGLang server backend
+    sglang_backend.py
+    vllm_backend.py
+  metrics/
+    collector.py                 # result writer
+    server_metrics.py            # Prometheus metrics parser
+  optimizations/
+    context_compiler.py           # Agent Context Compiler MVP
+  workloads/
+    generator.py                  # synthetic + realistic context compiler workloads
+    schemas.py
+    token_utils.py
+
+configs/
+  context_compiler/
+    mvp_mock.yaml
+    realistic_mock.yaml
+    realistic_vllm.yaml
+    realistic_sglang.yaml
+  env.yaml
+
+scripts/
+  analysis/
+    analyze_context_compiler.py
+    inspect_workload_tokens.py
+    snapshot_server_metrics.py
+  benchmark/
+    run_backend_baseline.py
+    run_context_compiler_variant.py
+  setup/
+    check_gpu_env.sh
+    start_sglang_server.sh
+    start_vllm_prefix_cache_off.sh
+    start_vllm_prefix_cache_on.sh
+    start_vllm_server.sh
+
+experiments/
+  runs/
+  reports/
+
+tests/
 ```
 
-## Quick Start
+## Local Smoke Test
 
-Run the local mock smoke test:
+Run from this directory:
 
 ```bash
-cd projects/agent_infer_bench
-python scripts/benchmark/run_all_smoke.py
-python scripts/analysis/make_tables.py --run-dir experiments/runs/week05/mock_smoke
+python scripts/benchmark/run_context_compiler_variant.py \
+  --config configs/context_compiler/realistic_mock.yaml \
+  --variant context_compiler_with_observation_compression \
+  --warmup-requests 1
 ```
 
-This does not require a GPU. It validates the workload generation, backend interface, metric collection, and result format.
-
-## Week 6 Server Benchmark Path
-
-Week 6 official metrics should use server-backed streaming inference instead of offline `generate()`.
-
-1. Start a vLLM server that exposes an OpenAI-compatible `/v1/chat/completions` endpoint.
-2. Or start an SGLang server with the same API shape.
-3. Use the Week 6 server configs:
-   - `configs/week06_plain_vllm_server.yaml`
-   - `configs/week06_plain_sglang_server.yaml`
-   - `configs/week06_agent_vllm_server.yaml`
-   - `configs/week06_agent_sglang_server.yaml`
-4. Run:
+Run tests:
 
 ```bash
-python scripts/benchmark/run_backend_baseline.py --config configs/week06_plain_vllm_server.yaml
-python scripts/benchmark/run_backend_baseline.py --config configs/week06_agent_vllm_server.yaml
+python -m pytest tests
 ```
 
-Or use the helper scripts on the remote server:
+## Server Experiment
+
+Start vLLM with prefix caching:
 
 ```bash
-bash scripts/setup/start_vllm_server.sh
-bash scripts/benchmark/run_week06_vllm_server.sh
+MODEL_PATH=/root/autodl-tmp/models/Qwen2.5-7B-Instruct \
+MAX_MODEL_LEN=8192 \
+GPU_MEMORY_UTILIZATION=0.85 \
+bash scripts/setup/start_vllm_prefix_cache_on.sh
 ```
+
+Run one variant:
 
 ```bash
-bash scripts/setup/start_sglang_server.sh
-bash scripts/benchmark/run_week06_sglang_server.sh
+python scripts/benchmark/run_context_compiler_variant.py \
+  --config configs/context_compiler/realistic_vllm.yaml \
+  --variant original_bad_layout \
+  --metrics-url http://127.0.0.1:8000/metrics \
+  --warmup-requests 4
 ```
 
-The default model path in the Week 6 server configs and startup scripts is:
+Recommended variants:
 
 ```text
-/root/autodl-tmp/models/Qwen2.5-7B-Instruct
+original_bad_layout
+stable_tool_order
+dynamic_fields_last
+context_compiler_no_compression
+context_compiler_with_observation_compression
+truncation_baseline
 ```
 
-You can override the startup script defaults with environment variables such as:
+For final numbers, restart the backend before each variant to clear process-local prefix/KV cache state.
 
-```bash
-MODEL_PATH=/root/autodl-tmp/models/Qwen2.5-7B-Instruct PORT=8000 bash scripts/setup/start_vllm_server.sh
+## Key Outputs
+
+Each variant run writes:
+
+```text
+results.json
+repeat_summary.json
+metrics_before.prom
+metrics_after.prom
+metrics_delta.json
+warmup/results.json
 ```
 
-The server benchmark path records request-level:
+Metrics of interest:
 
-- TTFT
-- decode latency
-- TPOT
-- total latency
-- tokens/s
-- requests/s
-
-Offline backends remain useful for smoke tests, schema validation, and fallback experiments, but not for true TTFT.
-
-If a server request exceeds the model context limit, inspect the real tokenizer length of every generated workload request first:
-
-```bash
-python scripts/analysis/inspect_workload_tokens.py \
-  --config configs/week06_agent_vllm_server.yaml \
-  --context-limit 4096
+```text
+PSR / DPR / CRO
+TTFT / total latency / P95 latency
+backend-reported prefix cache hits and queries when available
 ```
 
-This prints each `request_id`, its workload type, turn index, real input token count, and flags requests that exceed the provided context limit.
-
-## Remote GPU Plan
-
-After a remote GPU server is available:
-
-1. Clone or pull this repository on the server.
-2. Run `bash scripts/setup/check_gpu_env.sh`.
-3. Install vLLM and SGLang in a clean environment.
-4. Run small hello-world tests for each backend.
-5. Replace the mock backend with vLLM/SGLang backend smoke tests.
-
-## Core Metrics
-
-- TTFT: time to first token.
-- TPOT: time per output token.
-- JCT: job completion time for a complete Agent task.
-- Throughput: tokens/s and requests/s.
-- Prefix overlap: a proxy for cache reuse opportunity.
-- Peak memory: GPU memory high-water mark when available.

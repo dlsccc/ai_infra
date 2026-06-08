@@ -2,10 +2,7 @@
 
 更新时间：2026-06-08
 
-目标：用 10-14 天判断 Agent Context Compiler 是否真的 work。
-
 核心判断：
-
 ```text
 cacheability 指标是否对应真实 serving 收益；
 compiler 是否不伤工具任务质量；
@@ -15,33 +12,25 @@ recoverable observation compression 是否优于 truncation / generic summary。
 ## 0. 总体实验顺序
 
 建议按以下顺序做：
-
 ```text
 实验一：Synthetic + vLLM/SGLang cache validation
 实验二：BFCL mini quality validation
 实验三：SWE-Bench trace contract + recoverable compression validation
 ```
 
-不要一开始就做大规模实验。
-
 先用小规模跑通闭环。
-
 每组实验都要产出一份 markdown report。
-
 每组实验都要保存 raw results、config、summary table 和图。
 
 ## 1. 实验一：Synthetic + vLLM/SGLang Cache Validation
-
 ### 1.1 实验目的
 
 验证：
-
 ```text
 PSR / DPR / CRO 是否能预测真实 TTFT / JCT 改善。
 ```
 
 证明：
-
 ```text
 Context Compiler 不是指标自嗨，而是真的让 serving backend 更容易利用 prefix/prompt/KV cache。
 ```
@@ -61,7 +50,7 @@ Q3: compiler + prefix cache 是否比 compiler alone / prefix cache alone 更好
 使用当前已有配置：
 
 ```text
-projects/agent_infer_bench/configs/week07_context_compiler.yaml
+projects/agent_infer_bench/configs/context_compiler/mvp_mock.yaml
 ```
 
 包含 variants：
@@ -80,14 +69,14 @@ truncation_baseline
 新增两个 vLLM 配置：
 
 ```text
-configs/week07_context_compiler_vllm_prefix_on.yaml
-configs/week07_context_compiler_vllm_prefix_off.yaml
+configs/context_compiler/realistic_vllm.yaml
+vLLM prefix cache on/off 通过不同 server 启动脚本控制。
 ```
 
 新增一个 SGLang 配置：
 
 ```text
-configs/week07_context_compiler_sglang.yaml
+configs/context_compiler/realistic_sglang.yaml
 ```
 
 如果时间紧，先做 vLLM prefix on/off。
@@ -246,9 +235,8 @@ truncation_baseline 全面优于 compiler；
 建议产出：
 
 ```text
-experiments/runs/week07/context_compiler_vllm_prefix_on/
-experiments/runs/week07/context_compiler_vllm_prefix_off/
-experiments/runs/week07/context_compiler_sglang/
+experiments/runs/context_compiler/realistic/vllm/
+experiments/runs/context_compiler/realistic/sglang/
 docs/research/reports/exp1_cache_validation.md
 ```
 
@@ -768,4 +756,3 @@ Day 13-14：
 ```text
 整理三组实验 Go / No-Go 总结。
 ```
-

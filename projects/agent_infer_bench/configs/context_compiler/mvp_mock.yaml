@@ -1,6 +1,6 @@
 backend: mock
 model: mock
-output_dir: experiments/runs/week07/context_compiler_mvp
+output_dir: experiments/runs/context_compiler/mvp/mock
 repeat: 1
 concurrency: 1
 
@@ -25,4 +25,3 @@ workloads:
       - context_compiler_no_compression
       - context_compiler_with_observation_compression
       - truncation_baseline
-

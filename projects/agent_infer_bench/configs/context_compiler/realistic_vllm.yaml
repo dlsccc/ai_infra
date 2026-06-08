@@ -1,0 +1,43 @@
+experiment_name: context_compiler_realistic_vllm
+backend: vllm
+model: /root/autodl-tmp/models/Qwen2.5-7B-Instruct
+output_dir: experiments/runs/context_compiler/realistic/vllm
+repeat: 3
+concurrency: 1
+server:
+  base_url: http://127.0.0.1:8000
+  api_key: EMPTY
+  timeout_s: 300
+sampling:
+  temperature: 0.0
+  top_p: 1.0
+  max_tokens: 96
+workloads:
+  - type: context_compiler_realistic_ablation
+    scenario: function_calling
+    count: 4
+    turns: 4
+    observation_tokens: 384
+    output_tokens: 96
+    max_observation_words: 120
+    variants:
+      - original_bad_layout
+      - stable_tool_order
+      - dynamic_fields_last
+      - context_compiler_no_compression
+      - context_compiler_with_observation_compression
+      - truncation_baseline
+  - type: context_compiler_realistic_ablation
+    scenario: coding_agent
+    count: 4
+    turns: 4
+    observation_tokens: 768
+    output_tokens: 96
+    max_observation_words: 160
+    variants:
+      - original_bad_layout
+      - stable_tool_order
+      - dynamic_fields_last
+      - context_compiler_no_compression
+      - context_compiler_with_observation_compression
+      - truncation_baseline
