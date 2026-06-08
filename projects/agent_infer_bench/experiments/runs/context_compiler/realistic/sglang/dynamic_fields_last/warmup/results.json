@@ -1,5 +1,5 @@
 {
-  "created_at": "2026-06-08T14:53:21.092219+00:00",
+  "created_at": "2026-06-08T14:59:02.677423+00:00",
   "environment": {
     "python": "3.11.15",
     "platform": "Linux-5.15.0-161-generic-x86_64-with-glibc2.35"
@@ -8,7 +8,7 @@
     "experiment_name": "context_compiler_realistic_sglang",
     "backend": "sglang",
     "model": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
-    "output_dir": "experiments/runs/context_compiler/realistic/sglang/original_bad_layout/warmup",
+    "output_dir": "experiments/runs/context_compiler/realistic/sglang/dynamic_fields_last/warmup",
     "repeat": 1,
     "concurrency": 1,
     "server": {
@@ -31,52 +31,61 @@
         "output_tokens": 96,
         "max_observation_words": 120,
         "variants": [
-          "original_bad_layout"
+          "dynamic_fields_last"
         ]
       }
     ]
   },
   "summary_metrics": {
     "request_count": 16,
-    "total_output_tokens": 1330,
-    "mean_latency_ms": 1013.0115537904203,
-    "p50_latency_ms": 1189.6968744695187,
-    "p95_latency_ms": 1378.9447285234928,
-    "mean_ttft_ms": 240.20220525562763,
-    "p95_ttft_ms": 476.15331038832664,
-    "mean_decode_latency_ms": 772.8093485347927,
-    "p95_decode_latency_ms": 902.0478613674641,
-    "mean_tpot_ms": 9.279206018092225,
-    "p95_tpot_ms": 9.412154198644009,
-    "tokens_per_second": 82.05730693689358,
-    "requests_per_second": 0.9871555721731559
+    "total_output_tokens": 924,
+    "mean_latency_ms": 593.2584397960454,
+    "p50_latency_ms": 522.9581110179424,
+    "p95_latency_ms": 938.7227855622768,
+    "mean_ttft_ms": 55.597671773284674,
+    "p95_ttft_ms": 164.57757353782654,
+    "mean_decode_latency_ms": 537.6607680227607,
+    "p95_decode_latency_ms": 902.5515504181385,
+    "mean_tpot_ms": 9.296645197900943,
+    "p95_tpot_ms": 9.427732089534402,
+    "tokens_per_second": 97.34374789485288,
+    "requests_per_second": 1.6856060241532966
   },
   "requests": [
     {
-      "request_id": "context_compiler_realistic_ablation_cfg00_000_function_calling_original_bad_layout_turn_00",
-      "input_tokens": 425,
-      "output_tokens": 53,
-      "ttft_ms": 47.52303659915924,
-      "total_latency_ms": 531.3052907586098,
-      "decode_latency_ms": 483.78225415945053,
-      "tpot_ms": 9.127967059612274,
+      "request_id": "context_compiler_realistic_ablation_cfg00_000_function_calling_dynamic_fields_last_turn_00",
+      "input_tokens": 354,
+      "output_tokens": 55,
+      "ttft_ms": 46.20901867747307,
+      "total_latency_ms": 547.6482324302197,
+      "decode_latency_ms": 501.4392137527466,
+      "tpot_ms": 9.1170766136863,
       "metadata": {
         "trace_id": "context_compiler_realistic_ablation_cfg00_000",
         "scenario": "function_calling",
         "turn": 0,
         "workload_type": "context_compiler_realistic_ablation",
-        "variant": "original_bad_layout",
+        "variant": "dynamic_fields_last",
         "expected_output_tokens": 96,
         "prefix_overlap_tokens": 0,
         "prefix_overlap_ratio": 0.0,
         "observation_tokens": 384,
         "context_segments": [
           {
-            "name": "runtime_header",
-            "text": "request_time=2026-06-08T09:00:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_000\nretry_count=0\ntrace_nonce=context_compiler_realistic_ablation_cfg00_000-00",
-            "stability": "ephemeral",
-            "segment_type": "runtime",
-            "reuse_scope": "request",
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
             "must_preserve": [],
             "source_pointer": null
           },
@@ -90,20 +99,11 @@
             "source_pointer": null
           },
           {
-            "name": "tools",
-            "text": "Tools:\n{\"name\": \"search_flights\", \"description\": \"Find available flights for a route and date.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"origin\": {\"type\": \"string\"}, \"destination\": {\"type\": \"string\"}, \"date\": {\"type\": \"string\"}}, \"required\": [\"origin\", \"destination\", \"date\"]}}\n{\"name\": \"get_weather\", \"description\": \"Retrieve weather forecast for a city and date.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}, \"date\": {\"type\": \"string\"}}, \"required\": [\"city\", \"date\"]}}\n{\"name\": \"estimate_hotel_budget\", \"description\": \"Estimate hotel budget for a city and number of nights.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}, \"nights\": {\"type\": \"integer\"}}, \"required\": [\"city\", \"nights\"]}}\n{\"name\": \"save_itinerary\", \"description\": \"Persist a travel itinerary record.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"traveler\": {\"type\": \"string\"}, \"summary\": {\"type\": \"string\"}}, \"required\": [\"traveler\", \"summary\"]}}",
-            "stability": "static",
-            "segment_type": "tool_schema",
-            "reuse_scope": "agent_type",
-            "must_preserve": [],
-            "source_pointer": null
-          },
-          {
-            "name": "system",
-            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
-            "stability": "static",
-            "segment_type": "system",
-            "reuse_scope": "global",
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:00:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_000\nretry_count=0\ntrace_nonce=context_compiler_realistic_ablation_cfg00_000-00",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
             "must_preserve": [],
             "source_pointer": null
           }
@@ -124,45 +124,36 @@
       }
     },
     {
-      "request_id": "context_compiler_realistic_ablation_cfg00_000_function_calling_original_bad_layout_turn_01",
-      "input_tokens": 4290,
-      "output_tokens": 80,
-      "ttft_ms": 161.3185629248619,
-      "total_latency_ms": 904.2408317327499,
-      "decode_latency_ms": 742.922268807888,
-      "tpot_ms": 9.2865283600986,
+      "request_id": "context_compiler_realistic_ablation_cfg00_000_function_calling_dynamic_fields_last_turn_01",
+      "input_tokens": 4219,
+      "output_tokens": 40,
+      "ttft_ms": 161.0504612326622,
+      "total_latency_ms": 534.869696944952,
+      "decode_latency_ms": 373.8192357122898,
+      "tpot_ms": 9.345480892807245,
       "metadata": {
         "trace_id": "context_compiler_realistic_ablation_cfg00_000",
         "scenario": "function_calling",
         "turn": 1,
         "workload_type": "context_compiler_realistic_ablation",
-        "variant": "original_bad_layout",
+        "variant": "dynamic_fields_last",
         "expected_output_tokens": 96,
-        "prefix_overlap_tokens": 1,
-        "prefix_overlap_ratio": 0.0017331022530329288,
+        "prefix_overlap_tokens": 59,
+        "prefix_overlap_ratio": 0.11591355599214145,
         "observation_tokens": 384,
         "context_segments": [
           {
-            "name": "runtime_header",
-            "text": "request_time=2026-06-08T09:01:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_000\nretry_count=1\ntrace_nonce=context_compiler_realistic_ablation_cfg00_000-01",
-            "stability": "ephemeral",
-            "segment_type": "runtime",
-            "reuse_scope": "request",
-            "must_preserve": [],
-            "source_pointer": null
-          },
-          {
-            "name": "user_01",
-            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=1; choose the next valid tool call.",
-            "stability": "turn_dynamic",
-            "segment_type": "current_query",
-            "reuse_scope": "turn",
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
             "must_preserve": [],
             "source_pointer": null
           },
           {
             "name": "tools",
-            "text": "Tools:\n{\"name\": \"get_weather\", \"description\": \"Retrieve weather forecast for a city and date.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}, \"date\": {\"type\": \"string\"}}, \"required\": [\"city\", \"date\"]}}\n{\"name\": \"estimate_hotel_budget\", \"description\": \"Estimate hotel budget for a city and number of nights.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}, \"nights\": {\"type\": \"integer\"}}, \"required\": [\"city\", \"nights\"]}}\n{\"name\": \"save_itinerary\", \"description\": \"Persist a travel itinerary record.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"traveler\": {\"type\": \"string\"}, \"summary\": {\"type\": \"string\"}}, \"required\": [\"traveler\", \"summary\"]}}\n{\"name\": \"search_flights\", \"description\": \"Find available flights for a route and date.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"origin\": {\"type\": \"string\"}, \"destination\": {\"type\": \"string\"}, \"date\": {\"type\": \"string\"}}, \"required\": [\"origin\", \"destination\", \"date\"]}}",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
             "stability": "static",
             "segment_type": "tool_schema",
             "reuse_scope": "agent_type",
@@ -194,11 +185,20 @@
             "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_000/function_calling/00"
           },
           {
-            "name": "system",
-            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
-            "stability": "static",
-            "segment_type": "system",
-            "reuse_scope": "global",
+            "name": "user_01",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=1; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:01:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_000\nretry_count=1\ntrace_nonce=context_compiler_realistic_ablation_cfg00_000-01",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
             "must_preserve": [],
             "source_pointer": null
           }
@@ -219,45 +219,36 @@
       }
     },
     {
-      "request_id": "context_compiler_realistic_ablation_cfg00_000_function_calling_original_bad_layout_turn_02",
-      "input_tokens": 8155,
-      "output_tokens": 94,
-      "ttft_ms": 305.27011305093765,
-      "total_latency_ms": 1190.0126077234745,
-      "decode_latency_ms": 884.7424946725368,
-      "tpot_ms": 9.412154198644009,
+      "request_id": "context_compiler_realistic_ablation_cfg00_000_function_calling_dynamic_fields_last_turn_02",
+      "input_tokens": 8084,
+      "output_tokens": 40,
+      "ttft_ms": 164.57757353782654,
+      "total_latency_ms": 542.5583235919476,
+      "decode_latency_ms": 377.980750054121,
+      "tpot_ms": 9.449518751353025,
       "metadata": {
         "trace_id": "context_compiler_realistic_ablation_cfg00_000",
         "scenario": "function_calling",
         "turn": 2,
         "workload_type": "context_compiler_realistic_ablation",
-        "variant": "original_bad_layout",
+        "variant": "dynamic_fields_last",
         "expected_output_tokens": 96,
-        "prefix_overlap_tokens": 1,
-        "prefix_overlap_ratio": 0.0010070493454179255,
+        "prefix_overlap_tokens": 475,
+        "prefix_overlap_ratio": 0.5135135135135135,
         "observation_tokens": 384,
         "context_segments": [
           {
-            "name": "runtime_header",
-            "text": "request_time=2026-06-08T09:02:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_000\nretry_count=2\ntrace_nonce=context_compiler_realistic_ablation_cfg00_000-02",
-            "stability": "ephemeral",
-            "segment_type": "runtime",
-            "reuse_scope": "request",
-            "must_preserve": [],
-            "source_pointer": null
-          },
-          {
-            "name": "user_02",
-            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=2; choose the next valid tool call.",
-            "stability": "turn_dynamic",
-            "segment_type": "current_query",
-            "reuse_scope": "turn",
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
             "must_preserve": [],
             "source_pointer": null
           },
           {
             "name": "tools",
-            "text": "Tools:\n{\"name\": \"estimate_hotel_budget\", \"description\": \"Estimate hotel budget for a city and number of nights.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}, \"nights\": {\"type\": \"integer\"}}, \"required\": [\"city\", \"nights\"]}}\n{\"name\": \"save_itinerary\", \"description\": \"Persist a travel itinerary record.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"traveler\": {\"type\": \"string\"}, \"summary\": {\"type\": \"string\"}}, \"required\": [\"traveler\", \"summary\"]}}\n{\"name\": \"search_flights\", \"description\": \"Find available flights for a route and date.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"origin\": {\"type\": \"string\"}, \"destination\": {\"type\": \"string\"}, \"date\": {\"type\": \"string\"}}, \"required\": [\"origin\", \"destination\", \"date\"]}}\n{\"name\": \"get_weather\", \"description\": \"Retrieve weather forecast for a city and date.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}, \"date\": {\"type\": \"string\"}}, \"required\": [\"city\", \"date\"]}}",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
             "stability": "static",
             "segment_type": "tool_schema",
             "reuse_scope": "agent_type",
@@ -313,11 +304,20 @@
             "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_000/function_calling/01"
           },
           {
-            "name": "system",
-            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
-            "stability": "static",
-            "segment_type": "system",
-            "reuse_scope": "global",
+            "name": "user_02",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=2; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:02:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_000\nretry_count=2\ntrace_nonce=context_compiler_realistic_ablation_cfg00_000-02",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
             "must_preserve": [],
             "source_pointer": null
           }
@@ -338,45 +338,36 @@
       }
     },
     {
-      "request_id": "context_compiler_realistic_ablation_cfg00_000_function_calling_original_bad_layout_turn_03",
-      "input_tokens": 12020,
+      "request_id": "context_compiler_realistic_ablation_cfg00_000_function_calling_dynamic_fields_last_turn_03",
+      "input_tokens": 11949,
       "output_tokens": 96,
-      "ttft_ms": 476.15331038832664,
-      "total_latency_ms": 1381.081085652113,
-      "decode_latency_ms": 904.9277752637863,
-      "tpot_ms": 9.426330992331108,
+      "ttft_ms": 188.38955834507942,
+      "total_latency_ms": 1093.451838940382,
+      "decode_latency_ms": 905.0622805953026,
+      "tpot_ms": 9.427732089534402,
       "metadata": {
         "trace_id": "context_compiler_realistic_ablation_cfg00_000",
         "scenario": "function_calling",
         "turn": 3,
         "workload_type": "context_compiler_realistic_ablation",
-        "variant": "original_bad_layout",
+        "variant": "dynamic_fields_last",
         "expected_output_tokens": 96,
-        "prefix_overlap_tokens": 1,
-        "prefix_overlap_ratio": 0.0007097232079489,
+        "prefix_overlap_tokens": 891,
+        "prefix_overlap_ratio": 0.6644295302013423,
         "observation_tokens": 384,
         "context_segments": [
           {
-            "name": "runtime_header",
-            "text": "request_time=2026-06-08T09:03:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_000\nretry_count=3\ntrace_nonce=context_compiler_realistic_ablation_cfg00_000-03",
-            "stability": "ephemeral",
-            "segment_type": "runtime",
-            "reuse_scope": "request",
-            "must_preserve": [],
-            "source_pointer": null
-          },
-          {
-            "name": "user_03",
-            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=3; choose the next valid tool call.",
-            "stability": "turn_dynamic",
-            "segment_type": "current_query",
-            "reuse_scope": "turn",
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
             "must_preserve": [],
             "source_pointer": null
           },
           {
             "name": "tools",
-            "text": "Tools:\n{\"name\": \"save_itinerary\", \"description\": \"Persist a travel itinerary record.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"traveler\": {\"type\": \"string\"}, \"summary\": {\"type\": \"string\"}}, \"required\": [\"traveler\", \"summary\"]}}\n{\"name\": \"search_flights\", \"description\": \"Find available flights for a route and date.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"origin\": {\"type\": \"string\"}, \"destination\": {\"type\": \"string\"}, \"date\": {\"type\": \"string\"}}, \"required\": [\"origin\", \"destination\", \"date\"]}}\n{\"name\": \"get_weather\", \"description\": \"Retrieve weather forecast for a city and date.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}, \"date\": {\"type\": \"string\"}}, \"required\": [\"city\", \"date\"]}}\n{\"name\": \"estimate_hotel_budget\", \"description\": \"Estimate hotel budget for a city and number of nights.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}, \"nights\": {\"type\": \"integer\"}}, \"required\": [\"city\", \"nights\"]}}",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
             "stability": "static",
             "segment_type": "tool_schema",
             "reuse_scope": "agent_type",
@@ -456,11 +447,20 @@
             "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_000/function_calling/02"
           },
           {
-            "name": "system",
-            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
-            "stability": "static",
-            "segment_type": "system",
-            "reuse_scope": "global",
+            "name": "user_03",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=3; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:03:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_000\nretry_count=3\ntrace_nonce=context_compiler_realistic_ablation_cfg00_000-03",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
             "must_preserve": [],
             "source_pointer": null
           }
@@ -481,30 +481,39 @@
       }
     },
     {
-      "request_id": "context_compiler_realistic_ablation_cfg00_001_function_calling_original_bad_layout_turn_00",
-      "input_tokens": 425,
-      "output_tokens": 53,
-      "ttft_ms": 32.93099254369736,
-      "total_latency_ms": 517.385933548212,
-      "decode_latency_ms": 484.4549410045147,
-      "tpot_ms": 9.140659264236126,
+      "request_id": "context_compiler_realistic_ablation_cfg00_001_function_calling_dynamic_fields_last_turn_00",
+      "input_tokens": 354,
+      "output_tokens": 55,
+      "ttft_ms": 20.034726709127426,
+      "total_latency_ms": 522.9581110179424,
+      "decode_latency_ms": 502.923384308815,
+      "tpot_ms": 9.144061532887546,
       "metadata": {
         "trace_id": "context_compiler_realistic_ablation_cfg00_001",
         "scenario": "function_calling",
         "turn": 0,
         "workload_type": "context_compiler_realistic_ablation",
-        "variant": "original_bad_layout",
+        "variant": "dynamic_fields_last",
         "expected_output_tokens": 96,
         "prefix_overlap_tokens": 0,
         "prefix_overlap_ratio": 0.0,
         "observation_tokens": 384,
         "context_segments": [
           {
-            "name": "runtime_header",
-            "text": "request_time=2026-06-08T09:00:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_001\nretry_count=0\ntrace_nonce=context_compiler_realistic_ablation_cfg00_001-00",
-            "stability": "ephemeral",
-            "segment_type": "runtime",
-            "reuse_scope": "request",
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
             "must_preserve": [],
             "source_pointer": null
           },
@@ -518,20 +527,11 @@
             "source_pointer": null
           },
           {
-            "name": "tools",
-            "text": "Tools:\n{\"name\": \"search_flights\", \"description\": \"Find available flights for a route and date.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"origin\": {\"type\": \"string\"}, \"destination\": {\"type\": \"string\"}, \"date\": {\"type\": \"string\"}}, \"required\": [\"origin\", \"destination\", \"date\"]}}\n{\"name\": \"get_weather\", \"description\": \"Retrieve weather forecast for a city and date.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}, \"date\": {\"type\": \"string\"}}, \"required\": [\"city\", \"date\"]}}\n{\"name\": \"estimate_hotel_budget\", \"description\": \"Estimate hotel budget for a city and number of nights.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}, \"nights\": {\"type\": \"integer\"}}, \"required\": [\"city\", \"nights\"]}}\n{\"name\": \"save_itinerary\", \"description\": \"Persist a travel itinerary record.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"traveler\": {\"type\": \"string\"}, \"summary\": {\"type\": \"string\"}}, \"required\": [\"traveler\", \"summary\"]}}",
-            "stability": "static",
-            "segment_type": "tool_schema",
-            "reuse_scope": "agent_type",
-            "must_preserve": [],
-            "source_pointer": null
-          },
-          {
-            "name": "system",
-            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
-            "stability": "static",
-            "segment_type": "system",
-            "reuse_scope": "global",
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:00:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_001\nretry_count=0\ntrace_nonce=context_compiler_realistic_ablation_cfg00_001-00",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
             "must_preserve": [],
             "source_pointer": null
           }
@@ -552,45 +552,36 @@
       }
     },
     {
-      "request_id": "context_compiler_realistic_ablation_cfg00_001_function_calling_original_bad_layout_turn_01",
-      "input_tokens": 4290,
-      "output_tokens": 80,
-      "ttft_ms": 151.68653428554535,
-      "total_latency_ms": 894.8535472154617,
-      "decode_latency_ms": 743.1670129299164,
-      "tpot_ms": 9.289587661623955,
+      "request_id": "context_compiler_realistic_ablation_cfg00_001_function_calling_dynamic_fields_last_turn_01",
+      "input_tokens": 4219,
+      "output_tokens": 40,
+      "ttft_ms": 23.58846738934517,
+      "total_latency_ms": 393.8336782157421,
+      "decode_latency_ms": 370.24521082639694,
+      "tpot_ms": 9.256130270659924,
       "metadata": {
         "trace_id": "context_compiler_realistic_ablation_cfg00_001",
         "scenario": "function_calling",
         "turn": 1,
         "workload_type": "context_compiler_realistic_ablation",
-        "variant": "original_bad_layout",
+        "variant": "dynamic_fields_last",
         "expected_output_tokens": 96,
-        "prefix_overlap_tokens": 1,
-        "prefix_overlap_ratio": 0.0017331022530329288,
+        "prefix_overlap_tokens": 59,
+        "prefix_overlap_ratio": 0.11591355599214145,
         "observation_tokens": 384,
         "context_segments": [
           {
-            "name": "runtime_header",
-            "text": "request_time=2026-06-08T09:01:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_001\nretry_count=1\ntrace_nonce=context_compiler_realistic_ablation_cfg00_001-01",
-            "stability": "ephemeral",
-            "segment_type": "runtime",
-            "reuse_scope": "request",
-            "must_preserve": [],
-            "source_pointer": null
-          },
-          {
-            "name": "user_01",
-            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=1; choose the next valid tool call.",
-            "stability": "turn_dynamic",
-            "segment_type": "current_query",
-            "reuse_scope": "turn",
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
             "must_preserve": [],
             "source_pointer": null
           },
           {
             "name": "tools",
-            "text": "Tools:\n{\"name\": \"get_weather\", \"description\": \"Retrieve weather forecast for a city and date.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}, \"date\": {\"type\": \"string\"}}, \"required\": [\"city\", \"date\"]}}\n{\"name\": \"estimate_hotel_budget\", \"description\": \"Estimate hotel budget for a city and number of nights.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}, \"nights\": {\"type\": \"integer\"}}, \"required\": [\"city\", \"nights\"]}}\n{\"name\": \"save_itinerary\", \"description\": \"Persist a travel itinerary record.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"traveler\": {\"type\": \"string\"}, \"summary\": {\"type\": \"string\"}}, \"required\": [\"traveler\", \"summary\"]}}\n{\"name\": \"search_flights\", \"description\": \"Find available flights for a route and date.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"origin\": {\"type\": \"string\"}, \"destination\": {\"type\": \"string\"}, \"date\": {\"type\": \"string\"}}, \"required\": [\"origin\", \"destination\", \"date\"]}}",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
             "stability": "static",
             "segment_type": "tool_schema",
             "reuse_scope": "agent_type",
@@ -622,11 +613,20 @@
             "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_001/function_calling/00"
           },
           {
-            "name": "system",
-            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
-            "stability": "static",
-            "segment_type": "system",
-            "reuse_scope": "global",
+            "name": "user_01",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=1; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:01:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_001\nretry_count=1\ntrace_nonce=context_compiler_realistic_ablation_cfg00_001-01",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
             "must_preserve": [],
             "source_pointer": null
           }
@@ -647,45 +647,36 @@
       }
     },
     {
-      "request_id": "context_compiler_realistic_ablation_cfg00_001_function_calling_original_bad_layout_turn_02",
-      "input_tokens": 8155,
-      "output_tokens": 96,
-      "ttft_ms": 304.21631410717964,
-      "total_latency_ms": 1198.863822966814,
-      "decode_latency_ms": 894.6475088596344,
-      "tpot_ms": 9.319244883954525,
+      "request_id": "context_compiler_realistic_ablation_cfg00_001_function_calling_dynamic_fields_last_turn_02",
+      "input_tokens": 8084,
+      "output_tokens": 40,
+      "ttft_ms": 29.20495718717575,
+      "total_latency_ms": 404.22503650188446,
+      "decode_latency_ms": 375.0200793147087,
+      "tpot_ms": 9.375501982867718,
       "metadata": {
         "trace_id": "context_compiler_realistic_ablation_cfg00_001",
         "scenario": "function_calling",
         "turn": 2,
         "workload_type": "context_compiler_realistic_ablation",
-        "variant": "original_bad_layout",
+        "variant": "dynamic_fields_last",
         "expected_output_tokens": 96,
-        "prefix_overlap_tokens": 1,
-        "prefix_overlap_ratio": 0.0010070493454179255,
+        "prefix_overlap_tokens": 475,
+        "prefix_overlap_ratio": 0.5135135135135135,
         "observation_tokens": 384,
         "context_segments": [
           {
-            "name": "runtime_header",
-            "text": "request_time=2026-06-08T09:02:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_001\nretry_count=2\ntrace_nonce=context_compiler_realistic_ablation_cfg00_001-02",
-            "stability": "ephemeral",
-            "segment_type": "runtime",
-            "reuse_scope": "request",
-            "must_preserve": [],
-            "source_pointer": null
-          },
-          {
-            "name": "user_02",
-            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=2; choose the next valid tool call.",
-            "stability": "turn_dynamic",
-            "segment_type": "current_query",
-            "reuse_scope": "turn",
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
             "must_preserve": [],
             "source_pointer": null
           },
           {
             "name": "tools",
-            "text": "Tools:\n{\"name\": \"estimate_hotel_budget\", \"description\": \"Estimate hotel budget for a city and number of nights.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}, \"nights\": {\"type\": \"integer\"}}, \"required\": [\"city\", \"nights\"]}}\n{\"name\": \"save_itinerary\", \"description\": \"Persist a travel itinerary record.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"traveler\": {\"type\": \"string\"}, \"summary\": {\"type\": \"string\"}}, \"required\": [\"traveler\", \"summary\"]}}\n{\"name\": \"search_flights\", \"description\": \"Find available flights for a route and date.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"origin\": {\"type\": \"string\"}, \"destination\": {\"type\": \"string\"}, \"date\": {\"type\": \"string\"}}, \"required\": [\"origin\", \"destination\", \"date\"]}}\n{\"name\": \"get_weather\", \"description\": \"Retrieve weather forecast for a city and date.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}, \"date\": {\"type\": \"string\"}}, \"required\": [\"city\", \"date\"]}}",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
             "stability": "static",
             "segment_type": "tool_schema",
             "reuse_scope": "agent_type",
@@ -741,11 +732,20 @@
             "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_001/function_calling/01"
           },
           {
-            "name": "system",
-            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
-            "stability": "static",
-            "segment_type": "system",
-            "reuse_scope": "global",
+            "name": "user_02",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=2; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:02:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_001\nretry_count=2\ntrace_nonce=context_compiler_realistic_ablation_cfg00_001-02",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
             "must_preserve": [],
             "source_pointer": null
           }
@@ -756,7 +756,7 @@
         "backend": "sglang_server",
         "base_url": "http://127.0.0.1:30000",
         "streaming": true,
-        "finish_reason": "length",
+        "finish_reason": "stop",
         "input_token_source": "tokenizer_fallback",
         "output_token_source": "tokenizer_fallback",
         "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
@@ -766,45 +766,36 @@
       }
     },
     {
-      "request_id": "context_compiler_realistic_ablation_cfg00_001_function_calling_original_bad_layout_turn_03",
-      "input_tokens": 12020,
+      "request_id": "context_compiler_realistic_ablation_cfg00_001_function_calling_dynamic_fields_last_turn_03",
+      "input_tokens": 11949,
       "output_tokens": 96,
-      "ttft_ms": 476.89686715602875,
-      "total_latency_ms": 1378.9447285234928,
-      "decode_latency_ms": 902.0478613674641,
-      "tpot_ms": 9.396331889244417,
+      "ttft_ms": 36.171235144138336,
+      "total_latency_ms": 938.7227855622768,
+      "decode_latency_ms": 902.5515504181385,
+      "tpot_ms": 9.401578650188943,
       "metadata": {
         "trace_id": "context_compiler_realistic_ablation_cfg00_001",
         "scenario": "function_calling",
         "turn": 3,
         "workload_type": "context_compiler_realistic_ablation",
-        "variant": "original_bad_layout",
+        "variant": "dynamic_fields_last",
         "expected_output_tokens": 96,
-        "prefix_overlap_tokens": 1,
-        "prefix_overlap_ratio": 0.0007097232079489,
+        "prefix_overlap_tokens": 891,
+        "prefix_overlap_ratio": 0.6644295302013423,
         "observation_tokens": 384,
         "context_segments": [
           {
-            "name": "runtime_header",
-            "text": "request_time=2026-06-08T09:03:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_001\nretry_count=3\ntrace_nonce=context_compiler_realistic_ablation_cfg00_001-03",
-            "stability": "ephemeral",
-            "segment_type": "runtime",
-            "reuse_scope": "request",
-            "must_preserve": [],
-            "source_pointer": null
-          },
-          {
-            "name": "user_03",
-            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=3; choose the next valid tool call.",
-            "stability": "turn_dynamic",
-            "segment_type": "current_query",
-            "reuse_scope": "turn",
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
             "must_preserve": [],
             "source_pointer": null
           },
           {
             "name": "tools",
-            "text": "Tools:\n{\"name\": \"save_itinerary\", \"description\": \"Persist a travel itinerary record.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"traveler\": {\"type\": \"string\"}, \"summary\": {\"type\": \"string\"}}, \"required\": [\"traveler\", \"summary\"]}}\n{\"name\": \"search_flights\", \"description\": \"Find available flights for a route and date.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"origin\": {\"type\": \"string\"}, \"destination\": {\"type\": \"string\"}, \"date\": {\"type\": \"string\"}}, \"required\": [\"origin\", \"destination\", \"date\"]}}\n{\"name\": \"get_weather\", \"description\": \"Retrieve weather forecast for a city and date.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}, \"date\": {\"type\": \"string\"}}, \"required\": [\"city\", \"date\"]}}\n{\"name\": \"estimate_hotel_budget\", \"description\": \"Estimate hotel budget for a city and number of nights.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}, \"nights\": {\"type\": \"integer\"}}, \"required\": [\"city\", \"nights\"]}}",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
             "stability": "static",
             "segment_type": "tool_schema",
             "reuse_scope": "agent_type",
@@ -884,11 +875,20 @@
             "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_001/function_calling/02"
           },
           {
-            "name": "system",
-            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
-            "stability": "static",
-            "segment_type": "system",
-            "reuse_scope": "global",
+            "name": "user_03",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=3; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:03:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_001\nretry_count=3\ntrace_nonce=context_compiler_realistic_ablation_cfg00_001-03",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
             "must_preserve": [],
             "source_pointer": null
           }
@@ -909,30 +909,39 @@
       }
     },
     {
-      "request_id": "context_compiler_realistic_ablation_cfg00_002_function_calling_original_bad_layout_turn_00",
-      "input_tokens": 425,
-      "output_tokens": 53,
-      "ttft_ms": 20.972073078155518,
-      "total_latency_ms": 504.9801766872406,
-      "decode_latency_ms": 484.0081036090851,
-      "tpot_ms": 9.132228369982737,
+      "request_id": "context_compiler_realistic_ablation_cfg00_002_function_calling_dynamic_fields_last_turn_00",
+      "input_tokens": 354,
+      "output_tokens": 55,
+      "ttft_ms": 17.359748482704163,
+      "total_latency_ms": 520.2823504805565,
+      "decode_latency_ms": 502.9226019978523,
+      "tpot_ms": 9.14404730905186,
       "metadata": {
         "trace_id": "context_compiler_realistic_ablation_cfg00_002",
         "scenario": "function_calling",
         "turn": 0,
         "workload_type": "context_compiler_realistic_ablation",
-        "variant": "original_bad_layout",
+        "variant": "dynamic_fields_last",
         "expected_output_tokens": 96,
         "prefix_overlap_tokens": 0,
         "prefix_overlap_ratio": 0.0,
         "observation_tokens": 384,
         "context_segments": [
           {
-            "name": "runtime_header",
-            "text": "request_time=2026-06-08T09:00:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_002\nretry_count=0\ntrace_nonce=context_compiler_realistic_ablation_cfg00_002-00",
-            "stability": "ephemeral",
-            "segment_type": "runtime",
-            "reuse_scope": "request",
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
             "must_preserve": [],
             "source_pointer": null
           },
@@ -946,20 +955,11 @@
             "source_pointer": null
           },
           {
-            "name": "tools",
-            "text": "Tools:\n{\"name\": \"search_flights\", \"description\": \"Find available flights for a route and date.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"origin\": {\"type\": \"string\"}, \"destination\": {\"type\": \"string\"}, \"date\": {\"type\": \"string\"}}, \"required\": [\"origin\", \"destination\", \"date\"]}}\n{\"name\": \"get_weather\", \"description\": \"Retrieve weather forecast for a city and date.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}, \"date\": {\"type\": \"string\"}}, \"required\": [\"city\", \"date\"]}}\n{\"name\": \"estimate_hotel_budget\", \"description\": \"Estimate hotel budget for a city and number of nights.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}, \"nights\": {\"type\": \"integer\"}}, \"required\": [\"city\", \"nights\"]}}\n{\"name\": \"save_itinerary\", \"description\": \"Persist a travel itinerary record.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"traveler\": {\"type\": \"string\"}, \"summary\": {\"type\": \"string\"}}, \"required\": [\"traveler\", \"summary\"]}}",
-            "stability": "static",
-            "segment_type": "tool_schema",
-            "reuse_scope": "agent_type",
-            "must_preserve": [],
-            "source_pointer": null
-          },
-          {
-            "name": "system",
-            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
-            "stability": "static",
-            "segment_type": "system",
-            "reuse_scope": "global",
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:00:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_002\nretry_count=0\ntrace_nonce=context_compiler_realistic_ablation_cfg00_002-00",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
             "must_preserve": [],
             "source_pointer": null
           }
@@ -980,45 +980,36 @@
       }
     },
     {
-      "request_id": "context_compiler_realistic_ablation_cfg00_002_function_calling_original_bad_layout_turn_01",
-      "input_tokens": 4290,
-      "output_tokens": 96,
-      "ttft_ms": 147.13405817747116,
-      "total_latency_ms": 1029.4208489358425,
-      "decode_latency_ms": 882.2867907583714,
-      "tpot_ms": 9.190487403733036,
+      "request_id": "context_compiler_realistic_ablation_cfg00_002_function_calling_dynamic_fields_last_turn_01",
+      "input_tokens": 4219,
+      "output_tokens": 40,
+      "ttft_ms": 25.352466851472855,
+      "total_latency_ms": 395.36959305405617,
+      "decode_latency_ms": 370.0171262025833,
+      "tpot_ms": 9.250428155064583,
       "metadata": {
         "trace_id": "context_compiler_realistic_ablation_cfg00_002",
         "scenario": "function_calling",
         "turn": 1,
         "workload_type": "context_compiler_realistic_ablation",
-        "variant": "original_bad_layout",
+        "variant": "dynamic_fields_last",
         "expected_output_tokens": 96,
-        "prefix_overlap_tokens": 1,
-        "prefix_overlap_ratio": 0.0017331022530329288,
+        "prefix_overlap_tokens": 59,
+        "prefix_overlap_ratio": 0.11591355599214145,
         "observation_tokens": 384,
         "context_segments": [
           {
-            "name": "runtime_header",
-            "text": "request_time=2026-06-08T09:01:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_002\nretry_count=1\ntrace_nonce=context_compiler_realistic_ablation_cfg00_002-01",
-            "stability": "ephemeral",
-            "segment_type": "runtime",
-            "reuse_scope": "request",
-            "must_preserve": [],
-            "source_pointer": null
-          },
-          {
-            "name": "user_01",
-            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=1; choose the next valid tool call.",
-            "stability": "turn_dynamic",
-            "segment_type": "current_query",
-            "reuse_scope": "turn",
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
             "must_preserve": [],
             "source_pointer": null
           },
           {
             "name": "tools",
-            "text": "Tools:\n{\"name\": \"get_weather\", \"description\": \"Retrieve weather forecast for a city and date.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}, \"date\": {\"type\": \"string\"}}, \"required\": [\"city\", \"date\"]}}\n{\"name\": \"estimate_hotel_budget\", \"description\": \"Estimate hotel budget for a city and number of nights.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}, \"nights\": {\"type\": \"integer\"}}, \"required\": [\"city\", \"nights\"]}}\n{\"name\": \"save_itinerary\", \"description\": \"Persist a travel itinerary record.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"traveler\": {\"type\": \"string\"}, \"summary\": {\"type\": \"string\"}}, \"required\": [\"traveler\", \"summary\"]}}\n{\"name\": \"search_flights\", \"description\": \"Find available flights for a route and date.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"origin\": {\"type\": \"string\"}, \"destination\": {\"type\": \"string\"}, \"date\": {\"type\": \"string\"}}, \"required\": [\"origin\", \"destination\", \"date\"]}}",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
             "stability": "static",
             "segment_type": "tool_schema",
             "reuse_scope": "agent_type",
@@ -1050,11 +1041,20 @@
             "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_002/function_calling/00"
           },
           {
-            "name": "system",
-            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
-            "stability": "static",
-            "segment_type": "system",
-            "reuse_scope": "global",
+            "name": "user_01",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=1; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:01:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_002\nretry_count=1\ntrace_nonce=context_compiler_realistic_ablation_cfg00_002-01",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
             "must_preserve": [],
             "source_pointer": null
           }
@@ -1065,7 +1065,7 @@
         "backend": "sglang_server",
         "base_url": "http://127.0.0.1:30000",
         "streaming": true,
-        "finish_reason": "length",
+        "finish_reason": "stop",
         "input_token_source": "tokenizer_fallback",
         "output_token_source": "tokenizer_fallback",
         "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
@@ -1075,45 +1075,36 @@
       }
     },
     {
-      "request_id": "context_compiler_realistic_ablation_cfg00_002_function_calling_original_bad_layout_turn_02",
-      "input_tokens": 8155,
-      "output_tokens": 96,
-      "ttft_ms": 309.59831923246384,
-      "total_latency_ms": 1203.9495408535004,
-      "decode_latency_ms": 894.3512216210365,
-      "tpot_ms": 9.316158558552464,
+      "request_id": "context_compiler_realistic_ablation_cfg00_002_function_calling_dynamic_fields_last_turn_02",
+      "input_tokens": 8084,
+      "output_tokens": 40,
+      "ttft_ms": 36.55390068888664,
+      "total_latency_ms": 410.40945798158646,
+      "decode_latency_ms": 373.8555572926998,
+      "tpot_ms": 9.346388932317495,
       "metadata": {
         "trace_id": "context_compiler_realistic_ablation_cfg00_002",
         "scenario": "function_calling",
         "turn": 2,
         "workload_type": "context_compiler_realistic_ablation",
-        "variant": "original_bad_layout",
+        "variant": "dynamic_fields_last",
         "expected_output_tokens": 96,
-        "prefix_overlap_tokens": 1,
-        "prefix_overlap_ratio": 0.0010070493454179255,
+        "prefix_overlap_tokens": 475,
+        "prefix_overlap_ratio": 0.5135135135135135,
         "observation_tokens": 384,
         "context_segments": [
           {
-            "name": "runtime_header",
-            "text": "request_time=2026-06-08T09:02:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_002\nretry_count=2\ntrace_nonce=context_compiler_realistic_ablation_cfg00_002-02",
-            "stability": "ephemeral",
-            "segment_type": "runtime",
-            "reuse_scope": "request",
-            "must_preserve": [],
-            "source_pointer": null
-          },
-          {
-            "name": "user_02",
-            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=2; choose the next valid tool call.",
-            "stability": "turn_dynamic",
-            "segment_type": "current_query",
-            "reuse_scope": "turn",
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
             "must_preserve": [],
             "source_pointer": null
           },
           {
             "name": "tools",
-            "text": "Tools:\n{\"name\": \"estimate_hotel_budget\", \"description\": \"Estimate hotel budget for a city and number of nights.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}, \"nights\": {\"type\": \"integer\"}}, \"required\": [\"city\", \"nights\"]}}\n{\"name\": \"save_itinerary\", \"description\": \"Persist a travel itinerary record.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"traveler\": {\"type\": \"string\"}, \"summary\": {\"type\": \"string\"}}, \"required\": [\"traveler\", \"summary\"]}}\n{\"name\": \"search_flights\", \"description\": \"Find available flights for a route and date.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"origin\": {\"type\": \"string\"}, \"destination\": {\"type\": \"string\"}, \"date\": {\"type\": \"string\"}}, \"required\": [\"origin\", \"destination\", \"date\"]}}\n{\"name\": \"get_weather\", \"description\": \"Retrieve weather forecast for a city and date.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}, \"date\": {\"type\": \"string\"}}, \"required\": [\"city\", \"date\"]}}",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
             "stability": "static",
             "segment_type": "tool_schema",
             "reuse_scope": "agent_type",
@@ -1169,11 +1160,20 @@
             "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_002/function_calling/01"
           },
           {
-            "name": "system",
-            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
-            "stability": "static",
-            "segment_type": "system",
-            "reuse_scope": "global",
+            "name": "user_02",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=2; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:02:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_002\nretry_count=2\ntrace_nonce=context_compiler_realistic_ablation_cfg00_002-02",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
             "must_preserve": [],
             "source_pointer": null
           }
@@ -1184,7 +1184,7 @@
         "backend": "sglang_server",
         "base_url": "http://127.0.0.1:30000",
         "streaming": true,
-        "finish_reason": "length",
+        "finish_reason": "stop",
         "input_token_source": "tokenizer_fallback",
         "output_token_source": "tokenizer_fallback",
         "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
@@ -1194,45 +1194,36 @@
       }
     },
     {
-      "request_id": "context_compiler_realistic_ablation_cfg00_002_function_calling_original_bad_layout_turn_03",
-      "input_tokens": 12020,
+      "request_id": "context_compiler_realistic_ablation_cfg00_002_function_calling_dynamic_fields_last_turn_03",
+      "input_tokens": 11949,
       "output_tokens": 96,
-      "ttft_ms": 474.68549758195877,
-      "total_latency_ms": 1376.5293508768082,
-      "decode_latency_ms": 901.8438532948494,
-      "tpot_ms": 9.394206805154681,
+      "ttft_ms": 37.72258758544922,
+      "total_latency_ms": 935.8190894126892,
+      "decode_latency_ms": 898.09650182724,
+      "tpot_ms": 9.35517189403375,
       "metadata": {
         "trace_id": "context_compiler_realistic_ablation_cfg00_002",
         "scenario": "function_calling",
         "turn": 3,
         "workload_type": "context_compiler_realistic_ablation",
-        "variant": "original_bad_layout",
+        "variant": "dynamic_fields_last",
         "expected_output_tokens": 96,
-        "prefix_overlap_tokens": 1,
-        "prefix_overlap_ratio": 0.0007097232079489,
+        "prefix_overlap_tokens": 891,
+        "prefix_overlap_ratio": 0.6644295302013423,
         "observation_tokens": 384,
         "context_segments": [
           {
-            "name": "runtime_header",
-            "text": "request_time=2026-06-08T09:03:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_002\nretry_count=3\ntrace_nonce=context_compiler_realistic_ablation_cfg00_002-03",
-            "stability": "ephemeral",
-            "segment_type": "runtime",
-            "reuse_scope": "request",
-            "must_preserve": [],
-            "source_pointer": null
-          },
-          {
-            "name": "user_03",
-            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=3; choose the next valid tool call.",
-            "stability": "turn_dynamic",
-            "segment_type": "current_query",
-            "reuse_scope": "turn",
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
             "must_preserve": [],
             "source_pointer": null
           },
           {
             "name": "tools",
-            "text": "Tools:\n{\"name\": \"save_itinerary\", \"description\": \"Persist a travel itinerary record.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"traveler\": {\"type\": \"string\"}, \"summary\": {\"type\": \"string\"}}, \"required\": [\"traveler\", \"summary\"]}}\n{\"name\": \"search_flights\", \"description\": \"Find available flights for a route and date.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"origin\": {\"type\": \"string\"}, \"destination\": {\"type\": \"string\"}, \"date\": {\"type\": \"string\"}}, \"required\": [\"origin\", \"destination\", \"date\"]}}\n{\"name\": \"get_weather\", \"description\": \"Retrieve weather forecast for a city and date.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}, \"date\": {\"type\": \"string\"}}, \"required\": [\"city\", \"date\"]}}\n{\"name\": \"estimate_hotel_budget\", \"description\": \"Estimate hotel budget for a city and number of nights.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}, \"nights\": {\"type\": \"integer\"}}, \"required\": [\"city\", \"nights\"]}}",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
             "stability": "static",
             "segment_type": "tool_schema",
             "reuse_scope": "agent_type",
@@ -1312,11 +1303,20 @@
             "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_002/function_calling/02"
           },
           {
-            "name": "system",
-            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
-            "stability": "static",
-            "segment_type": "system",
-            "reuse_scope": "global",
+            "name": "user_03",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=3; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:03:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_002\nretry_count=3\ntrace_nonce=context_compiler_realistic_ablation_cfg00_002-03",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
             "must_preserve": [],
             "source_pointer": null
           }
@@ -1337,30 +1337,39 @@
       }
     },
     {
-      "request_id": "context_compiler_realistic_ablation_cfg00_003_function_calling_original_bad_layout_turn_00",
-      "input_tokens": 425,
-      "output_tokens": 53,
-      "ttft_ms": 20.7822248339653,
-      "total_latency_ms": 505.9564895927906,
-      "decode_latency_ms": 485.1742647588253,
-      "tpot_ms": 9.154231410543874,
+      "request_id": "context_compiler_realistic_ablation_cfg00_003_function_calling_dynamic_fields_last_turn_00",
+      "input_tokens": 354,
+      "output_tokens": 55,
+      "ttft_ms": 16.53362065553665,
+      "total_latency_ms": 519.3258374929428,
+      "decode_latency_ms": 502.79221683740616,
+      "tpot_ms": 9.141676669771021,
       "metadata": {
         "trace_id": "context_compiler_realistic_ablation_cfg00_003",
         "scenario": "function_calling",
         "turn": 0,
         "workload_type": "context_compiler_realistic_ablation",
-        "variant": "original_bad_layout",
+        "variant": "dynamic_fields_last",
         "expected_output_tokens": 96,
         "prefix_overlap_tokens": 0,
         "prefix_overlap_ratio": 0.0,
         "observation_tokens": 384,
         "context_segments": [
           {
-            "name": "runtime_header",
-            "text": "request_time=2026-06-08T09:00:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_003\nretry_count=0\ntrace_nonce=context_compiler_realistic_ablation_cfg00_003-00",
-            "stability": "ephemeral",
-            "segment_type": "runtime",
-            "reuse_scope": "request",
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
             "must_preserve": [],
             "source_pointer": null
           },
@@ -1374,20 +1383,11 @@
             "source_pointer": null
           },
           {
-            "name": "tools",
-            "text": "Tools:\n{\"name\": \"search_flights\", \"description\": \"Find available flights for a route and date.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"origin\": {\"type\": \"string\"}, \"destination\": {\"type\": \"string\"}, \"date\": {\"type\": \"string\"}}, \"required\": [\"origin\", \"destination\", \"date\"]}}\n{\"name\": \"get_weather\", \"description\": \"Retrieve weather forecast for a city and date.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}, \"date\": {\"type\": \"string\"}}, \"required\": [\"city\", \"date\"]}}\n{\"name\": \"estimate_hotel_budget\", \"description\": \"Estimate hotel budget for a city and number of nights.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}, \"nights\": {\"type\": \"integer\"}}, \"required\": [\"city\", \"nights\"]}}\n{\"name\": \"save_itinerary\", \"description\": \"Persist a travel itinerary record.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"traveler\": {\"type\": \"string\"}, \"summary\": {\"type\": \"string\"}}, \"required\": [\"traveler\", \"summary\"]}}",
-            "stability": "static",
-            "segment_type": "tool_schema",
-            "reuse_scope": "agent_type",
-            "must_preserve": [],
-            "source_pointer": null
-          },
-          {
-            "name": "system",
-            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
-            "stability": "static",
-            "segment_type": "system",
-            "reuse_scope": "global",
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:00:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_003\nretry_count=0\ntrace_nonce=context_compiler_realistic_ablation_cfg00_003-00",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
             "must_preserve": [],
             "source_pointer": null
           }
@@ -1408,45 +1408,36 @@
       }
     },
     {
-      "request_id": "context_compiler_realistic_ablation_cfg00_003_function_calling_original_bad_layout_turn_01",
-      "input_tokens": 4290,
-      "output_tokens": 96,
-      "ttft_ms": 150.08125454187393,
-      "total_latency_ms": 1031.7974463105202,
-      "decode_latency_ms": 881.7161917686462,
-      "tpot_ms": 9.184543664256731,
+      "request_id": "context_compiler_realistic_ablation_cfg00_003_function_calling_dynamic_fields_last_turn_01",
+      "input_tokens": 4219,
+      "output_tokens": 40,
+      "ttft_ms": 22.556543350219727,
+      "total_latency_ms": 392.6698714494705,
+      "decode_latency_ms": 370.1133280992508,
+      "tpot_ms": 9.25283320248127,
       "metadata": {
         "trace_id": "context_compiler_realistic_ablation_cfg00_003",
         "scenario": "function_calling",
         "turn": 1,
         "workload_type": "context_compiler_realistic_ablation",
-        "variant": "original_bad_layout",
+        "variant": "dynamic_fields_last",
         "expected_output_tokens": 96,
-        "prefix_overlap_tokens": 1,
-        "prefix_overlap_ratio": 0.0017331022530329288,
+        "prefix_overlap_tokens": 59,
+        "prefix_overlap_ratio": 0.11591355599214145,
         "observation_tokens": 384,
         "context_segments": [
           {
-            "name": "runtime_header",
-            "text": "request_time=2026-06-08T09:01:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_003\nretry_count=1\ntrace_nonce=context_compiler_realistic_ablation_cfg00_003-01",
-            "stability": "ephemeral",
-            "segment_type": "runtime",
-            "reuse_scope": "request",
-            "must_preserve": [],
-            "source_pointer": null
-          },
-          {
-            "name": "user_01",
-            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=1; choose the next valid tool call.",
-            "stability": "turn_dynamic",
-            "segment_type": "current_query",
-            "reuse_scope": "turn",
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
             "must_preserve": [],
             "source_pointer": null
           },
           {
             "name": "tools",
-            "text": "Tools:\n{\"name\": \"get_weather\", \"description\": \"Retrieve weather forecast for a city and date.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}, \"date\": {\"type\": \"string\"}}, \"required\": [\"city\", \"date\"]}}\n{\"name\": \"estimate_hotel_budget\", \"description\": \"Estimate hotel budget for a city and number of nights.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}, \"nights\": {\"type\": \"integer\"}}, \"required\": [\"city\", \"nights\"]}}\n{\"name\": \"save_itinerary\", \"description\": \"Persist a travel itinerary record.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"traveler\": {\"type\": \"string\"}, \"summary\": {\"type\": \"string\"}}, \"required\": [\"traveler\", \"summary\"]}}\n{\"name\": \"search_flights\", \"description\": \"Find available flights for a route and date.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"origin\": {\"type\": \"string\"}, \"destination\": {\"type\": \"string\"}, \"date\": {\"type\": \"string\"}}, \"required\": [\"origin\", \"destination\", \"date\"]}}",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
             "stability": "static",
             "segment_type": "tool_schema",
             "reuse_scope": "agent_type",
@@ -1478,11 +1469,20 @@
             "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_003/function_calling/00"
           },
           {
-            "name": "system",
-            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
-            "stability": "static",
-            "segment_type": "system",
-            "reuse_scope": "global",
+            "name": "user_01",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=1; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:01:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_003\nretry_count=1\ntrace_nonce=context_compiler_realistic_ablation_cfg00_003-01",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
             "must_preserve": [],
             "source_pointer": null
           }
@@ -1493,7 +1493,7 @@
         "backend": "sglang_server",
         "base_url": "http://127.0.0.1:30000",
         "streaming": true,
-        "finish_reason": "length",
+        "finish_reason": "stop",
         "input_token_source": "tokenizer_fallback",
         "output_token_source": "tokenizer_fallback",
         "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
@@ -1503,45 +1503,36 @@
       }
     },
     {
-      "request_id": "context_compiler_realistic_ablation_cfg00_003_function_calling_original_bad_layout_turn_02",
-      "input_tokens": 8155,
-      "output_tokens": 96,
-      "ttft_ms": 295.5046780407429,
-      "total_latency_ms": 1189.6968744695187,
-      "decode_latency_ms": 894.1921964287758,
-      "tpot_ms": 9.31450204613308,
+      "request_id": "context_compiler_realistic_ablation_cfg00_003_function_calling_dynamic_fields_last_turn_02",
+      "input_tokens": 8084,
+      "output_tokens": 40,
+      "ttft_ms": 29.11253273487091,
+      "total_latency_ms": 402.8136655688286,
+      "decode_latency_ms": 373.7011328339577,
+      "tpot_ms": 9.342528320848942,
       "metadata": {
         "trace_id": "context_compiler_realistic_ablation_cfg00_003",
         "scenario": "function_calling",
         "turn": 2,
         "workload_type": "context_compiler_realistic_ablation",
-        "variant": "original_bad_layout",
+        "variant": "dynamic_fields_last",
         "expected_output_tokens": 96,
-        "prefix_overlap_tokens": 1,
-        "prefix_overlap_ratio": 0.0010070493454179255,
+        "prefix_overlap_tokens": 475,
+        "prefix_overlap_ratio": 0.5135135135135135,
         "observation_tokens": 384,
         "context_segments": [
           {
-            "name": "runtime_header",
-            "text": "request_time=2026-06-08T09:02:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_003\nretry_count=2\ntrace_nonce=context_compiler_realistic_ablation_cfg00_003-02",
-            "stability": "ephemeral",
-            "segment_type": "runtime",
-            "reuse_scope": "request",
-            "must_preserve": [],
-            "source_pointer": null
-          },
-          {
-            "name": "user_02",
-            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=2; choose the next valid tool call.",
-            "stability": "turn_dynamic",
-            "segment_type": "current_query",
-            "reuse_scope": "turn",
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
             "must_preserve": [],
             "source_pointer": null
           },
           {
             "name": "tools",
-            "text": "Tools:\n{\"name\": \"estimate_hotel_budget\", \"description\": \"Estimate hotel budget for a city and number of nights.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}, \"nights\": {\"type\": \"integer\"}}, \"required\": [\"city\", \"nights\"]}}\n{\"name\": \"save_itinerary\", \"description\": \"Persist a travel itinerary record.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"traveler\": {\"type\": \"string\"}, \"summary\": {\"type\": \"string\"}}, \"required\": [\"traveler\", \"summary\"]}}\n{\"name\": \"search_flights\", \"description\": \"Find available flights for a route and date.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"origin\": {\"type\": \"string\"}, \"destination\": {\"type\": \"string\"}, \"date\": {\"type\": \"string\"}}, \"required\": [\"origin\", \"destination\", \"date\"]}}\n{\"name\": \"get_weather\", \"description\": \"Retrieve weather forecast for a city and date.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}, \"date\": {\"type\": \"string\"}}, \"required\": [\"city\", \"date\"]}}",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
             "stability": "static",
             "segment_type": "tool_schema",
             "reuse_scope": "agent_type",
@@ -1597,11 +1588,20 @@
             "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_003/function_calling/01"
           },
           {
-            "name": "system",
-            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
-            "stability": "static",
-            "segment_type": "system",
-            "reuse_scope": "global",
+            "name": "user_02",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=2; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:02:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_003\nretry_count=2\ntrace_nonce=context_compiler_realistic_ablation_cfg00_003-02",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
             "must_preserve": [],
             "source_pointer": null
           }
@@ -1612,7 +1612,7 @@
         "backend": "sglang_server",
         "base_url": "http://127.0.0.1:30000",
         "streaming": true,
-        "finish_reason": "length",
+        "finish_reason": "stop",
         "input_token_source": "tokenizer_fallback",
         "output_token_source": "tokenizer_fallback",
         "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
@@ -1622,45 +1622,36 @@
       }
     },
     {
-      "request_id": "context_compiler_realistic_ablation_cfg00_003_function_calling_original_bad_layout_turn_03",
-      "input_tokens": 12020,
+      "request_id": "context_compiler_realistic_ablation_cfg00_003_function_calling_dynamic_fields_last_turn_03",
+      "input_tokens": 11949,
       "output_tokens": 96,
-      "ttft_ms": 468.4814475476742,
-      "total_latency_ms": 1369.1662847995758,
-      "decode_latency_ms": 900.6848372519016,
-      "tpot_ms": 9.382133721373975,
+      "ttft_ms": 35.1453498005867,
+      "total_latency_ms": 937.1774680912495,
+      "decode_latency_ms": 902.0321182906628,
+      "tpot_ms": 9.396167898861071,
       "metadata": {
         "trace_id": "context_compiler_realistic_ablation_cfg00_003",
         "scenario": "function_calling",
         "turn": 3,
         "workload_type": "context_compiler_realistic_ablation",
-        "variant": "original_bad_layout",
+        "variant": "dynamic_fields_last",
         "expected_output_tokens": 96,
-        "prefix_overlap_tokens": 1,
-        "prefix_overlap_ratio": 0.0007097232079489,
+        "prefix_overlap_tokens": 891,
+        "prefix_overlap_ratio": 0.6644295302013423,
         "observation_tokens": 384,
         "context_segments": [
           {
-            "name": "runtime_header",
-            "text": "request_time=2026-06-08T09:03:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_003\nretry_count=3\ntrace_nonce=context_compiler_realistic_ablation_cfg00_003-03",
-            "stability": "ephemeral",
-            "segment_type": "runtime",
-            "reuse_scope": "request",
-            "must_preserve": [],
-            "source_pointer": null
-          },
-          {
-            "name": "user_03",
-            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=3; choose the next valid tool call.",
-            "stability": "turn_dynamic",
-            "segment_type": "current_query",
-            "reuse_scope": "turn",
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
             "must_preserve": [],
             "source_pointer": null
           },
           {
             "name": "tools",
-            "text": "Tools:\n{\"name\": \"save_itinerary\", \"description\": \"Persist a travel itinerary record.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"traveler\": {\"type\": \"string\"}, \"summary\": {\"type\": \"string\"}}, \"required\": [\"traveler\", \"summary\"]}}\n{\"name\": \"search_flights\", \"description\": \"Find available flights for a route and date.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"origin\": {\"type\": \"string\"}, \"destination\": {\"type\": \"string\"}, \"date\": {\"type\": \"string\"}}, \"required\": [\"origin\", \"destination\", \"date\"]}}\n{\"name\": \"get_weather\", \"description\": \"Retrieve weather forecast for a city and date.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}, \"date\": {\"type\": \"string\"}}, \"required\": [\"city\", \"date\"]}}\n{\"name\": \"estimate_hotel_budget\", \"description\": \"Estimate hotel budget for a city and number of nights.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}, \"nights\": {\"type\": \"integer\"}}, \"required\": [\"city\", \"nights\"]}}",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
             "stability": "static",
             "segment_type": "tool_schema",
             "reuse_scope": "agent_type",
@@ -1740,11 +1731,20 @@
             "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_003/function_calling/02"
           },
           {
-            "name": "system",
-            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
-            "stability": "static",
-            "segment_type": "system",
-            "reuse_scope": "global",
+            "name": "user_03",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=3; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:03:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_003\nretry_count=3\ntrace_nonce=context_compiler_realistic_ablation_cfg00_003-03",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
             "must_preserve": [],
             "source_pointer": null
           }
@@ -1775,18 +1775,18 @@
     "repeat_summary": {
       "run_count": 1,
       "mean_latency_ms_by_run": [
-        1013.0115537904203
+        593.2584397960454
       ],
       "mean_ttft_ms_by_run": [
-        240.20220525562763
+        55.597671773284674
       ],
       "mean_tpot_ms_by_run": [
-        9.279206018092225
+        9.296645197900943
       ],
       "mean_output_tokens_by_run": [
-        83.125
+        57.75
       ],
-      "mean_latency_ms_mean": 1013.0115537904203,
+      "mean_latency_ms_mean": 593.2584397960454,
       "mean_latency_ms_std": 0.0
     },
     "token_source_summary": {

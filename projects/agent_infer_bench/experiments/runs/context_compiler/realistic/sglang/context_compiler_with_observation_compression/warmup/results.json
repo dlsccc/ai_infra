@@ -1,0 +1,2853 @@
+{
+  "created_at": "2026-06-08T15:07:16.604763+00:00",
+  "environment": {
+    "python": "3.11.15",
+    "platform": "Linux-5.15.0-161-generic-x86_64-with-glibc2.35"
+  },
+  "config": {
+    "experiment_name": "context_compiler_realistic_sglang",
+    "backend": "sglang",
+    "model": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+    "output_dir": "experiments/runs/context_compiler/realistic/sglang/context_compiler_with_observation_compression/warmup",
+    "repeat": 1,
+    "concurrency": 1,
+    "server": {
+      "base_url": "http://127.0.0.1:30000",
+      "api_key": "EMPTY",
+      "timeout_s": 300
+    },
+    "sampling": {
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "max_tokens": 96
+    },
+    "workloads": [
+      {
+        "type": "context_compiler_realistic_ablation",
+        "scenario": "function_calling",
+        "count": 4,
+        "turns": 4,
+        "observation_tokens": 384,
+        "output_tokens": 96,
+        "max_observation_words": 120,
+        "variants": [
+          "context_compiler_with_observation_compression"
+        ]
+      }
+    ]
+  },
+  "summary_metrics": {
+    "request_count": 16,
+    "total_output_tokens": 1030,
+    "mean_latency_ms": 631.385640008375,
+    "p50_latency_ms": 522.132009267807,
+    "p95_latency_ms": 945.3665688633919,
+    "mean_ttft_ms": 44.42487773485482,
+    "p95_ttft_ms": 72.75965809822083,
+    "mean_decode_latency_ms": 586.9607622735202,
+    "p95_decode_latency_ms": 872.6458810269833,
+    "mean_tpot_ms": 9.129062693447317,
+    "p95_tpot_ms": 9.179659839719534,
+    "tokens_per_second": 101.95828970571155,
+    "requests_per_second": 1.5838180925159075
+  },
+  "requests": [
+    {
+      "request_id": "context_compiler_realistic_ablation_cfg00_000_function_calling_context_compiler_with_observation_compression_turn_00",
+      "input_tokens": 354,
+      "output_tokens": 55,
+      "ttft_ms": 41.664913296699524,
+      "total_latency_ms": 543.4914194047451,
+      "decode_latency_ms": 501.8265061080456,
+      "tpot_ms": 9.124118292873556,
+      "metadata": {
+        "trace_id": "context_compiler_realistic_ablation_cfg00_000",
+        "scenario": "function_calling",
+        "turn": 0,
+        "workload_type": "context_compiler_realistic_ablation",
+        "variant": "context_compiler_with_observation_compression",
+        "expected_output_tokens": 96,
+        "prefix_overlap_tokens": 0,
+        "prefix_overlap_ratio": 0.0,
+        "observation_tokens": 384,
+        "context_segments": [
+          {
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "user_00",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=0; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:00:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_000\nretry_count=0\ntrace_nonce=context_compiler_realistic_ablation_cfg00_000-00",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
+            "must_preserve": [],
+            "source_pointer": null
+          }
+        ],
+        "compiler_metadata": {
+          "compiler": "context_compiler_mvp",
+          "compress_observations": true,
+          "segments": [
+            {
+              "name": "system",
+              "stability": "static",
+              "segment_type": "system",
+              "reuse_scope": "global",
+              "cache_key": "sha256:d07af5ec2d275acb20d12eeb077acb62604f3f4bb397e9822dc65f7172946578",
+              "source_pointer": null,
+              "word_count": 25
+            },
+            {
+              "name": "tools",
+              "stability": "static",
+              "segment_type": "tool_schema",
+              "reuse_scope": "agent_type",
+              "cache_key": "sha256:c3fd1376c33138763ac484aa5edff20b9fd28a79d20d900c2d8aef074171c036",
+              "source_pointer": null,
+              "word_count": 32
+            },
+            {
+              "name": "user_00",
+              "stability": "turn_dynamic",
+              "segment_type": "current_query",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:9032566902362b30fd2a575119794c53955dbe056468f59094632ba073ad7e2e",
+              "source_pointer": null,
+              "word_count": 27
+            },
+            {
+              "name": "runtime_header",
+              "stability": "ephemeral",
+              "segment_type": "runtime",
+              "reuse_scope": "request",
+              "cache_key": "sha256:707c78a291f996e40e335f2ae06f22b63a447d56016339eab613af8d93491d94",
+              "source_pointer": null,
+              "word_count": 4
+            }
+          ]
+        },
+        "backend": "sglang_server",
+        "base_url": "http://127.0.0.1:30000",
+        "streaming": true,
+        "finish_reason": "stop",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 0,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "context_compiler_realistic_ablation_cfg00_000_function_calling_context_compiler_with_observation_compression_turn_01",
+      "input_tokens": 1112,
+      "output_tokens": 40,
+      "ttft_ms": 39.44579139351845,
+      "total_latency_ms": 406.5681993961334,
+      "decode_latency_ms": 367.122408002615,
+      "tpot_ms": 9.178060200065374,
+      "metadata": {
+        "trace_id": "context_compiler_realistic_ablation_cfg00_000",
+        "scenario": "function_calling",
+        "turn": 1,
+        "workload_type": "context_compiler_realistic_ablation",
+        "variant": "context_compiler_with_observation_compression",
+        "expected_output_tokens": 96,
+        "prefix_overlap_tokens": 59,
+        "prefix_overlap_ratio": 0.3010204081632653,
+        "observation_tokens": 384,
+        "context_segments": [
+          {
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_00",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-10\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "user_01",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=1; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_00",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 280 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_0_0 flight_api_json_turn_0_1 flight_api_json_turn_0_2 flight_api_json_turn_0_3 flight_api_json_turn_0_4 flight_api_json_turn_0_5 flight_api_json_turn_0_6 flight_api_json_turn_0_7 flight_api_json_turn_0_8 flight_api_json_turn_0_9 flight_api_json_turn_0_10 flight_api_json_turn_0_11 flight_api_json_turn_0_12 flight_api_json_turn_0_13 flight_api_json_turn_0_14 flight_api_json_turn_0_15 flight_api_json_turn_0_16 flight_api_json_turn_0_17 flight_api_json_turn_0_18 flight_api_json_turn_0_19 flight_api_json_turn_0_20 flight_api_json_turn_0_21 flight_api_json_turn_0_22 flight_api_json_turn_0_23 flight_api_json_turn_0_24 flight_api_json_turn_0_25 flight_api_json_turn_0_26 flight_api_json_turn_0_27 flight_api_json_turn_0_28 flight_api_json_turn_0_29 flight_api_json_turn_0_30 flight_api_json_turn_0_31 flight_api_json_turn_0_32 flight_api_json_turn_0_33\n[... observation compressed; recoverable at obs://context_compiler_realistic_ablation_cfg00_000/function_calling/00 ...]\nflight_api_json_turn_0_354 flight_api_json_turn_0_355 flight_api_json_turn_0_356 flight_api_json_turn_0_357 flight_api_json_turn_0_358 flight_api_json_turn_0_359 flight_api_json_turn_0_360 flight_api_json_turn_0_361 flight_api_json_turn_0_362 flight_api_json_turn_0_363 flight_api_json_turn_0_364 flight_api_json_turn_0_365 flight_api_json_turn_0_366 flight_api_json_turn_0_367 flight_api_json_turn_0_368 flight_api_json_turn_0_369 flight_api_json_turn_0_370 flight_api_json_turn_0_371 flight_api_json_turn_0_372 flight_api_json_turn_0_373 flight_api_json_turn_0_374 flight_api_json_turn_0_375 flight_api_json_turn_0_376 flight_api_json_turn_0_377 flight_api_json_turn_0_378 flight_api_json_turn_0_379 flight_api_json_turn_0_380 flight_api_json_turn_0_381 flight_api_json_turn_0_382 flight_api_json_turn_0_383",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_000/function_calling/00"
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:01:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_000\nretry_count=1\ntrace_nonce=context_compiler_realistic_ablation_cfg00_000-01",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
+            "must_preserve": [],
+            "source_pointer": null
+          }
+        ],
+        "compiler_metadata": {
+          "compiler": "context_compiler_mvp",
+          "compress_observations": true,
+          "segments": [
+            {
+              "name": "system",
+              "stability": "static",
+              "segment_type": "system",
+              "reuse_scope": "global",
+              "cache_key": "sha256:d07af5ec2d275acb20d12eeb077acb62604f3f4bb397e9822dc65f7172946578",
+              "source_pointer": null,
+              "word_count": 25
+            },
+            {
+              "name": "tools",
+              "stability": "static",
+              "segment_type": "tool_schema",
+              "reuse_scope": "agent_type",
+              "cache_key": "sha256:c3fd1376c33138763ac484aa5edff20b9fd28a79d20d900c2d8aef074171c036",
+              "source_pointer": null,
+              "word_count": 32
+            },
+            {
+              "name": "tool_call_00",
+              "stability": "session_dynamic",
+              "segment_type": "tool_call",
+              "reuse_scope": "session",
+              "cache_key": "sha256:9519957e229a86d22818e76980e3d56625fcfeb0b6317931fa45a0ca62f870db",
+              "source_pointer": null,
+              "word_count": 4
+            },
+            {
+              "name": "user_01",
+              "stability": "turn_dynamic",
+              "segment_type": "current_query",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:059936f5f4ccf151af0e7f922c20a52b4b143d0152a624f7ca6edac23bedbd45",
+              "source_pointer": null,
+              "word_count": 27
+            },
+            {
+              "name": "observation_00",
+              "stability": "turn_dynamic",
+              "segment_type": "observation",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:1261dafb5bc4fff1dceb0d2c5fc4f9bce1c054d55ad2b093bc96f3516eb06239",
+              "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_000/function_calling/00",
+              "word_count": 97
+            },
+            {
+              "name": "runtime_header",
+              "stability": "ephemeral",
+              "segment_type": "runtime",
+              "reuse_scope": "request",
+              "cache_key": "sha256:fe47b4e86d12a81edad911e754fdf86892f07667200dc829c7e74192d8c4f7c9",
+              "source_pointer": null,
+              "word_count": 4
+            }
+          ]
+        },
+        "backend": "sglang_server",
+        "base_url": "http://127.0.0.1:30000",
+        "streaming": true,
+        "finish_reason": "stop",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 1,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "context_compiler_realistic_ablation_cfg00_000_function_calling_context_compiler_with_observation_compression_turn_02",
+      "input_tokens": 1870,
+      "output_tokens": 96,
+      "ttft_ms": 66.63608178496361,
+      "total_latency_ms": 938.8164393603802,
+      "decode_latency_ms": 872.1803575754166,
+      "tpot_ms": 9.085212058077255,
+      "metadata": {
+        "trace_id": "context_compiler_realistic_ablation_cfg00_000",
+        "scenario": "function_calling",
+        "turn": 2,
+        "workload_type": "context_compiler_realistic_ablation",
+        "variant": "context_compiler_with_observation_compression",
+        "expected_output_tokens": 96,
+        "prefix_overlap_tokens": 64,
+        "prefix_overlap_ratio": 0.2140468227424749,
+        "observation_tokens": 384,
+        "context_segments": [
+          {
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_00",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-10\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_01",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-11\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "user_02",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=2; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_00",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 280 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_0_0 flight_api_json_turn_0_1 flight_api_json_turn_0_2 flight_api_json_turn_0_3 flight_api_json_turn_0_4 flight_api_json_turn_0_5 flight_api_json_turn_0_6 flight_api_json_turn_0_7 flight_api_json_turn_0_8 flight_api_json_turn_0_9 flight_api_json_turn_0_10 flight_api_json_turn_0_11 flight_api_json_turn_0_12 flight_api_json_turn_0_13 flight_api_json_turn_0_14 flight_api_json_turn_0_15 flight_api_json_turn_0_16 flight_api_json_turn_0_17 flight_api_json_turn_0_18 flight_api_json_turn_0_19 flight_api_json_turn_0_20 flight_api_json_turn_0_21 flight_api_json_turn_0_22 flight_api_json_turn_0_23 flight_api_json_turn_0_24 flight_api_json_turn_0_25 flight_api_json_turn_0_26 flight_api_json_turn_0_27 flight_api_json_turn_0_28 flight_api_json_turn_0_29 flight_api_json_turn_0_30 flight_api_json_turn_0_31 flight_api_json_turn_0_32 flight_api_json_turn_0_33\n[... observation compressed; recoverable at obs://context_compiler_realistic_ablation_cfg00_000/function_calling/00 ...]\nflight_api_json_turn_0_354 flight_api_json_turn_0_355 flight_api_json_turn_0_356 flight_api_json_turn_0_357 flight_api_json_turn_0_358 flight_api_json_turn_0_359 flight_api_json_turn_0_360 flight_api_json_turn_0_361 flight_api_json_turn_0_362 flight_api_json_turn_0_363 flight_api_json_turn_0_364 flight_api_json_turn_0_365 flight_api_json_turn_0_366 flight_api_json_turn_0_367 flight_api_json_turn_0_368 flight_api_json_turn_0_369 flight_api_json_turn_0_370 flight_api_json_turn_0_371 flight_api_json_turn_0_372 flight_api_json_turn_0_373 flight_api_json_turn_0_374 flight_api_json_turn_0_375 flight_api_json_turn_0_376 flight_api_json_turn_0_377 flight_api_json_turn_0_378 flight_api_json_turn_0_379 flight_api_json_turn_0_380 flight_api_json_turn_0_381 flight_api_json_turn_0_382 flight_api_json_turn_0_383",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_000/function_calling/00"
+          },
+          {
+            "name": "observation_01",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 292 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_1_0 flight_api_json_turn_1_1 flight_api_json_turn_1_2 flight_api_json_turn_1_3 flight_api_json_turn_1_4 flight_api_json_turn_1_5 flight_api_json_turn_1_6 flight_api_json_turn_1_7 flight_api_json_turn_1_8 flight_api_json_turn_1_9 flight_api_json_turn_1_10 flight_api_json_turn_1_11 flight_api_json_turn_1_12 flight_api_json_turn_1_13 flight_api_json_turn_1_14 flight_api_json_turn_1_15 flight_api_json_turn_1_16 flight_api_json_turn_1_17 flight_api_json_turn_1_18 flight_api_json_turn_1_19 flight_api_json_turn_1_20 flight_api_json_turn_1_21 flight_api_json_turn_1_22 flight_api_json_turn_1_23 flight_api_json_turn_1_24 flight_api_json_turn_1_25 flight_api_json_turn_1_26 flight_api_json_turn_1_27 flight_api_json_turn_1_28 flight_api_json_turn_1_29 flight_api_json_turn_1_30 flight_api_json_turn_1_31 flight_api_json_turn_1_32 flight_api_json_turn_1_33\n[... observation compressed; recoverable at obs://context_compiler_realistic_ablation_cfg00_000/function_calling/01 ...]\nflight_api_json_turn_1_354 flight_api_json_turn_1_355 flight_api_json_turn_1_356 flight_api_json_turn_1_357 flight_api_json_turn_1_358 flight_api_json_turn_1_359 flight_api_json_turn_1_360 flight_api_json_turn_1_361 flight_api_json_turn_1_362 flight_api_json_turn_1_363 flight_api_json_turn_1_364 flight_api_json_turn_1_365 flight_api_json_turn_1_366 flight_api_json_turn_1_367 flight_api_json_turn_1_368 flight_api_json_turn_1_369 flight_api_json_turn_1_370 flight_api_json_turn_1_371 flight_api_json_turn_1_372 flight_api_json_turn_1_373 flight_api_json_turn_1_374 flight_api_json_turn_1_375 flight_api_json_turn_1_376 flight_api_json_turn_1_377 flight_api_json_turn_1_378 flight_api_json_turn_1_379 flight_api_json_turn_1_380 flight_api_json_turn_1_381 flight_api_json_turn_1_382 flight_api_json_turn_1_383",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_000/function_calling/01"
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:02:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_000\nretry_count=2\ntrace_nonce=context_compiler_realistic_ablation_cfg00_000-02",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
+            "must_preserve": [],
+            "source_pointer": null
+          }
+        ],
+        "compiler_metadata": {
+          "compiler": "context_compiler_mvp",
+          "compress_observations": true,
+          "segments": [
+            {
+              "name": "system",
+              "stability": "static",
+              "segment_type": "system",
+              "reuse_scope": "global",
+              "cache_key": "sha256:d07af5ec2d275acb20d12eeb077acb62604f3f4bb397e9822dc65f7172946578",
+              "source_pointer": null,
+              "word_count": 25
+            },
+            {
+              "name": "tools",
+              "stability": "static",
+              "segment_type": "tool_schema",
+              "reuse_scope": "agent_type",
+              "cache_key": "sha256:c3fd1376c33138763ac484aa5edff20b9fd28a79d20d900c2d8aef074171c036",
+              "source_pointer": null,
+              "word_count": 32
+            },
+            {
+              "name": "tool_call_00",
+              "stability": "session_dynamic",
+              "segment_type": "tool_call",
+              "reuse_scope": "session",
+              "cache_key": "sha256:9519957e229a86d22818e76980e3d56625fcfeb0b6317931fa45a0ca62f870db",
+              "source_pointer": null,
+              "word_count": 4
+            },
+            {
+              "name": "tool_call_01",
+              "stability": "session_dynamic",
+              "segment_type": "tool_call",
+              "reuse_scope": "session",
+              "cache_key": "sha256:0dc9eb56d3632e53bf432b57372750e4b8023fe27c5d14fddb16a6f9c3a92179",
+              "source_pointer": null,
+              "word_count": 4
+            },
+            {
+              "name": "user_02",
+              "stability": "turn_dynamic",
+              "segment_type": "current_query",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:f77621ca54f81dd144498de83498e16203f3c2a01d766324158e4b29549f3f46",
+              "source_pointer": null,
+              "word_count": 27
+            },
+            {
+              "name": "observation_00",
+              "stability": "turn_dynamic",
+              "segment_type": "observation",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:1261dafb5bc4fff1dceb0d2c5fc4f9bce1c054d55ad2b093bc96f3516eb06239",
+              "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_000/function_calling/00",
+              "word_count": 97
+            },
+            {
+              "name": "observation_01",
+              "stability": "turn_dynamic",
+              "segment_type": "observation",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:d4109f67d0f9c580f471b0bd9f7d0cb9c8c24dee9791241c5e47b4da338cf1d2",
+              "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_000/function_calling/01",
+              "word_count": 97
+            },
+            {
+              "name": "runtime_header",
+              "stability": "ephemeral",
+              "segment_type": "runtime",
+              "reuse_scope": "request",
+              "cache_key": "sha256:d3c49fa0e43c9504bb86210e4d1149ca754a4ae192a7cbafbf3352abc2521c44",
+              "source_pointer": null,
+              "word_count": 4
+            }
+          ]
+        },
+        "backend": "sglang_server",
+        "base_url": "http://127.0.0.1:30000",
+        "streaming": true,
+        "finish_reason": "length",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 2,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "context_compiler_realistic_ablation_cfg00_000_function_calling_context_compiler_with_observation_compression_turn_03",
+      "input_tokens": 2628,
+      "output_tokens": 96,
+      "ttft_ms": 89.16725218296051,
+      "total_latency_ms": 962.4317958950996,
+      "decode_latency_ms": 873.2645437121391,
+      "tpot_ms": 9.096505663668117,
+      "metadata": {
+        "trace_id": "context_compiler_realistic_ablation_cfg00_000",
+        "scenario": "function_calling",
+        "turn": 3,
+        "workload_type": "context_compiler_realistic_ablation",
+        "variant": "context_compiler_with_observation_compression",
+        "expected_output_tokens": 96,
+        "prefix_overlap_tokens": 69,
+        "prefix_overlap_ratio": 0.17164179104477612,
+        "observation_tokens": 384,
+        "context_segments": [
+          {
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_00",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-10\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_01",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-11\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_02",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-12\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "user_03",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=3; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_00",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 280 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_0_0 flight_api_json_turn_0_1 flight_api_json_turn_0_2 flight_api_json_turn_0_3 flight_api_json_turn_0_4 flight_api_json_turn_0_5 flight_api_json_turn_0_6 flight_api_json_turn_0_7 flight_api_json_turn_0_8 flight_api_json_turn_0_9 flight_api_json_turn_0_10 flight_api_json_turn_0_11 flight_api_json_turn_0_12 flight_api_json_turn_0_13 flight_api_json_turn_0_14 flight_api_json_turn_0_15 flight_api_json_turn_0_16 flight_api_json_turn_0_17 flight_api_json_turn_0_18 flight_api_json_turn_0_19 flight_api_json_turn_0_20 flight_api_json_turn_0_21 flight_api_json_turn_0_22 flight_api_json_turn_0_23 flight_api_json_turn_0_24 flight_api_json_turn_0_25 flight_api_json_turn_0_26 flight_api_json_turn_0_27 flight_api_json_turn_0_28 flight_api_json_turn_0_29 flight_api_json_turn_0_30 flight_api_json_turn_0_31 flight_api_json_turn_0_32 flight_api_json_turn_0_33\n[... observation compressed; recoverable at obs://context_compiler_realistic_ablation_cfg00_000/function_calling/00 ...]\nflight_api_json_turn_0_354 flight_api_json_turn_0_355 flight_api_json_turn_0_356 flight_api_json_turn_0_357 flight_api_json_turn_0_358 flight_api_json_turn_0_359 flight_api_json_turn_0_360 flight_api_json_turn_0_361 flight_api_json_turn_0_362 flight_api_json_turn_0_363 flight_api_json_turn_0_364 flight_api_json_turn_0_365 flight_api_json_turn_0_366 flight_api_json_turn_0_367 flight_api_json_turn_0_368 flight_api_json_turn_0_369 flight_api_json_turn_0_370 flight_api_json_turn_0_371 flight_api_json_turn_0_372 flight_api_json_turn_0_373 flight_api_json_turn_0_374 flight_api_json_turn_0_375 flight_api_json_turn_0_376 flight_api_json_turn_0_377 flight_api_json_turn_0_378 flight_api_json_turn_0_379 flight_api_json_turn_0_380 flight_api_json_turn_0_381 flight_api_json_turn_0_382 flight_api_json_turn_0_383",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_000/function_calling/00"
+          },
+          {
+            "name": "observation_01",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 292 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_1_0 flight_api_json_turn_1_1 flight_api_json_turn_1_2 flight_api_json_turn_1_3 flight_api_json_turn_1_4 flight_api_json_turn_1_5 flight_api_json_turn_1_6 flight_api_json_turn_1_7 flight_api_json_turn_1_8 flight_api_json_turn_1_9 flight_api_json_turn_1_10 flight_api_json_turn_1_11 flight_api_json_turn_1_12 flight_api_json_turn_1_13 flight_api_json_turn_1_14 flight_api_json_turn_1_15 flight_api_json_turn_1_16 flight_api_json_turn_1_17 flight_api_json_turn_1_18 flight_api_json_turn_1_19 flight_api_json_turn_1_20 flight_api_json_turn_1_21 flight_api_json_turn_1_22 flight_api_json_turn_1_23 flight_api_json_turn_1_24 flight_api_json_turn_1_25 flight_api_json_turn_1_26 flight_api_json_turn_1_27 flight_api_json_turn_1_28 flight_api_json_turn_1_29 flight_api_json_turn_1_30 flight_api_json_turn_1_31 flight_api_json_turn_1_32 flight_api_json_turn_1_33\n[... observation compressed; recoverable at obs://context_compiler_realistic_ablation_cfg00_000/function_calling/01 ...]\nflight_api_json_turn_1_354 flight_api_json_turn_1_355 flight_api_json_turn_1_356 flight_api_json_turn_1_357 flight_api_json_turn_1_358 flight_api_json_turn_1_359 flight_api_json_turn_1_360 flight_api_json_turn_1_361 flight_api_json_turn_1_362 flight_api_json_turn_1_363 flight_api_json_turn_1_364 flight_api_json_turn_1_365 flight_api_json_turn_1_366 flight_api_json_turn_1_367 flight_api_json_turn_1_368 flight_api_json_turn_1_369 flight_api_json_turn_1_370 flight_api_json_turn_1_371 flight_api_json_turn_1_372 flight_api_json_turn_1_373 flight_api_json_turn_1_374 flight_api_json_turn_1_375 flight_api_json_turn_1_376 flight_api_json_turn_1_377 flight_api_json_turn_1_378 flight_api_json_turn_1_379 flight_api_json_turn_1_380 flight_api_json_turn_1_381 flight_api_json_turn_1_382 flight_api_json_turn_1_383",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_000/function_calling/01"
+          },
+          {
+            "name": "observation_02",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 304 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_2_0 flight_api_json_turn_2_1 flight_api_json_turn_2_2 flight_api_json_turn_2_3 flight_api_json_turn_2_4 flight_api_json_turn_2_5 flight_api_json_turn_2_6 flight_api_json_turn_2_7 flight_api_json_turn_2_8 flight_api_json_turn_2_9 flight_api_json_turn_2_10 flight_api_json_turn_2_11 flight_api_json_turn_2_12 flight_api_json_turn_2_13 flight_api_json_turn_2_14 flight_api_json_turn_2_15 flight_api_json_turn_2_16 flight_api_json_turn_2_17 flight_api_json_turn_2_18 flight_api_json_turn_2_19 flight_api_json_turn_2_20 flight_api_json_turn_2_21 flight_api_json_turn_2_22 flight_api_json_turn_2_23 flight_api_json_turn_2_24 flight_api_json_turn_2_25 flight_api_json_turn_2_26 flight_api_json_turn_2_27 flight_api_json_turn_2_28 flight_api_json_turn_2_29 flight_api_json_turn_2_30 flight_api_json_turn_2_31 flight_api_json_turn_2_32 flight_api_json_turn_2_33\n[... observation compressed; recoverable at obs://context_compiler_realistic_ablation_cfg00_000/function_calling/02 ...]\nflight_api_json_turn_2_354 flight_api_json_turn_2_355 flight_api_json_turn_2_356 flight_api_json_turn_2_357 flight_api_json_turn_2_358 flight_api_json_turn_2_359 flight_api_json_turn_2_360 flight_api_json_turn_2_361 flight_api_json_turn_2_362 flight_api_json_turn_2_363 flight_api_json_turn_2_364 flight_api_json_turn_2_365 flight_api_json_turn_2_366 flight_api_json_turn_2_367 flight_api_json_turn_2_368 flight_api_json_turn_2_369 flight_api_json_turn_2_370 flight_api_json_turn_2_371 flight_api_json_turn_2_372 flight_api_json_turn_2_373 flight_api_json_turn_2_374 flight_api_json_turn_2_375 flight_api_json_turn_2_376 flight_api_json_turn_2_377 flight_api_json_turn_2_378 flight_api_json_turn_2_379 flight_api_json_turn_2_380 flight_api_json_turn_2_381 flight_api_json_turn_2_382 flight_api_json_turn_2_383",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_000/function_calling/02"
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:03:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_000\nretry_count=3\ntrace_nonce=context_compiler_realistic_ablation_cfg00_000-03",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
+            "must_preserve": [],
+            "source_pointer": null
+          }
+        ],
+        "compiler_metadata": {
+          "compiler": "context_compiler_mvp",
+          "compress_observations": true,
+          "segments": [
+            {
+              "name": "system",
+              "stability": "static",
+              "segment_type": "system",
+              "reuse_scope": "global",
+              "cache_key": "sha256:d07af5ec2d275acb20d12eeb077acb62604f3f4bb397e9822dc65f7172946578",
+              "source_pointer": null,
+              "word_count": 25
+            },
+            {
+              "name": "tools",
+              "stability": "static",
+              "segment_type": "tool_schema",
+              "reuse_scope": "agent_type",
+              "cache_key": "sha256:c3fd1376c33138763ac484aa5edff20b9fd28a79d20d900c2d8aef074171c036",
+              "source_pointer": null,
+              "word_count": 32
+            },
+            {
+              "name": "tool_call_00",
+              "stability": "session_dynamic",
+              "segment_type": "tool_call",
+              "reuse_scope": "session",
+              "cache_key": "sha256:9519957e229a86d22818e76980e3d56625fcfeb0b6317931fa45a0ca62f870db",
+              "source_pointer": null,
+              "word_count": 4
+            },
+            {
+              "name": "tool_call_01",
+              "stability": "session_dynamic",
+              "segment_type": "tool_call",
+              "reuse_scope": "session",
+              "cache_key": "sha256:0dc9eb56d3632e53bf432b57372750e4b8023fe27c5d14fddb16a6f9c3a92179",
+              "source_pointer": null,
+              "word_count": 4
+            },
+            {
+              "name": "tool_call_02",
+              "stability": "session_dynamic",
+              "segment_type": "tool_call",
+              "reuse_scope": "session",
+              "cache_key": "sha256:db8f9512d2572b5b2ae8ece3e7e50ef36a770eb216b3af81da152d05f11e3cf4",
+              "source_pointer": null,
+              "word_count": 4
+            },
+            {
+              "name": "user_03",
+              "stability": "turn_dynamic",
+              "segment_type": "current_query",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:53ab2f08a710e5fc4f88aff7a12609c57e4e605d0f20dd5b6cac17bfe497cbf4",
+              "source_pointer": null,
+              "word_count": 27
+            },
+            {
+              "name": "observation_00",
+              "stability": "turn_dynamic",
+              "segment_type": "observation",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:1261dafb5bc4fff1dceb0d2c5fc4f9bce1c054d55ad2b093bc96f3516eb06239",
+              "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_000/function_calling/00",
+              "word_count": 97
+            },
+            {
+              "name": "observation_01",
+              "stability": "turn_dynamic",
+              "segment_type": "observation",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:d4109f67d0f9c580f471b0bd9f7d0cb9c8c24dee9791241c5e47b4da338cf1d2",
+              "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_000/function_calling/01",
+              "word_count": 97
+            },
+            {
+              "name": "observation_02",
+              "stability": "turn_dynamic",
+              "segment_type": "observation",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:5b739fc28711c35eef19bc51e30d3f0d9ba68924e582c806ef819aabaf2b8828",
+              "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_000/function_calling/02",
+              "word_count": 97
+            },
+            {
+              "name": "runtime_header",
+              "stability": "ephemeral",
+              "segment_type": "runtime",
+              "reuse_scope": "request",
+              "cache_key": "sha256:ecf36d6bdedc68d0b9d0c06bb4ed02ecc8444eab16d735efe1bd8aad2637a848",
+              "source_pointer": null,
+              "word_count": 4
+            }
+          ]
+        },
+        "backend": "sglang_server",
+        "base_url": "http://127.0.0.1:30000",
+        "streaming": true,
+        "finish_reason": "length",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 3,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "context_compiler_realistic_ablation_cfg00_001_function_calling_context_compiler_with_observation_compression_turn_00",
+      "input_tokens": 354,
+      "output_tokens": 55,
+      "ttft_ms": 19.742451608181,
+      "total_latency_ms": 522.132009267807,
+      "decode_latency_ms": 502.389557659626,
+      "tpot_ms": 9.134355593811382,
+      "metadata": {
+        "trace_id": "context_compiler_realistic_ablation_cfg00_001",
+        "scenario": "function_calling",
+        "turn": 0,
+        "workload_type": "context_compiler_realistic_ablation",
+        "variant": "context_compiler_with_observation_compression",
+        "expected_output_tokens": 96,
+        "prefix_overlap_tokens": 0,
+        "prefix_overlap_ratio": 0.0,
+        "observation_tokens": 384,
+        "context_segments": [
+          {
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "user_00",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=0; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:00:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_001\nretry_count=0\ntrace_nonce=context_compiler_realistic_ablation_cfg00_001-00",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
+            "must_preserve": [],
+            "source_pointer": null
+          }
+        ],
+        "compiler_metadata": {
+          "compiler": "context_compiler_mvp",
+          "compress_observations": true,
+          "segments": [
+            {
+              "name": "system",
+              "stability": "static",
+              "segment_type": "system",
+              "reuse_scope": "global",
+              "cache_key": "sha256:d07af5ec2d275acb20d12eeb077acb62604f3f4bb397e9822dc65f7172946578",
+              "source_pointer": null,
+              "word_count": 25
+            },
+            {
+              "name": "tools",
+              "stability": "static",
+              "segment_type": "tool_schema",
+              "reuse_scope": "agent_type",
+              "cache_key": "sha256:c3fd1376c33138763ac484aa5edff20b9fd28a79d20d900c2d8aef074171c036",
+              "source_pointer": null,
+              "word_count": 32
+            },
+            {
+              "name": "user_00",
+              "stability": "turn_dynamic",
+              "segment_type": "current_query",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:9032566902362b30fd2a575119794c53955dbe056468f59094632ba073ad7e2e",
+              "source_pointer": null,
+              "word_count": 27
+            },
+            {
+              "name": "runtime_header",
+              "stability": "ephemeral",
+              "segment_type": "runtime",
+              "reuse_scope": "request",
+              "cache_key": "sha256:a27beb44d1d39e31de7c495163239492c0af1c9ec9f73a8a5b2d5fce8868eacc",
+              "source_pointer": null,
+              "word_count": 4
+            }
+          ]
+        },
+        "backend": "sglang_server",
+        "base_url": "http://127.0.0.1:30000",
+        "streaming": true,
+        "finish_reason": "stop",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 4,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "context_compiler_realistic_ablation_cfg00_001_function_calling_context_compiler_with_observation_compression_turn_01",
+      "input_tokens": 1112,
+      "output_tokens": 40,
+      "ttft_ms": 35.34076735377312,
+      "total_latency_ms": 401.4960266649723,
+      "decode_latency_ms": 366.1552593111992,
+      "tpot_ms": 9.15388148277998,
+      "metadata": {
+        "trace_id": "context_compiler_realistic_ablation_cfg00_001",
+        "scenario": "function_calling",
+        "turn": 1,
+        "workload_type": "context_compiler_realistic_ablation",
+        "variant": "context_compiler_with_observation_compression",
+        "expected_output_tokens": 96,
+        "prefix_overlap_tokens": 59,
+        "prefix_overlap_ratio": 0.3010204081632653,
+        "observation_tokens": 384,
+        "context_segments": [
+          {
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_00",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-10\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "user_01",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=1; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_00",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 280 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_0_0 flight_api_json_turn_0_1 flight_api_json_turn_0_2 flight_api_json_turn_0_3 flight_api_json_turn_0_4 flight_api_json_turn_0_5 flight_api_json_turn_0_6 flight_api_json_turn_0_7 flight_api_json_turn_0_8 flight_api_json_turn_0_9 flight_api_json_turn_0_10 flight_api_json_turn_0_11 flight_api_json_turn_0_12 flight_api_json_turn_0_13 flight_api_json_turn_0_14 flight_api_json_turn_0_15 flight_api_json_turn_0_16 flight_api_json_turn_0_17 flight_api_json_turn_0_18 flight_api_json_turn_0_19 flight_api_json_turn_0_20 flight_api_json_turn_0_21 flight_api_json_turn_0_22 flight_api_json_turn_0_23 flight_api_json_turn_0_24 flight_api_json_turn_0_25 flight_api_json_turn_0_26 flight_api_json_turn_0_27 flight_api_json_turn_0_28 flight_api_json_turn_0_29 flight_api_json_turn_0_30 flight_api_json_turn_0_31 flight_api_json_turn_0_32 flight_api_json_turn_0_33\n[... observation compressed; recoverable at obs://context_compiler_realistic_ablation_cfg00_001/function_calling/00 ...]\nflight_api_json_turn_0_354 flight_api_json_turn_0_355 flight_api_json_turn_0_356 flight_api_json_turn_0_357 flight_api_json_turn_0_358 flight_api_json_turn_0_359 flight_api_json_turn_0_360 flight_api_json_turn_0_361 flight_api_json_turn_0_362 flight_api_json_turn_0_363 flight_api_json_turn_0_364 flight_api_json_turn_0_365 flight_api_json_turn_0_366 flight_api_json_turn_0_367 flight_api_json_turn_0_368 flight_api_json_turn_0_369 flight_api_json_turn_0_370 flight_api_json_turn_0_371 flight_api_json_turn_0_372 flight_api_json_turn_0_373 flight_api_json_turn_0_374 flight_api_json_turn_0_375 flight_api_json_turn_0_376 flight_api_json_turn_0_377 flight_api_json_turn_0_378 flight_api_json_turn_0_379 flight_api_json_turn_0_380 flight_api_json_turn_0_381 flight_api_json_turn_0_382 flight_api_json_turn_0_383",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_001/function_calling/00"
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:01:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_001\nretry_count=1\ntrace_nonce=context_compiler_realistic_ablation_cfg00_001-01",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
+            "must_preserve": [],
+            "source_pointer": null
+          }
+        ],
+        "compiler_metadata": {
+          "compiler": "context_compiler_mvp",
+          "compress_observations": true,
+          "segments": [
+            {
+              "name": "system",
+              "stability": "static",
+              "segment_type": "system",
+              "reuse_scope": "global",
+              "cache_key": "sha256:d07af5ec2d275acb20d12eeb077acb62604f3f4bb397e9822dc65f7172946578",
+              "source_pointer": null,
+              "word_count": 25
+            },
+            {
+              "name": "tools",
+              "stability": "static",
+              "segment_type": "tool_schema",
+              "reuse_scope": "agent_type",
+              "cache_key": "sha256:c3fd1376c33138763ac484aa5edff20b9fd28a79d20d900c2d8aef074171c036",
+              "source_pointer": null,
+              "word_count": 32
+            },
+            {
+              "name": "tool_call_00",
+              "stability": "session_dynamic",
+              "segment_type": "tool_call",
+              "reuse_scope": "session",
+              "cache_key": "sha256:9519957e229a86d22818e76980e3d56625fcfeb0b6317931fa45a0ca62f870db",
+              "source_pointer": null,
+              "word_count": 4
+            },
+            {
+              "name": "user_01",
+              "stability": "turn_dynamic",
+              "segment_type": "current_query",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:059936f5f4ccf151af0e7f922c20a52b4b143d0152a624f7ca6edac23bedbd45",
+              "source_pointer": null,
+              "word_count": 27
+            },
+            {
+              "name": "observation_00",
+              "stability": "turn_dynamic",
+              "segment_type": "observation",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:c7d216de5b2f188cc35fd567c6307389392739aebc8d7e67c468abaa9cf7cce5",
+              "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_001/function_calling/00",
+              "word_count": 97
+            },
+            {
+              "name": "runtime_header",
+              "stability": "ephemeral",
+              "segment_type": "runtime",
+              "reuse_scope": "request",
+              "cache_key": "sha256:bd33e45eb8c0733cb9e536ec0c23372b4ebc46e4f352abaac7061b9c8664e3e4",
+              "source_pointer": null,
+              "word_count": 4
+            }
+          ]
+        },
+        "backend": "sglang_server",
+        "base_url": "http://127.0.0.1:30000",
+        "streaming": true,
+        "finish_reason": "stop",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 5,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "context_compiler_realistic_ablation_cfg00_001_function_calling_context_compiler_with_observation_compression_turn_02",
+      "input_tokens": 1870,
+      "output_tokens": 40,
+      "ttft_ms": 46.019162982702255,
+      "total_latency_ms": 413.2055565714836,
+      "decode_latency_ms": 367.18639358878136,
+      "tpot_ms": 9.179659839719534,
+      "metadata": {
+        "trace_id": "context_compiler_realistic_ablation_cfg00_001",
+        "scenario": "function_calling",
+        "turn": 2,
+        "workload_type": "context_compiler_realistic_ablation",
+        "variant": "context_compiler_with_observation_compression",
+        "expected_output_tokens": 96,
+        "prefix_overlap_tokens": 64,
+        "prefix_overlap_ratio": 0.2140468227424749,
+        "observation_tokens": 384,
+        "context_segments": [
+          {
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_00",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-10\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_01",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-11\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "user_02",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=2; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_00",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 280 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_0_0 flight_api_json_turn_0_1 flight_api_json_turn_0_2 flight_api_json_turn_0_3 flight_api_json_turn_0_4 flight_api_json_turn_0_5 flight_api_json_turn_0_6 flight_api_json_turn_0_7 flight_api_json_turn_0_8 flight_api_json_turn_0_9 flight_api_json_turn_0_10 flight_api_json_turn_0_11 flight_api_json_turn_0_12 flight_api_json_turn_0_13 flight_api_json_turn_0_14 flight_api_json_turn_0_15 flight_api_json_turn_0_16 flight_api_json_turn_0_17 flight_api_json_turn_0_18 flight_api_json_turn_0_19 flight_api_json_turn_0_20 flight_api_json_turn_0_21 flight_api_json_turn_0_22 flight_api_json_turn_0_23 flight_api_json_turn_0_24 flight_api_json_turn_0_25 flight_api_json_turn_0_26 flight_api_json_turn_0_27 flight_api_json_turn_0_28 flight_api_json_turn_0_29 flight_api_json_turn_0_30 flight_api_json_turn_0_31 flight_api_json_turn_0_32 flight_api_json_turn_0_33\n[... observation compressed; recoverable at obs://context_compiler_realistic_ablation_cfg00_001/function_calling/00 ...]\nflight_api_json_turn_0_354 flight_api_json_turn_0_355 flight_api_json_turn_0_356 flight_api_json_turn_0_357 flight_api_json_turn_0_358 flight_api_json_turn_0_359 flight_api_json_turn_0_360 flight_api_json_turn_0_361 flight_api_json_turn_0_362 flight_api_json_turn_0_363 flight_api_json_turn_0_364 flight_api_json_turn_0_365 flight_api_json_turn_0_366 flight_api_json_turn_0_367 flight_api_json_turn_0_368 flight_api_json_turn_0_369 flight_api_json_turn_0_370 flight_api_json_turn_0_371 flight_api_json_turn_0_372 flight_api_json_turn_0_373 flight_api_json_turn_0_374 flight_api_json_turn_0_375 flight_api_json_turn_0_376 flight_api_json_turn_0_377 flight_api_json_turn_0_378 flight_api_json_turn_0_379 flight_api_json_turn_0_380 flight_api_json_turn_0_381 flight_api_json_turn_0_382 flight_api_json_turn_0_383",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_001/function_calling/00"
+          },
+          {
+            "name": "observation_01",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 292 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_1_0 flight_api_json_turn_1_1 flight_api_json_turn_1_2 flight_api_json_turn_1_3 flight_api_json_turn_1_4 flight_api_json_turn_1_5 flight_api_json_turn_1_6 flight_api_json_turn_1_7 flight_api_json_turn_1_8 flight_api_json_turn_1_9 flight_api_json_turn_1_10 flight_api_json_turn_1_11 flight_api_json_turn_1_12 flight_api_json_turn_1_13 flight_api_json_turn_1_14 flight_api_json_turn_1_15 flight_api_json_turn_1_16 flight_api_json_turn_1_17 flight_api_json_turn_1_18 flight_api_json_turn_1_19 flight_api_json_turn_1_20 flight_api_json_turn_1_21 flight_api_json_turn_1_22 flight_api_json_turn_1_23 flight_api_json_turn_1_24 flight_api_json_turn_1_25 flight_api_json_turn_1_26 flight_api_json_turn_1_27 flight_api_json_turn_1_28 flight_api_json_turn_1_29 flight_api_json_turn_1_30 flight_api_json_turn_1_31 flight_api_json_turn_1_32 flight_api_json_turn_1_33\n[... observation compressed; recoverable at obs://context_compiler_realistic_ablation_cfg00_001/function_calling/01 ...]\nflight_api_json_turn_1_354 flight_api_json_turn_1_355 flight_api_json_turn_1_356 flight_api_json_turn_1_357 flight_api_json_turn_1_358 flight_api_json_turn_1_359 flight_api_json_turn_1_360 flight_api_json_turn_1_361 flight_api_json_turn_1_362 flight_api_json_turn_1_363 flight_api_json_turn_1_364 flight_api_json_turn_1_365 flight_api_json_turn_1_366 flight_api_json_turn_1_367 flight_api_json_turn_1_368 flight_api_json_turn_1_369 flight_api_json_turn_1_370 flight_api_json_turn_1_371 flight_api_json_turn_1_372 flight_api_json_turn_1_373 flight_api_json_turn_1_374 flight_api_json_turn_1_375 flight_api_json_turn_1_376 flight_api_json_turn_1_377 flight_api_json_turn_1_378 flight_api_json_turn_1_379 flight_api_json_turn_1_380 flight_api_json_turn_1_381 flight_api_json_turn_1_382 flight_api_json_turn_1_383",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_001/function_calling/01"
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:02:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_001\nretry_count=2\ntrace_nonce=context_compiler_realistic_ablation_cfg00_001-02",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
+            "must_preserve": [],
+            "source_pointer": null
+          }
+        ],
+        "compiler_metadata": {
+          "compiler": "context_compiler_mvp",
+          "compress_observations": true,
+          "segments": [
+            {
+              "name": "system",
+              "stability": "static",
+              "segment_type": "system",
+              "reuse_scope": "global",
+              "cache_key": "sha256:d07af5ec2d275acb20d12eeb077acb62604f3f4bb397e9822dc65f7172946578",
+              "source_pointer": null,
+              "word_count": 25
+            },
+            {
+              "name": "tools",
+              "stability": "static",
+              "segment_type": "tool_schema",
+              "reuse_scope": "agent_type",
+              "cache_key": "sha256:c3fd1376c33138763ac484aa5edff20b9fd28a79d20d900c2d8aef074171c036",
+              "source_pointer": null,
+              "word_count": 32
+            },
+            {
+              "name": "tool_call_00",
+              "stability": "session_dynamic",
+              "segment_type": "tool_call",
+              "reuse_scope": "session",
+              "cache_key": "sha256:9519957e229a86d22818e76980e3d56625fcfeb0b6317931fa45a0ca62f870db",
+              "source_pointer": null,
+              "word_count": 4
+            },
+            {
+              "name": "tool_call_01",
+              "stability": "session_dynamic",
+              "segment_type": "tool_call",
+              "reuse_scope": "session",
+              "cache_key": "sha256:0dc9eb56d3632e53bf432b57372750e4b8023fe27c5d14fddb16a6f9c3a92179",
+              "source_pointer": null,
+              "word_count": 4
+            },
+            {
+              "name": "user_02",
+              "stability": "turn_dynamic",
+              "segment_type": "current_query",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:f77621ca54f81dd144498de83498e16203f3c2a01d766324158e4b29549f3f46",
+              "source_pointer": null,
+              "word_count": 27
+            },
+            {
+              "name": "observation_00",
+              "stability": "turn_dynamic",
+              "segment_type": "observation",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:c7d216de5b2f188cc35fd567c6307389392739aebc8d7e67c468abaa9cf7cce5",
+              "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_001/function_calling/00",
+              "word_count": 97
+            },
+            {
+              "name": "observation_01",
+              "stability": "turn_dynamic",
+              "segment_type": "observation",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:610d25f57cc96b263ab1e6eef1e8f55d5212951bddb46f72482bdf0f106fdcfc",
+              "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_001/function_calling/01",
+              "word_count": 97
+            },
+            {
+              "name": "runtime_header",
+              "stability": "ephemeral",
+              "segment_type": "runtime",
+              "reuse_scope": "request",
+              "cache_key": "sha256:60b83c0ff54bfa91638f3a29a96cca100bbbb0c725109877851ce0c3e20c4868",
+              "source_pointer": null,
+              "word_count": 4
+            }
+          ]
+        },
+        "backend": "sglang_server",
+        "base_url": "http://127.0.0.1:30000",
+        "streaming": true,
+        "finish_reason": "stop",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 6,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "context_compiler_realistic_ablation_cfg00_001_function_calling_context_compiler_with_observation_compression_turn_03",
+      "input_tokens": 2628,
+      "output_tokens": 96,
+      "ttft_ms": 72.75965809822083,
+      "total_latency_ms": 945.3665688633919,
+      "decode_latency_ms": 872.606910765171,
+      "tpot_ms": 9.089655320470532,
+      "metadata": {
+        "trace_id": "context_compiler_realistic_ablation_cfg00_001",
+        "scenario": "function_calling",
+        "turn": 3,
+        "workload_type": "context_compiler_realistic_ablation",
+        "variant": "context_compiler_with_observation_compression",
+        "expected_output_tokens": 96,
+        "prefix_overlap_tokens": 69,
+        "prefix_overlap_ratio": 0.17164179104477612,
+        "observation_tokens": 384,
+        "context_segments": [
+          {
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_00",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-10\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_01",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-11\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_02",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-12\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "user_03",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=3; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_00",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 280 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_0_0 flight_api_json_turn_0_1 flight_api_json_turn_0_2 flight_api_json_turn_0_3 flight_api_json_turn_0_4 flight_api_json_turn_0_5 flight_api_json_turn_0_6 flight_api_json_turn_0_7 flight_api_json_turn_0_8 flight_api_json_turn_0_9 flight_api_json_turn_0_10 flight_api_json_turn_0_11 flight_api_json_turn_0_12 flight_api_json_turn_0_13 flight_api_json_turn_0_14 flight_api_json_turn_0_15 flight_api_json_turn_0_16 flight_api_json_turn_0_17 flight_api_json_turn_0_18 flight_api_json_turn_0_19 flight_api_json_turn_0_20 flight_api_json_turn_0_21 flight_api_json_turn_0_22 flight_api_json_turn_0_23 flight_api_json_turn_0_24 flight_api_json_turn_0_25 flight_api_json_turn_0_26 flight_api_json_turn_0_27 flight_api_json_turn_0_28 flight_api_json_turn_0_29 flight_api_json_turn_0_30 flight_api_json_turn_0_31 flight_api_json_turn_0_32 flight_api_json_turn_0_33\n[... observation compressed; recoverable at obs://context_compiler_realistic_ablation_cfg00_001/function_calling/00 ...]\nflight_api_json_turn_0_354 flight_api_json_turn_0_355 flight_api_json_turn_0_356 flight_api_json_turn_0_357 flight_api_json_turn_0_358 flight_api_json_turn_0_359 flight_api_json_turn_0_360 flight_api_json_turn_0_361 flight_api_json_turn_0_362 flight_api_json_turn_0_363 flight_api_json_turn_0_364 flight_api_json_turn_0_365 flight_api_json_turn_0_366 flight_api_json_turn_0_367 flight_api_json_turn_0_368 flight_api_json_turn_0_369 flight_api_json_turn_0_370 flight_api_json_turn_0_371 flight_api_json_turn_0_372 flight_api_json_turn_0_373 flight_api_json_turn_0_374 flight_api_json_turn_0_375 flight_api_json_turn_0_376 flight_api_json_turn_0_377 flight_api_json_turn_0_378 flight_api_json_turn_0_379 flight_api_json_turn_0_380 flight_api_json_turn_0_381 flight_api_json_turn_0_382 flight_api_json_turn_0_383",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_001/function_calling/00"
+          },
+          {
+            "name": "observation_01",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 292 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_1_0 flight_api_json_turn_1_1 flight_api_json_turn_1_2 flight_api_json_turn_1_3 flight_api_json_turn_1_4 flight_api_json_turn_1_5 flight_api_json_turn_1_6 flight_api_json_turn_1_7 flight_api_json_turn_1_8 flight_api_json_turn_1_9 flight_api_json_turn_1_10 flight_api_json_turn_1_11 flight_api_json_turn_1_12 flight_api_json_turn_1_13 flight_api_json_turn_1_14 flight_api_json_turn_1_15 flight_api_json_turn_1_16 flight_api_json_turn_1_17 flight_api_json_turn_1_18 flight_api_json_turn_1_19 flight_api_json_turn_1_20 flight_api_json_turn_1_21 flight_api_json_turn_1_22 flight_api_json_turn_1_23 flight_api_json_turn_1_24 flight_api_json_turn_1_25 flight_api_json_turn_1_26 flight_api_json_turn_1_27 flight_api_json_turn_1_28 flight_api_json_turn_1_29 flight_api_json_turn_1_30 flight_api_json_turn_1_31 flight_api_json_turn_1_32 flight_api_json_turn_1_33\n[... observation compressed; recoverable at obs://context_compiler_realistic_ablation_cfg00_001/function_calling/01 ...]\nflight_api_json_turn_1_354 flight_api_json_turn_1_355 flight_api_json_turn_1_356 flight_api_json_turn_1_357 flight_api_json_turn_1_358 flight_api_json_turn_1_359 flight_api_json_turn_1_360 flight_api_json_turn_1_361 flight_api_json_turn_1_362 flight_api_json_turn_1_363 flight_api_json_turn_1_364 flight_api_json_turn_1_365 flight_api_json_turn_1_366 flight_api_json_turn_1_367 flight_api_json_turn_1_368 flight_api_json_turn_1_369 flight_api_json_turn_1_370 flight_api_json_turn_1_371 flight_api_json_turn_1_372 flight_api_json_turn_1_373 flight_api_json_turn_1_374 flight_api_json_turn_1_375 flight_api_json_turn_1_376 flight_api_json_turn_1_377 flight_api_json_turn_1_378 flight_api_json_turn_1_379 flight_api_json_turn_1_380 flight_api_json_turn_1_381 flight_api_json_turn_1_382 flight_api_json_turn_1_383",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_001/function_calling/01"
+          },
+          {
+            "name": "observation_02",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 304 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_2_0 flight_api_json_turn_2_1 flight_api_json_turn_2_2 flight_api_json_turn_2_3 flight_api_json_turn_2_4 flight_api_json_turn_2_5 flight_api_json_turn_2_6 flight_api_json_turn_2_7 flight_api_json_turn_2_8 flight_api_json_turn_2_9 flight_api_json_turn_2_10 flight_api_json_turn_2_11 flight_api_json_turn_2_12 flight_api_json_turn_2_13 flight_api_json_turn_2_14 flight_api_json_turn_2_15 flight_api_json_turn_2_16 flight_api_json_turn_2_17 flight_api_json_turn_2_18 flight_api_json_turn_2_19 flight_api_json_turn_2_20 flight_api_json_turn_2_21 flight_api_json_turn_2_22 flight_api_json_turn_2_23 flight_api_json_turn_2_24 flight_api_json_turn_2_25 flight_api_json_turn_2_26 flight_api_json_turn_2_27 flight_api_json_turn_2_28 flight_api_json_turn_2_29 flight_api_json_turn_2_30 flight_api_json_turn_2_31 flight_api_json_turn_2_32 flight_api_json_turn_2_33\n[... observation compressed; recoverable at obs://context_compiler_realistic_ablation_cfg00_001/function_calling/02 ...]\nflight_api_json_turn_2_354 flight_api_json_turn_2_355 flight_api_json_turn_2_356 flight_api_json_turn_2_357 flight_api_json_turn_2_358 flight_api_json_turn_2_359 flight_api_json_turn_2_360 flight_api_json_turn_2_361 flight_api_json_turn_2_362 flight_api_json_turn_2_363 flight_api_json_turn_2_364 flight_api_json_turn_2_365 flight_api_json_turn_2_366 flight_api_json_turn_2_367 flight_api_json_turn_2_368 flight_api_json_turn_2_369 flight_api_json_turn_2_370 flight_api_json_turn_2_371 flight_api_json_turn_2_372 flight_api_json_turn_2_373 flight_api_json_turn_2_374 flight_api_json_turn_2_375 flight_api_json_turn_2_376 flight_api_json_turn_2_377 flight_api_json_turn_2_378 flight_api_json_turn_2_379 flight_api_json_turn_2_380 flight_api_json_turn_2_381 flight_api_json_turn_2_382 flight_api_json_turn_2_383",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_001/function_calling/02"
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:03:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_001\nretry_count=3\ntrace_nonce=context_compiler_realistic_ablation_cfg00_001-03",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
+            "must_preserve": [],
+            "source_pointer": null
+          }
+        ],
+        "compiler_metadata": {
+          "compiler": "context_compiler_mvp",
+          "compress_observations": true,
+          "segments": [
+            {
+              "name": "system",
+              "stability": "static",
+              "segment_type": "system",
+              "reuse_scope": "global",
+              "cache_key": "sha256:d07af5ec2d275acb20d12eeb077acb62604f3f4bb397e9822dc65f7172946578",
+              "source_pointer": null,
+              "word_count": 25
+            },
+            {
+              "name": "tools",
+              "stability": "static",
+              "segment_type": "tool_schema",
+              "reuse_scope": "agent_type",
+              "cache_key": "sha256:c3fd1376c33138763ac484aa5edff20b9fd28a79d20d900c2d8aef074171c036",
+              "source_pointer": null,
+              "word_count": 32
+            },
+            {
+              "name": "tool_call_00",
+              "stability": "session_dynamic",
+              "segment_type": "tool_call",
+              "reuse_scope": "session",
+              "cache_key": "sha256:9519957e229a86d22818e76980e3d56625fcfeb0b6317931fa45a0ca62f870db",
+              "source_pointer": null,
+              "word_count": 4
+            },
+            {
+              "name": "tool_call_01",
+              "stability": "session_dynamic",
+              "segment_type": "tool_call",
+              "reuse_scope": "session",
+              "cache_key": "sha256:0dc9eb56d3632e53bf432b57372750e4b8023fe27c5d14fddb16a6f9c3a92179",
+              "source_pointer": null,
+              "word_count": 4
+            },
+            {
+              "name": "tool_call_02",
+              "stability": "session_dynamic",
+              "segment_type": "tool_call",
+              "reuse_scope": "session",
+              "cache_key": "sha256:db8f9512d2572b5b2ae8ece3e7e50ef36a770eb216b3af81da152d05f11e3cf4",
+              "source_pointer": null,
+              "word_count": 4
+            },
+            {
+              "name": "user_03",
+              "stability": "turn_dynamic",
+              "segment_type": "current_query",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:53ab2f08a710e5fc4f88aff7a12609c57e4e605d0f20dd5b6cac17bfe497cbf4",
+              "source_pointer": null,
+              "word_count": 27
+            },
+            {
+              "name": "observation_00",
+              "stability": "turn_dynamic",
+              "segment_type": "observation",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:c7d216de5b2f188cc35fd567c6307389392739aebc8d7e67c468abaa9cf7cce5",
+              "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_001/function_calling/00",
+              "word_count": 97
+            },
+            {
+              "name": "observation_01",
+              "stability": "turn_dynamic",
+              "segment_type": "observation",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:610d25f57cc96b263ab1e6eef1e8f55d5212951bddb46f72482bdf0f106fdcfc",
+              "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_001/function_calling/01",
+              "word_count": 97
+            },
+            {
+              "name": "observation_02",
+              "stability": "turn_dynamic",
+              "segment_type": "observation",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:59bf3e3539f2ee069084534ead2d691fdf8979f0b28dff3496e5ab20b3fdb014",
+              "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_001/function_calling/02",
+              "word_count": 97
+            },
+            {
+              "name": "runtime_header",
+              "stability": "ephemeral",
+              "segment_type": "runtime",
+              "reuse_scope": "request",
+              "cache_key": "sha256:a4bce70d675a48c1679c3b866a230ba0c3140c614fccc48237398f972dcd59bf",
+              "source_pointer": null,
+              "word_count": 4
+            }
+          ]
+        },
+        "backend": "sglang_server",
+        "base_url": "http://127.0.0.1:30000",
+        "streaming": true,
+        "finish_reason": "length",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 7,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "context_compiler_realistic_ablation_cfg00_002_function_calling_context_compiler_with_observation_compression_turn_00",
+      "input_tokens": 354,
+      "output_tokens": 55,
+      "ttft_ms": 21.984823048114777,
+      "total_latency_ms": 519.4626189768314,
+      "decode_latency_ms": 497.47779592871666,
+      "tpot_ms": 9.045050835067576,
+      "metadata": {
+        "trace_id": "context_compiler_realistic_ablation_cfg00_002",
+        "scenario": "function_calling",
+        "turn": 0,
+        "workload_type": "context_compiler_realistic_ablation",
+        "variant": "context_compiler_with_observation_compression",
+        "expected_output_tokens": 96,
+        "prefix_overlap_tokens": 0,
+        "prefix_overlap_ratio": 0.0,
+        "observation_tokens": 384,
+        "context_segments": [
+          {
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "user_00",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=0; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:00:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_002\nretry_count=0\ntrace_nonce=context_compiler_realistic_ablation_cfg00_002-00",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
+            "must_preserve": [],
+            "source_pointer": null
+          }
+        ],
+        "compiler_metadata": {
+          "compiler": "context_compiler_mvp",
+          "compress_observations": true,
+          "segments": [
+            {
+              "name": "system",
+              "stability": "static",
+              "segment_type": "system",
+              "reuse_scope": "global",
+              "cache_key": "sha256:d07af5ec2d275acb20d12eeb077acb62604f3f4bb397e9822dc65f7172946578",
+              "source_pointer": null,
+              "word_count": 25
+            },
+            {
+              "name": "tools",
+              "stability": "static",
+              "segment_type": "tool_schema",
+              "reuse_scope": "agent_type",
+              "cache_key": "sha256:c3fd1376c33138763ac484aa5edff20b9fd28a79d20d900c2d8aef074171c036",
+              "source_pointer": null,
+              "word_count": 32
+            },
+            {
+              "name": "user_00",
+              "stability": "turn_dynamic",
+              "segment_type": "current_query",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:9032566902362b30fd2a575119794c53955dbe056468f59094632ba073ad7e2e",
+              "source_pointer": null,
+              "word_count": 27
+            },
+            {
+              "name": "runtime_header",
+              "stability": "ephemeral",
+              "segment_type": "runtime",
+              "reuse_scope": "request",
+              "cache_key": "sha256:e6b0d38205b77f46a3f81c3f64f78635c8f21d4770d7ba2684d61a8d3b98a7cf",
+              "source_pointer": null,
+              "word_count": 4
+            }
+          ]
+        },
+        "backend": "sglang_server",
+        "base_url": "http://127.0.0.1:30000",
+        "streaming": true,
+        "finish_reason": "stop",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 8,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "context_compiler_realistic_ablation_cfg00_002_function_calling_context_compiler_with_observation_compression_turn_01",
+      "input_tokens": 1112,
+      "output_tokens": 40,
+      "ttft_ms": 23.465678095817566,
+      "total_latency_ms": 389.78806510567665,
+      "decode_latency_ms": 366.3223870098591,
+      "tpot_ms": 9.158059675246477,
+      "metadata": {
+        "trace_id": "context_compiler_realistic_ablation_cfg00_002",
+        "scenario": "function_calling",
+        "turn": 1,
+        "workload_type": "context_compiler_realistic_ablation",
+        "variant": "context_compiler_with_observation_compression",
+        "expected_output_tokens": 96,
+        "prefix_overlap_tokens": 59,
+        "prefix_overlap_ratio": 0.3010204081632653,
+        "observation_tokens": 384,
+        "context_segments": [
+          {
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_00",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-10\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "user_01",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=1; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_00",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 280 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_0_0 flight_api_json_turn_0_1 flight_api_json_turn_0_2 flight_api_json_turn_0_3 flight_api_json_turn_0_4 flight_api_json_turn_0_5 flight_api_json_turn_0_6 flight_api_json_turn_0_7 flight_api_json_turn_0_8 flight_api_json_turn_0_9 flight_api_json_turn_0_10 flight_api_json_turn_0_11 flight_api_json_turn_0_12 flight_api_json_turn_0_13 flight_api_json_turn_0_14 flight_api_json_turn_0_15 flight_api_json_turn_0_16 flight_api_json_turn_0_17 flight_api_json_turn_0_18 flight_api_json_turn_0_19 flight_api_json_turn_0_20 flight_api_json_turn_0_21 flight_api_json_turn_0_22 flight_api_json_turn_0_23 flight_api_json_turn_0_24 flight_api_json_turn_0_25 flight_api_json_turn_0_26 flight_api_json_turn_0_27 flight_api_json_turn_0_28 flight_api_json_turn_0_29 flight_api_json_turn_0_30 flight_api_json_turn_0_31 flight_api_json_turn_0_32 flight_api_json_turn_0_33\n[... observation compressed; recoverable at obs://context_compiler_realistic_ablation_cfg00_002/function_calling/00 ...]\nflight_api_json_turn_0_354 flight_api_json_turn_0_355 flight_api_json_turn_0_356 flight_api_json_turn_0_357 flight_api_json_turn_0_358 flight_api_json_turn_0_359 flight_api_json_turn_0_360 flight_api_json_turn_0_361 flight_api_json_turn_0_362 flight_api_json_turn_0_363 flight_api_json_turn_0_364 flight_api_json_turn_0_365 flight_api_json_turn_0_366 flight_api_json_turn_0_367 flight_api_json_turn_0_368 flight_api_json_turn_0_369 flight_api_json_turn_0_370 flight_api_json_turn_0_371 flight_api_json_turn_0_372 flight_api_json_turn_0_373 flight_api_json_turn_0_374 flight_api_json_turn_0_375 flight_api_json_turn_0_376 flight_api_json_turn_0_377 flight_api_json_turn_0_378 flight_api_json_turn_0_379 flight_api_json_turn_0_380 flight_api_json_turn_0_381 flight_api_json_turn_0_382 flight_api_json_turn_0_383",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_002/function_calling/00"
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:01:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_002\nretry_count=1\ntrace_nonce=context_compiler_realistic_ablation_cfg00_002-01",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
+            "must_preserve": [],
+            "source_pointer": null
+          }
+        ],
+        "compiler_metadata": {
+          "compiler": "context_compiler_mvp",
+          "compress_observations": true,
+          "segments": [
+            {
+              "name": "system",
+              "stability": "static",
+              "segment_type": "system",
+              "reuse_scope": "global",
+              "cache_key": "sha256:d07af5ec2d275acb20d12eeb077acb62604f3f4bb397e9822dc65f7172946578",
+              "source_pointer": null,
+              "word_count": 25
+            },
+            {
+              "name": "tools",
+              "stability": "static",
+              "segment_type": "tool_schema",
+              "reuse_scope": "agent_type",
+              "cache_key": "sha256:c3fd1376c33138763ac484aa5edff20b9fd28a79d20d900c2d8aef074171c036",
+              "source_pointer": null,
+              "word_count": 32
+            },
+            {
+              "name": "tool_call_00",
+              "stability": "session_dynamic",
+              "segment_type": "tool_call",
+              "reuse_scope": "session",
+              "cache_key": "sha256:9519957e229a86d22818e76980e3d56625fcfeb0b6317931fa45a0ca62f870db",
+              "source_pointer": null,
+              "word_count": 4
+            },
+            {
+              "name": "user_01",
+              "stability": "turn_dynamic",
+              "segment_type": "current_query",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:059936f5f4ccf151af0e7f922c20a52b4b143d0152a624f7ca6edac23bedbd45",
+              "source_pointer": null,
+              "word_count": 27
+            },
+            {
+              "name": "observation_00",
+              "stability": "turn_dynamic",
+              "segment_type": "observation",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:9a9266f3a1139e486cedcf705fc51f17793885352005ba5df8401005276ca47c",
+              "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_002/function_calling/00",
+              "word_count": 97
+            },
+            {
+              "name": "runtime_header",
+              "stability": "ephemeral",
+              "segment_type": "runtime",
+              "reuse_scope": "request",
+              "cache_key": "sha256:0a1b84aeae4c26c104ea295ad451d0fad78aa62198fcdc4161540246f950be1c",
+              "source_pointer": null,
+              "word_count": 4
+            }
+          ]
+        },
+        "backend": "sglang_server",
+        "base_url": "http://127.0.0.1:30000",
+        "streaming": true,
+        "finish_reason": "stop",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 9,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "context_compiler_realistic_ablation_cfg00_002_function_calling_context_compiler_with_observation_compression_turn_02",
+      "input_tokens": 1870,
+      "output_tokens": 40,
+      "ttft_ms": 41.62070155143738,
+      "total_latency_ms": 410.4722738265991,
+      "decode_latency_ms": 368.85157227516174,
+      "tpot_ms": 9.221289306879044,
+      "metadata": {
+        "trace_id": "context_compiler_realistic_ablation_cfg00_002",
+        "scenario": "function_calling",
+        "turn": 2,
+        "workload_type": "context_compiler_realistic_ablation",
+        "variant": "context_compiler_with_observation_compression",
+        "expected_output_tokens": 96,
+        "prefix_overlap_tokens": 64,
+        "prefix_overlap_ratio": 0.2140468227424749,
+        "observation_tokens": 384,
+        "context_segments": [
+          {
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_00",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-10\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_01",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-11\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "user_02",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=2; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_00",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 280 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_0_0 flight_api_json_turn_0_1 flight_api_json_turn_0_2 flight_api_json_turn_0_3 flight_api_json_turn_0_4 flight_api_json_turn_0_5 flight_api_json_turn_0_6 flight_api_json_turn_0_7 flight_api_json_turn_0_8 flight_api_json_turn_0_9 flight_api_json_turn_0_10 flight_api_json_turn_0_11 flight_api_json_turn_0_12 flight_api_json_turn_0_13 flight_api_json_turn_0_14 flight_api_json_turn_0_15 flight_api_json_turn_0_16 flight_api_json_turn_0_17 flight_api_json_turn_0_18 flight_api_json_turn_0_19 flight_api_json_turn_0_20 flight_api_json_turn_0_21 flight_api_json_turn_0_22 flight_api_json_turn_0_23 flight_api_json_turn_0_24 flight_api_json_turn_0_25 flight_api_json_turn_0_26 flight_api_json_turn_0_27 flight_api_json_turn_0_28 flight_api_json_turn_0_29 flight_api_json_turn_0_30 flight_api_json_turn_0_31 flight_api_json_turn_0_32 flight_api_json_turn_0_33\n[... observation compressed; recoverable at obs://context_compiler_realistic_ablation_cfg00_002/function_calling/00 ...]\nflight_api_json_turn_0_354 flight_api_json_turn_0_355 flight_api_json_turn_0_356 flight_api_json_turn_0_357 flight_api_json_turn_0_358 flight_api_json_turn_0_359 flight_api_json_turn_0_360 flight_api_json_turn_0_361 flight_api_json_turn_0_362 flight_api_json_turn_0_363 flight_api_json_turn_0_364 flight_api_json_turn_0_365 flight_api_json_turn_0_366 flight_api_json_turn_0_367 flight_api_json_turn_0_368 flight_api_json_turn_0_369 flight_api_json_turn_0_370 flight_api_json_turn_0_371 flight_api_json_turn_0_372 flight_api_json_turn_0_373 flight_api_json_turn_0_374 flight_api_json_turn_0_375 flight_api_json_turn_0_376 flight_api_json_turn_0_377 flight_api_json_turn_0_378 flight_api_json_turn_0_379 flight_api_json_turn_0_380 flight_api_json_turn_0_381 flight_api_json_turn_0_382 flight_api_json_turn_0_383",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_002/function_calling/00"
+          },
+          {
+            "name": "observation_01",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 292 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_1_0 flight_api_json_turn_1_1 flight_api_json_turn_1_2 flight_api_json_turn_1_3 flight_api_json_turn_1_4 flight_api_json_turn_1_5 flight_api_json_turn_1_6 flight_api_json_turn_1_7 flight_api_json_turn_1_8 flight_api_json_turn_1_9 flight_api_json_turn_1_10 flight_api_json_turn_1_11 flight_api_json_turn_1_12 flight_api_json_turn_1_13 flight_api_json_turn_1_14 flight_api_json_turn_1_15 flight_api_json_turn_1_16 flight_api_json_turn_1_17 flight_api_json_turn_1_18 flight_api_json_turn_1_19 flight_api_json_turn_1_20 flight_api_json_turn_1_21 flight_api_json_turn_1_22 flight_api_json_turn_1_23 flight_api_json_turn_1_24 flight_api_json_turn_1_25 flight_api_json_turn_1_26 flight_api_json_turn_1_27 flight_api_json_turn_1_28 flight_api_json_turn_1_29 flight_api_json_turn_1_30 flight_api_json_turn_1_31 flight_api_json_turn_1_32 flight_api_json_turn_1_33\n[... observation compressed; recoverable at obs://context_compiler_realistic_ablation_cfg00_002/function_calling/01 ...]\nflight_api_json_turn_1_354 flight_api_json_turn_1_355 flight_api_json_turn_1_356 flight_api_json_turn_1_357 flight_api_json_turn_1_358 flight_api_json_turn_1_359 flight_api_json_turn_1_360 flight_api_json_turn_1_361 flight_api_json_turn_1_362 flight_api_json_turn_1_363 flight_api_json_turn_1_364 flight_api_json_turn_1_365 flight_api_json_turn_1_366 flight_api_json_turn_1_367 flight_api_json_turn_1_368 flight_api_json_turn_1_369 flight_api_json_turn_1_370 flight_api_json_turn_1_371 flight_api_json_turn_1_372 flight_api_json_turn_1_373 flight_api_json_turn_1_374 flight_api_json_turn_1_375 flight_api_json_turn_1_376 flight_api_json_turn_1_377 flight_api_json_turn_1_378 flight_api_json_turn_1_379 flight_api_json_turn_1_380 flight_api_json_turn_1_381 flight_api_json_turn_1_382 flight_api_json_turn_1_383",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_002/function_calling/01"
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:02:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_002\nretry_count=2\ntrace_nonce=context_compiler_realistic_ablation_cfg00_002-02",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
+            "must_preserve": [],
+            "source_pointer": null
+          }
+        ],
+        "compiler_metadata": {
+          "compiler": "context_compiler_mvp",
+          "compress_observations": true,
+          "segments": [
+            {
+              "name": "system",
+              "stability": "static",
+              "segment_type": "system",
+              "reuse_scope": "global",
+              "cache_key": "sha256:d07af5ec2d275acb20d12eeb077acb62604f3f4bb397e9822dc65f7172946578",
+              "source_pointer": null,
+              "word_count": 25
+            },
+            {
+              "name": "tools",
+              "stability": "static",
+              "segment_type": "tool_schema",
+              "reuse_scope": "agent_type",
+              "cache_key": "sha256:c3fd1376c33138763ac484aa5edff20b9fd28a79d20d900c2d8aef074171c036",
+              "source_pointer": null,
+              "word_count": 32
+            },
+            {
+              "name": "tool_call_00",
+              "stability": "session_dynamic",
+              "segment_type": "tool_call",
+              "reuse_scope": "session",
+              "cache_key": "sha256:9519957e229a86d22818e76980e3d56625fcfeb0b6317931fa45a0ca62f870db",
+              "source_pointer": null,
+              "word_count": 4
+            },
+            {
+              "name": "tool_call_01",
+              "stability": "session_dynamic",
+              "segment_type": "tool_call",
+              "reuse_scope": "session",
+              "cache_key": "sha256:0dc9eb56d3632e53bf432b57372750e4b8023fe27c5d14fddb16a6f9c3a92179",
+              "source_pointer": null,
+              "word_count": 4
+            },
+            {
+              "name": "user_02",
+              "stability": "turn_dynamic",
+              "segment_type": "current_query",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:f77621ca54f81dd144498de83498e16203f3c2a01d766324158e4b29549f3f46",
+              "source_pointer": null,
+              "word_count": 27
+            },
+            {
+              "name": "observation_00",
+              "stability": "turn_dynamic",
+              "segment_type": "observation",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:9a9266f3a1139e486cedcf705fc51f17793885352005ba5df8401005276ca47c",
+              "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_002/function_calling/00",
+              "word_count": 97
+            },
+            {
+              "name": "observation_01",
+              "stability": "turn_dynamic",
+              "segment_type": "observation",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:8f8eed3f38f1198b975eeb4910ffa7e477e4b4ee60f1e67bc747d66a9412edcf",
+              "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_002/function_calling/01",
+              "word_count": 97
+            },
+            {
+              "name": "runtime_header",
+              "stability": "ephemeral",
+              "segment_type": "runtime",
+              "reuse_scope": "request",
+              "cache_key": "sha256:0fc2a48cd47b039bb0c853cdbd58727a5552a165f4e34962ab68bac16204101d",
+              "source_pointer": null,
+              "word_count": 4
+            }
+          ]
+        },
+        "backend": "sglang_server",
+        "base_url": "http://127.0.0.1:30000",
+        "streaming": true,
+        "finish_reason": "stop",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 10,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "context_compiler_realistic_ablation_cfg00_002_function_calling_context_compiler_with_observation_compression_turn_03",
+      "input_tokens": 2628,
+      "output_tokens": 96,
+      "ttft_ms": 64.9200864136219,
+      "total_latency_ms": 937.5659674406052,
+      "decode_latency_ms": 872.6458810269833,
+      "tpot_ms": 9.090061260697743,
+      "metadata": {
+        "trace_id": "context_compiler_realistic_ablation_cfg00_002",
+        "scenario": "function_calling",
+        "turn": 3,
+        "workload_type": "context_compiler_realistic_ablation",
+        "variant": "context_compiler_with_observation_compression",
+        "expected_output_tokens": 96,
+        "prefix_overlap_tokens": 69,
+        "prefix_overlap_ratio": 0.17164179104477612,
+        "observation_tokens": 384,
+        "context_segments": [
+          {
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_00",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-10\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_01",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-11\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_02",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-12\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "user_03",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=3; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_00",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 280 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_0_0 flight_api_json_turn_0_1 flight_api_json_turn_0_2 flight_api_json_turn_0_3 flight_api_json_turn_0_4 flight_api_json_turn_0_5 flight_api_json_turn_0_6 flight_api_json_turn_0_7 flight_api_json_turn_0_8 flight_api_json_turn_0_9 flight_api_json_turn_0_10 flight_api_json_turn_0_11 flight_api_json_turn_0_12 flight_api_json_turn_0_13 flight_api_json_turn_0_14 flight_api_json_turn_0_15 flight_api_json_turn_0_16 flight_api_json_turn_0_17 flight_api_json_turn_0_18 flight_api_json_turn_0_19 flight_api_json_turn_0_20 flight_api_json_turn_0_21 flight_api_json_turn_0_22 flight_api_json_turn_0_23 flight_api_json_turn_0_24 flight_api_json_turn_0_25 flight_api_json_turn_0_26 flight_api_json_turn_0_27 flight_api_json_turn_0_28 flight_api_json_turn_0_29 flight_api_json_turn_0_30 flight_api_json_turn_0_31 flight_api_json_turn_0_32 flight_api_json_turn_0_33\n[... observation compressed; recoverable at obs://context_compiler_realistic_ablation_cfg00_002/function_calling/00 ...]\nflight_api_json_turn_0_354 flight_api_json_turn_0_355 flight_api_json_turn_0_356 flight_api_json_turn_0_357 flight_api_json_turn_0_358 flight_api_json_turn_0_359 flight_api_json_turn_0_360 flight_api_json_turn_0_361 flight_api_json_turn_0_362 flight_api_json_turn_0_363 flight_api_json_turn_0_364 flight_api_json_turn_0_365 flight_api_json_turn_0_366 flight_api_json_turn_0_367 flight_api_json_turn_0_368 flight_api_json_turn_0_369 flight_api_json_turn_0_370 flight_api_json_turn_0_371 flight_api_json_turn_0_372 flight_api_json_turn_0_373 flight_api_json_turn_0_374 flight_api_json_turn_0_375 flight_api_json_turn_0_376 flight_api_json_turn_0_377 flight_api_json_turn_0_378 flight_api_json_turn_0_379 flight_api_json_turn_0_380 flight_api_json_turn_0_381 flight_api_json_turn_0_382 flight_api_json_turn_0_383",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_002/function_calling/00"
+          },
+          {
+            "name": "observation_01",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 292 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_1_0 flight_api_json_turn_1_1 flight_api_json_turn_1_2 flight_api_json_turn_1_3 flight_api_json_turn_1_4 flight_api_json_turn_1_5 flight_api_json_turn_1_6 flight_api_json_turn_1_7 flight_api_json_turn_1_8 flight_api_json_turn_1_9 flight_api_json_turn_1_10 flight_api_json_turn_1_11 flight_api_json_turn_1_12 flight_api_json_turn_1_13 flight_api_json_turn_1_14 flight_api_json_turn_1_15 flight_api_json_turn_1_16 flight_api_json_turn_1_17 flight_api_json_turn_1_18 flight_api_json_turn_1_19 flight_api_json_turn_1_20 flight_api_json_turn_1_21 flight_api_json_turn_1_22 flight_api_json_turn_1_23 flight_api_json_turn_1_24 flight_api_json_turn_1_25 flight_api_json_turn_1_26 flight_api_json_turn_1_27 flight_api_json_turn_1_28 flight_api_json_turn_1_29 flight_api_json_turn_1_30 flight_api_json_turn_1_31 flight_api_json_turn_1_32 flight_api_json_turn_1_33\n[... observation compressed; recoverable at obs://context_compiler_realistic_ablation_cfg00_002/function_calling/01 ...]\nflight_api_json_turn_1_354 flight_api_json_turn_1_355 flight_api_json_turn_1_356 flight_api_json_turn_1_357 flight_api_json_turn_1_358 flight_api_json_turn_1_359 flight_api_json_turn_1_360 flight_api_json_turn_1_361 flight_api_json_turn_1_362 flight_api_json_turn_1_363 flight_api_json_turn_1_364 flight_api_json_turn_1_365 flight_api_json_turn_1_366 flight_api_json_turn_1_367 flight_api_json_turn_1_368 flight_api_json_turn_1_369 flight_api_json_turn_1_370 flight_api_json_turn_1_371 flight_api_json_turn_1_372 flight_api_json_turn_1_373 flight_api_json_turn_1_374 flight_api_json_turn_1_375 flight_api_json_turn_1_376 flight_api_json_turn_1_377 flight_api_json_turn_1_378 flight_api_json_turn_1_379 flight_api_json_turn_1_380 flight_api_json_turn_1_381 flight_api_json_turn_1_382 flight_api_json_turn_1_383",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_002/function_calling/01"
+          },
+          {
+            "name": "observation_02",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 304 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_2_0 flight_api_json_turn_2_1 flight_api_json_turn_2_2 flight_api_json_turn_2_3 flight_api_json_turn_2_4 flight_api_json_turn_2_5 flight_api_json_turn_2_6 flight_api_json_turn_2_7 flight_api_json_turn_2_8 flight_api_json_turn_2_9 flight_api_json_turn_2_10 flight_api_json_turn_2_11 flight_api_json_turn_2_12 flight_api_json_turn_2_13 flight_api_json_turn_2_14 flight_api_json_turn_2_15 flight_api_json_turn_2_16 flight_api_json_turn_2_17 flight_api_json_turn_2_18 flight_api_json_turn_2_19 flight_api_json_turn_2_20 flight_api_json_turn_2_21 flight_api_json_turn_2_22 flight_api_json_turn_2_23 flight_api_json_turn_2_24 flight_api_json_turn_2_25 flight_api_json_turn_2_26 flight_api_json_turn_2_27 flight_api_json_turn_2_28 flight_api_json_turn_2_29 flight_api_json_turn_2_30 flight_api_json_turn_2_31 flight_api_json_turn_2_32 flight_api_json_turn_2_33\n[... observation compressed; recoverable at obs://context_compiler_realistic_ablation_cfg00_002/function_calling/02 ...]\nflight_api_json_turn_2_354 flight_api_json_turn_2_355 flight_api_json_turn_2_356 flight_api_json_turn_2_357 flight_api_json_turn_2_358 flight_api_json_turn_2_359 flight_api_json_turn_2_360 flight_api_json_turn_2_361 flight_api_json_turn_2_362 flight_api_json_turn_2_363 flight_api_json_turn_2_364 flight_api_json_turn_2_365 flight_api_json_turn_2_366 flight_api_json_turn_2_367 flight_api_json_turn_2_368 flight_api_json_turn_2_369 flight_api_json_turn_2_370 flight_api_json_turn_2_371 flight_api_json_turn_2_372 flight_api_json_turn_2_373 flight_api_json_turn_2_374 flight_api_json_turn_2_375 flight_api_json_turn_2_376 flight_api_json_turn_2_377 flight_api_json_turn_2_378 flight_api_json_turn_2_379 flight_api_json_turn_2_380 flight_api_json_turn_2_381 flight_api_json_turn_2_382 flight_api_json_turn_2_383",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_002/function_calling/02"
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:03:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_002\nretry_count=3\ntrace_nonce=context_compiler_realistic_ablation_cfg00_002-03",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
+            "must_preserve": [],
+            "source_pointer": null
+          }
+        ],
+        "compiler_metadata": {
+          "compiler": "context_compiler_mvp",
+          "compress_observations": true,
+          "segments": [
+            {
+              "name": "system",
+              "stability": "static",
+              "segment_type": "system",
+              "reuse_scope": "global",
+              "cache_key": "sha256:d07af5ec2d275acb20d12eeb077acb62604f3f4bb397e9822dc65f7172946578",
+              "source_pointer": null,
+              "word_count": 25
+            },
+            {
+              "name": "tools",
+              "stability": "static",
+              "segment_type": "tool_schema",
+              "reuse_scope": "agent_type",
+              "cache_key": "sha256:c3fd1376c33138763ac484aa5edff20b9fd28a79d20d900c2d8aef074171c036",
+              "source_pointer": null,
+              "word_count": 32
+            },
+            {
+              "name": "tool_call_00",
+              "stability": "session_dynamic",
+              "segment_type": "tool_call",
+              "reuse_scope": "session",
+              "cache_key": "sha256:9519957e229a86d22818e76980e3d56625fcfeb0b6317931fa45a0ca62f870db",
+              "source_pointer": null,
+              "word_count": 4
+            },
+            {
+              "name": "tool_call_01",
+              "stability": "session_dynamic",
+              "segment_type": "tool_call",
+              "reuse_scope": "session",
+              "cache_key": "sha256:0dc9eb56d3632e53bf432b57372750e4b8023fe27c5d14fddb16a6f9c3a92179",
+              "source_pointer": null,
+              "word_count": 4
+            },
+            {
+              "name": "tool_call_02",
+              "stability": "session_dynamic",
+              "segment_type": "tool_call",
+              "reuse_scope": "session",
+              "cache_key": "sha256:db8f9512d2572b5b2ae8ece3e7e50ef36a770eb216b3af81da152d05f11e3cf4",
+              "source_pointer": null,
+              "word_count": 4
+            },
+            {
+              "name": "user_03",
+              "stability": "turn_dynamic",
+              "segment_type": "current_query",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:53ab2f08a710e5fc4f88aff7a12609c57e4e605d0f20dd5b6cac17bfe497cbf4",
+              "source_pointer": null,
+              "word_count": 27
+            },
+            {
+              "name": "observation_00",
+              "stability": "turn_dynamic",
+              "segment_type": "observation",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:9a9266f3a1139e486cedcf705fc51f17793885352005ba5df8401005276ca47c",
+              "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_002/function_calling/00",
+              "word_count": 97
+            },
+            {
+              "name": "observation_01",
+              "stability": "turn_dynamic",
+              "segment_type": "observation",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:8f8eed3f38f1198b975eeb4910ffa7e477e4b4ee60f1e67bc747d66a9412edcf",
+              "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_002/function_calling/01",
+              "word_count": 97
+            },
+            {
+              "name": "observation_02",
+              "stability": "turn_dynamic",
+              "segment_type": "observation",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:685d0e2849e9474eb6b934efba465361d60633ce090665fce59b4f1def6ea712",
+              "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_002/function_calling/02",
+              "word_count": 97
+            },
+            {
+              "name": "runtime_header",
+              "stability": "ephemeral",
+              "segment_type": "runtime",
+              "reuse_scope": "request",
+              "cache_key": "sha256:cc6cfb27a9df122b947d298ecebdf00e85ce9857e93ec41b528da93f25364ee8",
+              "source_pointer": null,
+              "word_count": 4
+            }
+          ]
+        },
+        "backend": "sglang_server",
+        "base_url": "http://127.0.0.1:30000",
+        "streaming": true,
+        "finish_reason": "length",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 11,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "context_compiler_realistic_ablation_cfg00_003_function_calling_context_compiler_with_observation_compression_turn_00",
+      "input_tokens": 354,
+      "output_tokens": 55,
+      "ttft_ms": 16.172733157873154,
+      "total_latency_ms": 518.7040418386459,
+      "decode_latency_ms": 502.5313086807728,
+      "tpot_ms": 9.13693288510496,
+      "metadata": {
+        "trace_id": "context_compiler_realistic_ablation_cfg00_003",
+        "scenario": "function_calling",
+        "turn": 0,
+        "workload_type": "context_compiler_realistic_ablation",
+        "variant": "context_compiler_with_observation_compression",
+        "expected_output_tokens": 96,
+        "prefix_overlap_tokens": 0,
+        "prefix_overlap_ratio": 0.0,
+        "observation_tokens": 384,
+        "context_segments": [
+          {
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "user_00",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=0; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:00:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_003\nretry_count=0\ntrace_nonce=context_compiler_realistic_ablation_cfg00_003-00",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
+            "must_preserve": [],
+            "source_pointer": null
+          }
+        ],
+        "compiler_metadata": {
+          "compiler": "context_compiler_mvp",
+          "compress_observations": true,
+          "segments": [
+            {
+              "name": "system",
+              "stability": "static",
+              "segment_type": "system",
+              "reuse_scope": "global",
+              "cache_key": "sha256:d07af5ec2d275acb20d12eeb077acb62604f3f4bb397e9822dc65f7172946578",
+              "source_pointer": null,
+              "word_count": 25
+            },
+            {
+              "name": "tools",
+              "stability": "static",
+              "segment_type": "tool_schema",
+              "reuse_scope": "agent_type",
+              "cache_key": "sha256:c3fd1376c33138763ac484aa5edff20b9fd28a79d20d900c2d8aef074171c036",
+              "source_pointer": null,
+              "word_count": 32
+            },
+            {
+              "name": "user_00",
+              "stability": "turn_dynamic",
+              "segment_type": "current_query",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:9032566902362b30fd2a575119794c53955dbe056468f59094632ba073ad7e2e",
+              "source_pointer": null,
+              "word_count": 27
+            },
+            {
+              "name": "runtime_header",
+              "stability": "ephemeral",
+              "segment_type": "runtime",
+              "reuse_scope": "request",
+              "cache_key": "sha256:80614407cc74971a931d1d3c2c0ac9d1168b2213d9eff548d44a9de6865a2729",
+              "source_pointer": null,
+              "word_count": 4
+            }
+          ]
+        },
+        "backend": "sglang_server",
+        "base_url": "http://127.0.0.1:30000",
+        "streaming": true,
+        "finish_reason": "stop",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 12,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "context_compiler_realistic_ablation_cfg00_003_function_calling_context_compiler_with_observation_compression_turn_01",
+      "input_tokens": 1112,
+      "output_tokens": 40,
+      "ttft_ms": 22.36105129122734,
+      "total_latency_ms": 388.03838565945625,
+      "decode_latency_ms": 365.6773343682289,
+      "tpot_ms": 9.141933359205723,
+      "metadata": {
+        "trace_id": "context_compiler_realistic_ablation_cfg00_003",
+        "scenario": "function_calling",
+        "turn": 1,
+        "workload_type": "context_compiler_realistic_ablation",
+        "variant": "context_compiler_with_observation_compression",
+        "expected_output_tokens": 96,
+        "prefix_overlap_tokens": 59,
+        "prefix_overlap_ratio": 0.3010204081632653,
+        "observation_tokens": 384,
+        "context_segments": [
+          {
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_00",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-10\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "user_01",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=1; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_00",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 280 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_0_0 flight_api_json_turn_0_1 flight_api_json_turn_0_2 flight_api_json_turn_0_3 flight_api_json_turn_0_4 flight_api_json_turn_0_5 flight_api_json_turn_0_6 flight_api_json_turn_0_7 flight_api_json_turn_0_8 flight_api_json_turn_0_9 flight_api_json_turn_0_10 flight_api_json_turn_0_11 flight_api_json_turn_0_12 flight_api_json_turn_0_13 flight_api_json_turn_0_14 flight_api_json_turn_0_15 flight_api_json_turn_0_16 flight_api_json_turn_0_17 flight_api_json_turn_0_18 flight_api_json_turn_0_19 flight_api_json_turn_0_20 flight_api_json_turn_0_21 flight_api_json_turn_0_22 flight_api_json_turn_0_23 flight_api_json_turn_0_24 flight_api_json_turn_0_25 flight_api_json_turn_0_26 flight_api_json_turn_0_27 flight_api_json_turn_0_28 flight_api_json_turn_0_29 flight_api_json_turn_0_30 flight_api_json_turn_0_31 flight_api_json_turn_0_32 flight_api_json_turn_0_33\n[... observation compressed; recoverable at obs://context_compiler_realistic_ablation_cfg00_003/function_calling/00 ...]\nflight_api_json_turn_0_354 flight_api_json_turn_0_355 flight_api_json_turn_0_356 flight_api_json_turn_0_357 flight_api_json_turn_0_358 flight_api_json_turn_0_359 flight_api_json_turn_0_360 flight_api_json_turn_0_361 flight_api_json_turn_0_362 flight_api_json_turn_0_363 flight_api_json_turn_0_364 flight_api_json_turn_0_365 flight_api_json_turn_0_366 flight_api_json_turn_0_367 flight_api_json_turn_0_368 flight_api_json_turn_0_369 flight_api_json_turn_0_370 flight_api_json_turn_0_371 flight_api_json_turn_0_372 flight_api_json_turn_0_373 flight_api_json_turn_0_374 flight_api_json_turn_0_375 flight_api_json_turn_0_376 flight_api_json_turn_0_377 flight_api_json_turn_0_378 flight_api_json_turn_0_379 flight_api_json_turn_0_380 flight_api_json_turn_0_381 flight_api_json_turn_0_382 flight_api_json_turn_0_383",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_003/function_calling/00"
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:01:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_003\nretry_count=1\ntrace_nonce=context_compiler_realistic_ablation_cfg00_003-01",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
+            "must_preserve": [],
+            "source_pointer": null
+          }
+        ],
+        "compiler_metadata": {
+          "compiler": "context_compiler_mvp",
+          "compress_observations": true,
+          "segments": [
+            {
+              "name": "system",
+              "stability": "static",
+              "segment_type": "system",
+              "reuse_scope": "global",
+              "cache_key": "sha256:d07af5ec2d275acb20d12eeb077acb62604f3f4bb397e9822dc65f7172946578",
+              "source_pointer": null,
+              "word_count": 25
+            },
+            {
+              "name": "tools",
+              "stability": "static",
+              "segment_type": "tool_schema",
+              "reuse_scope": "agent_type",
+              "cache_key": "sha256:c3fd1376c33138763ac484aa5edff20b9fd28a79d20d900c2d8aef074171c036",
+              "source_pointer": null,
+              "word_count": 32
+            },
+            {
+              "name": "tool_call_00",
+              "stability": "session_dynamic",
+              "segment_type": "tool_call",
+              "reuse_scope": "session",
+              "cache_key": "sha256:9519957e229a86d22818e76980e3d56625fcfeb0b6317931fa45a0ca62f870db",
+              "source_pointer": null,
+              "word_count": 4
+            },
+            {
+              "name": "user_01",
+              "stability": "turn_dynamic",
+              "segment_type": "current_query",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:059936f5f4ccf151af0e7f922c20a52b4b143d0152a624f7ca6edac23bedbd45",
+              "source_pointer": null,
+              "word_count": 27
+            },
+            {
+              "name": "observation_00",
+              "stability": "turn_dynamic",
+              "segment_type": "observation",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:883d65c5ece91dd37559582eedeb1d67fdd4cc88867398e0ee51b1ef683690f5",
+              "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_003/function_calling/00",
+              "word_count": 97
+            },
+            {
+              "name": "runtime_header",
+              "stability": "ephemeral",
+              "segment_type": "runtime",
+              "reuse_scope": "request",
+              "cache_key": "sha256:f42d0b84beb3b48fb6baec7b576ae050a6cd46c968cacfd5f4c8421424ceacd7",
+              "source_pointer": null,
+              "word_count": 4
+            }
+          ]
+        },
+        "backend": "sglang_server",
+        "base_url": "http://127.0.0.1:30000",
+        "streaming": true,
+        "finish_reason": "stop",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 13,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "context_compiler_realistic_ablation_cfg00_003_function_calling_context_compiler_with_observation_compression_turn_02",
+      "input_tokens": 1870,
+      "output_tokens": 90,
+      "ttft_ms": 41.523803025484085,
+      "total_latency_ms": 866.0414405167103,
+      "decode_latency_ms": 824.5176374912262,
+      "tpot_ms": 9.161307083235847,
+      "metadata": {
+        "trace_id": "context_compiler_realistic_ablation_cfg00_003",
+        "scenario": "function_calling",
+        "turn": 2,
+        "workload_type": "context_compiler_realistic_ablation",
+        "variant": "context_compiler_with_observation_compression",
+        "expected_output_tokens": 96,
+        "prefix_overlap_tokens": 64,
+        "prefix_overlap_ratio": 0.2140468227424749,
+        "observation_tokens": 384,
+        "context_segments": [
+          {
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_00",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-10\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_01",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-11\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "user_02",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=2; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_00",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 280 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_0_0 flight_api_json_turn_0_1 flight_api_json_turn_0_2 flight_api_json_turn_0_3 flight_api_json_turn_0_4 flight_api_json_turn_0_5 flight_api_json_turn_0_6 flight_api_json_turn_0_7 flight_api_json_turn_0_8 flight_api_json_turn_0_9 flight_api_json_turn_0_10 flight_api_json_turn_0_11 flight_api_json_turn_0_12 flight_api_json_turn_0_13 flight_api_json_turn_0_14 flight_api_json_turn_0_15 flight_api_json_turn_0_16 flight_api_json_turn_0_17 flight_api_json_turn_0_18 flight_api_json_turn_0_19 flight_api_json_turn_0_20 flight_api_json_turn_0_21 flight_api_json_turn_0_22 flight_api_json_turn_0_23 flight_api_json_turn_0_24 flight_api_json_turn_0_25 flight_api_json_turn_0_26 flight_api_json_turn_0_27 flight_api_json_turn_0_28 flight_api_json_turn_0_29 flight_api_json_turn_0_30 flight_api_json_turn_0_31 flight_api_json_turn_0_32 flight_api_json_turn_0_33\n[... observation compressed; recoverable at obs://context_compiler_realistic_ablation_cfg00_003/function_calling/00 ...]\nflight_api_json_turn_0_354 flight_api_json_turn_0_355 flight_api_json_turn_0_356 flight_api_json_turn_0_357 flight_api_json_turn_0_358 flight_api_json_turn_0_359 flight_api_json_turn_0_360 flight_api_json_turn_0_361 flight_api_json_turn_0_362 flight_api_json_turn_0_363 flight_api_json_turn_0_364 flight_api_json_turn_0_365 flight_api_json_turn_0_366 flight_api_json_turn_0_367 flight_api_json_turn_0_368 flight_api_json_turn_0_369 flight_api_json_turn_0_370 flight_api_json_turn_0_371 flight_api_json_turn_0_372 flight_api_json_turn_0_373 flight_api_json_turn_0_374 flight_api_json_turn_0_375 flight_api_json_turn_0_376 flight_api_json_turn_0_377 flight_api_json_turn_0_378 flight_api_json_turn_0_379 flight_api_json_turn_0_380 flight_api_json_turn_0_381 flight_api_json_turn_0_382 flight_api_json_turn_0_383",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_003/function_calling/00"
+          },
+          {
+            "name": "observation_01",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 292 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_1_0 flight_api_json_turn_1_1 flight_api_json_turn_1_2 flight_api_json_turn_1_3 flight_api_json_turn_1_4 flight_api_json_turn_1_5 flight_api_json_turn_1_6 flight_api_json_turn_1_7 flight_api_json_turn_1_8 flight_api_json_turn_1_9 flight_api_json_turn_1_10 flight_api_json_turn_1_11 flight_api_json_turn_1_12 flight_api_json_turn_1_13 flight_api_json_turn_1_14 flight_api_json_turn_1_15 flight_api_json_turn_1_16 flight_api_json_turn_1_17 flight_api_json_turn_1_18 flight_api_json_turn_1_19 flight_api_json_turn_1_20 flight_api_json_turn_1_21 flight_api_json_turn_1_22 flight_api_json_turn_1_23 flight_api_json_turn_1_24 flight_api_json_turn_1_25 flight_api_json_turn_1_26 flight_api_json_turn_1_27 flight_api_json_turn_1_28 flight_api_json_turn_1_29 flight_api_json_turn_1_30 flight_api_json_turn_1_31 flight_api_json_turn_1_32 flight_api_json_turn_1_33\n[... observation compressed; recoverable at obs://context_compiler_realistic_ablation_cfg00_003/function_calling/01 ...]\nflight_api_json_turn_1_354 flight_api_json_turn_1_355 flight_api_json_turn_1_356 flight_api_json_turn_1_357 flight_api_json_turn_1_358 flight_api_json_turn_1_359 flight_api_json_turn_1_360 flight_api_json_turn_1_361 flight_api_json_turn_1_362 flight_api_json_turn_1_363 flight_api_json_turn_1_364 flight_api_json_turn_1_365 flight_api_json_turn_1_366 flight_api_json_turn_1_367 flight_api_json_turn_1_368 flight_api_json_turn_1_369 flight_api_json_turn_1_370 flight_api_json_turn_1_371 flight_api_json_turn_1_372 flight_api_json_turn_1_373 flight_api_json_turn_1_374 flight_api_json_turn_1_375 flight_api_json_turn_1_376 flight_api_json_turn_1_377 flight_api_json_turn_1_378 flight_api_json_turn_1_379 flight_api_json_turn_1_380 flight_api_json_turn_1_381 flight_api_json_turn_1_382 flight_api_json_turn_1_383",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_003/function_calling/01"
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:02:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_003\nretry_count=2\ntrace_nonce=context_compiler_realistic_ablation_cfg00_003-02",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
+            "must_preserve": [],
+            "source_pointer": null
+          }
+        ],
+        "compiler_metadata": {
+          "compiler": "context_compiler_mvp",
+          "compress_observations": true,
+          "segments": [
+            {
+              "name": "system",
+              "stability": "static",
+              "segment_type": "system",
+              "reuse_scope": "global",
+              "cache_key": "sha256:d07af5ec2d275acb20d12eeb077acb62604f3f4bb397e9822dc65f7172946578",
+              "source_pointer": null,
+              "word_count": 25
+            },
+            {
+              "name": "tools",
+              "stability": "static",
+              "segment_type": "tool_schema",
+              "reuse_scope": "agent_type",
+              "cache_key": "sha256:c3fd1376c33138763ac484aa5edff20b9fd28a79d20d900c2d8aef074171c036",
+              "source_pointer": null,
+              "word_count": 32
+            },
+            {
+              "name": "tool_call_00",
+              "stability": "session_dynamic",
+              "segment_type": "tool_call",
+              "reuse_scope": "session",
+              "cache_key": "sha256:9519957e229a86d22818e76980e3d56625fcfeb0b6317931fa45a0ca62f870db",
+              "source_pointer": null,
+              "word_count": 4
+            },
+            {
+              "name": "tool_call_01",
+              "stability": "session_dynamic",
+              "segment_type": "tool_call",
+              "reuse_scope": "session",
+              "cache_key": "sha256:0dc9eb56d3632e53bf432b57372750e4b8023fe27c5d14fddb16a6f9c3a92179",
+              "source_pointer": null,
+              "word_count": 4
+            },
+            {
+              "name": "user_02",
+              "stability": "turn_dynamic",
+              "segment_type": "current_query",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:f77621ca54f81dd144498de83498e16203f3c2a01d766324158e4b29549f3f46",
+              "source_pointer": null,
+              "word_count": 27
+            },
+            {
+              "name": "observation_00",
+              "stability": "turn_dynamic",
+              "segment_type": "observation",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:883d65c5ece91dd37559582eedeb1d67fdd4cc88867398e0ee51b1ef683690f5",
+              "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_003/function_calling/00",
+              "word_count": 97
+            },
+            {
+              "name": "observation_01",
+              "stability": "turn_dynamic",
+              "segment_type": "observation",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:cb11b2859fb99ef38399c20f25e784906fac77873f210c0f6e54a38c5449eef3",
+              "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_003/function_calling/01",
+              "word_count": 97
+            },
+            {
+              "name": "runtime_header",
+              "stability": "ephemeral",
+              "segment_type": "runtime",
+              "reuse_scope": "request",
+              "cache_key": "sha256:5fc291cfbe16955b4bfee4c0045e6ba96fe69bf4cb13411f3d25a73517e07192",
+              "source_pointer": null,
+              "word_count": 4
+            }
+          ]
+        },
+        "backend": "sglang_server",
+        "base_url": "http://127.0.0.1:30000",
+        "streaming": true,
+        "finish_reason": "stop",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 14,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "context_compiler_realistic_ablation_cfg00_003_function_calling_context_compiler_with_observation_compression_turn_03",
+      "input_tokens": 2628,
+      "output_tokens": 96,
+      "ttft_ms": 67.97308847308159,
+      "total_latency_ms": 938.5894313454628,
+      "decode_latency_ms": 870.6163428723812,
+      "tpot_ms": 9.068920238253972,
+      "metadata": {
+        "trace_id": "context_compiler_realistic_ablation_cfg00_003",
+        "scenario": "function_calling",
+        "turn": 3,
+        "workload_type": "context_compiler_realistic_ablation",
+        "variant": "context_compiler_with_observation_compression",
+        "expected_output_tokens": 96,
+        "prefix_overlap_tokens": 69,
+        "prefix_overlap_ratio": 0.17164179104477612,
+        "observation_tokens": 384,
+        "context_segments": [
+          {
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_00",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-10\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_01",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-11\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_02",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-12\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "user_03",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=3; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_00",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 280 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_0_0 flight_api_json_turn_0_1 flight_api_json_turn_0_2 flight_api_json_turn_0_3 flight_api_json_turn_0_4 flight_api_json_turn_0_5 flight_api_json_turn_0_6 flight_api_json_turn_0_7 flight_api_json_turn_0_8 flight_api_json_turn_0_9 flight_api_json_turn_0_10 flight_api_json_turn_0_11 flight_api_json_turn_0_12 flight_api_json_turn_0_13 flight_api_json_turn_0_14 flight_api_json_turn_0_15 flight_api_json_turn_0_16 flight_api_json_turn_0_17 flight_api_json_turn_0_18 flight_api_json_turn_0_19 flight_api_json_turn_0_20 flight_api_json_turn_0_21 flight_api_json_turn_0_22 flight_api_json_turn_0_23 flight_api_json_turn_0_24 flight_api_json_turn_0_25 flight_api_json_turn_0_26 flight_api_json_turn_0_27 flight_api_json_turn_0_28 flight_api_json_turn_0_29 flight_api_json_turn_0_30 flight_api_json_turn_0_31 flight_api_json_turn_0_32 flight_api_json_turn_0_33\n[... observation compressed; recoverable at obs://context_compiler_realistic_ablation_cfg00_003/function_calling/00 ...]\nflight_api_json_turn_0_354 flight_api_json_turn_0_355 flight_api_json_turn_0_356 flight_api_json_turn_0_357 flight_api_json_turn_0_358 flight_api_json_turn_0_359 flight_api_json_turn_0_360 flight_api_json_turn_0_361 flight_api_json_turn_0_362 flight_api_json_turn_0_363 flight_api_json_turn_0_364 flight_api_json_turn_0_365 flight_api_json_turn_0_366 flight_api_json_turn_0_367 flight_api_json_turn_0_368 flight_api_json_turn_0_369 flight_api_json_turn_0_370 flight_api_json_turn_0_371 flight_api_json_turn_0_372 flight_api_json_turn_0_373 flight_api_json_turn_0_374 flight_api_json_turn_0_375 flight_api_json_turn_0_376 flight_api_json_turn_0_377 flight_api_json_turn_0_378 flight_api_json_turn_0_379 flight_api_json_turn_0_380 flight_api_json_turn_0_381 flight_api_json_turn_0_382 flight_api_json_turn_0_383",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_003/function_calling/00"
+          },
+          {
+            "name": "observation_01",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 292 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_1_0 flight_api_json_turn_1_1 flight_api_json_turn_1_2 flight_api_json_turn_1_3 flight_api_json_turn_1_4 flight_api_json_turn_1_5 flight_api_json_turn_1_6 flight_api_json_turn_1_7 flight_api_json_turn_1_8 flight_api_json_turn_1_9 flight_api_json_turn_1_10 flight_api_json_turn_1_11 flight_api_json_turn_1_12 flight_api_json_turn_1_13 flight_api_json_turn_1_14 flight_api_json_turn_1_15 flight_api_json_turn_1_16 flight_api_json_turn_1_17 flight_api_json_turn_1_18 flight_api_json_turn_1_19 flight_api_json_turn_1_20 flight_api_json_turn_1_21 flight_api_json_turn_1_22 flight_api_json_turn_1_23 flight_api_json_turn_1_24 flight_api_json_turn_1_25 flight_api_json_turn_1_26 flight_api_json_turn_1_27 flight_api_json_turn_1_28 flight_api_json_turn_1_29 flight_api_json_turn_1_30 flight_api_json_turn_1_31 flight_api_json_turn_1_32 flight_api_json_turn_1_33\n[... observation compressed; recoverable at obs://context_compiler_realistic_ablation_cfg00_003/function_calling/01 ...]\nflight_api_json_turn_1_354 flight_api_json_turn_1_355 flight_api_json_turn_1_356 flight_api_json_turn_1_357 flight_api_json_turn_1_358 flight_api_json_turn_1_359 flight_api_json_turn_1_360 flight_api_json_turn_1_361 flight_api_json_turn_1_362 flight_api_json_turn_1_363 flight_api_json_turn_1_364 flight_api_json_turn_1_365 flight_api_json_turn_1_366 flight_api_json_turn_1_367 flight_api_json_turn_1_368 flight_api_json_turn_1_369 flight_api_json_turn_1_370 flight_api_json_turn_1_371 flight_api_json_turn_1_372 flight_api_json_turn_1_373 flight_api_json_turn_1_374 flight_api_json_turn_1_375 flight_api_json_turn_1_376 flight_api_json_turn_1_377 flight_api_json_turn_1_378 flight_api_json_turn_1_379 flight_api_json_turn_1_380 flight_api_json_turn_1_381 flight_api_json_turn_1_382 flight_api_json_turn_1_383",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_003/function_calling/01"
+          },
+          {
+            "name": "observation_02",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 304 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_2_0 flight_api_json_turn_2_1 flight_api_json_turn_2_2 flight_api_json_turn_2_3 flight_api_json_turn_2_4 flight_api_json_turn_2_5 flight_api_json_turn_2_6 flight_api_json_turn_2_7 flight_api_json_turn_2_8 flight_api_json_turn_2_9 flight_api_json_turn_2_10 flight_api_json_turn_2_11 flight_api_json_turn_2_12 flight_api_json_turn_2_13 flight_api_json_turn_2_14 flight_api_json_turn_2_15 flight_api_json_turn_2_16 flight_api_json_turn_2_17 flight_api_json_turn_2_18 flight_api_json_turn_2_19 flight_api_json_turn_2_20 flight_api_json_turn_2_21 flight_api_json_turn_2_22 flight_api_json_turn_2_23 flight_api_json_turn_2_24 flight_api_json_turn_2_25 flight_api_json_turn_2_26 flight_api_json_turn_2_27 flight_api_json_turn_2_28 flight_api_json_turn_2_29 flight_api_json_turn_2_30 flight_api_json_turn_2_31 flight_api_json_turn_2_32 flight_api_json_turn_2_33\n[... observation compressed; recoverable at obs://context_compiler_realistic_ablation_cfg00_003/function_calling/02 ...]\nflight_api_json_turn_2_354 flight_api_json_turn_2_355 flight_api_json_turn_2_356 flight_api_json_turn_2_357 flight_api_json_turn_2_358 flight_api_json_turn_2_359 flight_api_json_turn_2_360 flight_api_json_turn_2_361 flight_api_json_turn_2_362 flight_api_json_turn_2_363 flight_api_json_turn_2_364 flight_api_json_turn_2_365 flight_api_json_turn_2_366 flight_api_json_turn_2_367 flight_api_json_turn_2_368 flight_api_json_turn_2_369 flight_api_json_turn_2_370 flight_api_json_turn_2_371 flight_api_json_turn_2_372 flight_api_json_turn_2_373 flight_api_json_turn_2_374 flight_api_json_turn_2_375 flight_api_json_turn_2_376 flight_api_json_turn_2_377 flight_api_json_turn_2_378 flight_api_json_turn_2_379 flight_api_json_turn_2_380 flight_api_json_turn_2_381 flight_api_json_turn_2_382 flight_api_json_turn_2_383",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_003/function_calling/02"
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:03:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_003\nretry_count=3\ntrace_nonce=context_compiler_realistic_ablation_cfg00_003-03",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
+            "must_preserve": [],
+            "source_pointer": null
+          }
+        ],
+        "compiler_metadata": {
+          "compiler": "context_compiler_mvp",
+          "compress_observations": true,
+          "segments": [
+            {
+              "name": "system",
+              "stability": "static",
+              "segment_type": "system",
+              "reuse_scope": "global",
+              "cache_key": "sha256:d07af5ec2d275acb20d12eeb077acb62604f3f4bb397e9822dc65f7172946578",
+              "source_pointer": null,
+              "word_count": 25
+            },
+            {
+              "name": "tools",
+              "stability": "static",
+              "segment_type": "tool_schema",
+              "reuse_scope": "agent_type",
+              "cache_key": "sha256:c3fd1376c33138763ac484aa5edff20b9fd28a79d20d900c2d8aef074171c036",
+              "source_pointer": null,
+              "word_count": 32
+            },
+            {
+              "name": "tool_call_00",
+              "stability": "session_dynamic",
+              "segment_type": "tool_call",
+              "reuse_scope": "session",
+              "cache_key": "sha256:9519957e229a86d22818e76980e3d56625fcfeb0b6317931fa45a0ca62f870db",
+              "source_pointer": null,
+              "word_count": 4
+            },
+            {
+              "name": "tool_call_01",
+              "stability": "session_dynamic",
+              "segment_type": "tool_call",
+              "reuse_scope": "session",
+              "cache_key": "sha256:0dc9eb56d3632e53bf432b57372750e4b8023fe27c5d14fddb16a6f9c3a92179",
+              "source_pointer": null,
+              "word_count": 4
+            },
+            {
+              "name": "tool_call_02",
+              "stability": "session_dynamic",
+              "segment_type": "tool_call",
+              "reuse_scope": "session",
+              "cache_key": "sha256:db8f9512d2572b5b2ae8ece3e7e50ef36a770eb216b3af81da152d05f11e3cf4",
+              "source_pointer": null,
+              "word_count": 4
+            },
+            {
+              "name": "user_03",
+              "stability": "turn_dynamic",
+              "segment_type": "current_query",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:53ab2f08a710e5fc4f88aff7a12609c57e4e605d0f20dd5b6cac17bfe497cbf4",
+              "source_pointer": null,
+              "word_count": 27
+            },
+            {
+              "name": "observation_00",
+              "stability": "turn_dynamic",
+              "segment_type": "observation",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:883d65c5ece91dd37559582eedeb1d67fdd4cc88867398e0ee51b1ef683690f5",
+              "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_003/function_calling/00",
+              "word_count": 97
+            },
+            {
+              "name": "observation_01",
+              "stability": "turn_dynamic",
+              "segment_type": "observation",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:cb11b2859fb99ef38399c20f25e784906fac77873f210c0f6e54a38c5449eef3",
+              "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_003/function_calling/01",
+              "word_count": 97
+            },
+            {
+              "name": "observation_02",
+              "stability": "turn_dynamic",
+              "segment_type": "observation",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:c190ba6851ce736b4a6d88de03af8c581f3a52ee99daa86cf2c15782567d2aca",
+              "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_003/function_calling/02",
+              "word_count": 97
+            },
+            {
+              "name": "runtime_header",
+              "stability": "ephemeral",
+              "segment_type": "runtime",
+              "reuse_scope": "request",
+              "cache_key": "sha256:cb51b9e43c44488043db86ffe2ac9fb8764299e1dffa361903ac8351b11268e1",
+              "source_pointer": null,
+              "word_count": 4
+            }
+          ]
+        },
+        "backend": "sglang_server",
+        "base_url": "http://127.0.0.1:30000",
+        "streaming": true,
+        "finish_reason": "length",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 15,
+        "configured_concurrency": 1
+      }
+    }
+  ],
+  "extra": {
+    "trace_count": 4,
+    "workload_types": [
+      "context_compiler_realistic_ablation"
+    ],
+    "repeat": 1,
+    "concurrency": 1,
+    "repeat_summary": {
+      "run_count": 1,
+      "mean_latency_ms_by_run": [
+        631.385640008375
+      ],
+      "mean_ttft_ms_by_run": [
+        44.42487773485482
+      ],
+      "mean_tpot_ms_by_run": [
+        9.129062693447317
+      ],
+      "mean_output_tokens_by_run": [
+        64.375
+      ],
+      "mean_latency_ms_mean": 631.385640008375,
+      "mean_latency_ms_std": 0.0
+    },
+    "token_source_summary": {
+      "input": "tokenizer_fallback",
+      "output": "tokenizer_fallback"
+    }
+  }
+}
