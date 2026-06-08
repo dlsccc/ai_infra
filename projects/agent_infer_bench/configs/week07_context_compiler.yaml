@@ -1,0 +1,28 @@
+backend: mock
+model: mock
+output_dir: experiments/runs/week07/context_compiler_mvp
+repeat: 1
+concurrency: 1
+
+sampling:
+  max_tokens: 64
+  temperature: 0.0
+
+workloads:
+  - type: context_compiler_ablation
+    count: 4
+    turns: 4
+    system_tokens: 256
+    tool_count: 8
+    tool_tokens: 80
+    observation_tokens: 256
+    output_tokens: 64
+    max_observation_words: 80
+    variants:
+      - original_bad_layout
+      - stable_tool_order
+      - dynamic_fields_last
+      - context_compiler_no_compression
+      - context_compiler_with_observation_compression
+      - truncation_baseline
+

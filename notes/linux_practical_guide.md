@@ -421,6 +421,15 @@ cd /root/autodl-tmp/projects/ai_infra/projects/agent_infer_bench
 | 查看会话 | `tmux ls` |
 | 删除会话 | `tmux kill-session -t bench` |
 
+个人启动vllm服务过程示例：
+1. tmux new -s vllm
+2. 运行相关服务
+3. 滚动查看日志  ctrl+p 方向键  esc退出
+4. tmux attach -t vllm 回到vllm tmux会话
+5. ctrl+c 停掉vllm服务
+6. exit 退出
+7. tmux ls 查看是否还有这个服务
+
 建议：下载模型、跑 benchmark、启动 vLLM/SGLang server 都放 tmux。
 
 ## 12. GPU 常用命令

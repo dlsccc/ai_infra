@@ -1,0 +1,50 @@
+experiment_name: week06_prefix_cache_sglang
+backend: sglang
+model: /root/autodl-tmp/models/Qwen2.5-7B-Instruct
+output_dir: experiments/runs/week06/prefix_cache_switch/sglang_default
+repeat: 3
+concurrency: 1
+server:
+  base_url: http://127.0.0.1:30000
+  api_key: EMPTY
+  timeout_s: 300
+sampling:
+  temperature: 0.0
+  top_p: 1.0
+  max_tokens: 64
+workloads:
+  - type: shared_prefix_replay
+    count: 1
+    shared_prefix_tokens: 0
+    suffix_tokens: 64
+    repeats: 2
+    output_tokens: 64
+    variant: changing_suffix
+  - type: shared_prefix_replay
+    count: 1
+    shared_prefix_tokens: 256
+    suffix_tokens: 64
+    repeats: 2
+    output_tokens: 64
+    variant: changing_suffix
+  - type: shared_prefix_replay
+    count: 1
+    shared_prefix_tokens: 512
+    suffix_tokens: 64
+    repeats: 2
+    output_tokens: 64
+    variant: changing_suffix
+  - type: shared_prefix_replay
+    count: 1
+    shared_prefix_tokens: 1024
+    suffix_tokens: 64
+    repeats: 2
+    output_tokens: 64
+    variant: changing_suffix
+  - type: shared_prefix_replay
+    count: 1
+    shared_prefix_tokens: 2048
+    suffix_tokens: 64
+    repeats: 2
+    output_tokens: 64
+    variant: changing_suffix

@@ -403,6 +403,22 @@ repeat: 3
 1. 能用数据回答：“Agent 推理为什么不是普通 chat 的简单重复？”
 2. 得到 2-3 个可验证的优化假设。
 
+##### 补充真实agent trace
+一些真实的agent trace：
+```
+可选的真实trace来源：
+1. SWE-Bench的Agent执行trace（公开可用）
+   - 包含真实的tool call序列、observation内容
+   - Continuum论文就是用这个做的评估
+
+2. BFCL (Berkeley Function Calling Leaderboard) 数据
+   - 标准的function calling评测数据
+   - 可以直接用作workload
+
+3. 自己用Claude/GPT跑一个Agent任务，记录完整trace
+   - 最简单，但需要手动标注
+```
+
 ### Day 4：Prefix Cache 开关实验
 
 任务：
@@ -613,6 +629,7 @@ backend: [vLLM, SGLang]
 1. 能判断 session locality 是否影响性能。
 2. 为 Week 8 session-aware routing simulator 提供数据。
 
+
 ### Day 5：Speculative Decoding 小实验（降级版）
 
 任务：
@@ -784,6 +801,16 @@ backend: [vLLM, SGLang]
    - canonicalization 改变 prompt 表达。
    - sticky routing 导致负载不均。
    - prefix routing 在 cache pressure 高时收益下降。
+
+| 维度 | 本项目做了什么 | 本项目没做什么 |
+|:---|:---|:---|
+| Routing | 离线trace模拟，比较locality score | 真实多实例路由 |
+| Cache hit | 用latency差异作为proxy估计 | 直接读取cache hit counter |
+| KV管理 | 不改engine内部 | 不实现新的eviction策略 |
+
+```
+我做的routing simulator是一个分析工具，不是生产路由器。它的价值在于：给定Agent请求trace，我可以量化不同路由策略的cache locality差异。比如session-sticky routing在4个实例下cache locality score是0.85，而round-robin只有0.25。这个差异在真实环境中应该转化为TTFT的改善，但具体改善幅度需要在多实例环境中验证，这是我的future work
+```
 
 产出：
 
@@ -1190,6 +1217,28 @@ Agent 推理为什么更贵：vLLM / SGLang 场景下的负载分析与优化实
 验收：
 
 1. 读者能复现实验或理解方法边界。
+
+博客中给agent开发者的5个推理优化建议：
+```
+1. **固定你的 system prompt 和 tool schema 顺序**
+   不要每次请求都随机排列工具。在我们的实验中，随机排列会导致
+   prefix cache失效，TTFT增加X%。
+
+2. **不要在 prompt 开头放动态内容**
+   时间戳、session ID等动态信息放在prompt末尾，不要放在开头。
+   prefix caching是从头开始匹配的。
+
+3. **选择SGLang还是vLLM取决于你的prefix重叠率**
+   如果你的Agent有大量共享prefix（>60%），SGLang的RadixAttention
+   自动发现能力更好；如果prefix变化较大，两者差异不明显。
+
+4. **控制observation长度**
+   在我们的实验中，observation超过X tokens后，对后续轮次的
+   prefill成本影响显著。考虑truncation或summarization。
+
+5. **多Agent并发时注意session locality**
+   如果你用多个serving实例，尽量把同一Agent的请求路由到同一实例。
+```
 
 ### Day 3：简历项目描述
 

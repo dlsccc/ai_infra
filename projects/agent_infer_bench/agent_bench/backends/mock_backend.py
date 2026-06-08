@@ -36,6 +36,14 @@ class MockBackend:
             # Keep local smoke tests fast while still producing realistic metrics.
             time.sleep(min(total_latency_ms / 1000.0, 0.02))
 
+            metadata = dict(request.metadata)
+            metadata.update(
+                {
+                    "backend": self.name,
+                    "simulated_prefill_ms": prefill_ms,
+                    "simulated_decode_ms": decode_ms,
+                }
+            )
             results.append(
                 GenerationResult(
                     request_id=request.request_id,
@@ -46,11 +54,7 @@ class MockBackend:
                     total_latency_ms=total_latency_ms,
                     decode_latency_ms=decode_latency_ms,
                     tpot_ms=tpot_ms,
-                    metadata={
-                        "backend": self.name,
-                        "simulated_prefill_ms": prefill_ms,
-                        "simulated_decode_ms": decode_ms,
-                    },
+                    metadata=metadata,
                 )
             )
 

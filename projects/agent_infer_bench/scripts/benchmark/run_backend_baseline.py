@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from agent_bench.backends.sglang_backend import SGLangBackend
+from agent_bench.backends.mock_backend import MockBackend
 from agent_bench.backends.server_backend import SGLangServerBackend, VLLMServerBackend
 from agent_bench.backends.vllm_backend import VLLMBackend
 from agent_bench.metrics.collector import write_run
@@ -66,8 +67,11 @@ def main() -> None:
 
 
 def _make_backend(config: dict[str, Any]) -> Any:
-    model = str(_resolve_model_path(config["model"]))
     backend_name = config["backend"]
+    if backend_name == "mock":
+        return MockBackend(seed=int(config.get("seed", 42)))
+
+    model = str(_resolve_model_path(config["model"]))
     if backend_name == "vllm":
         server = config.get("server")
         if server:
