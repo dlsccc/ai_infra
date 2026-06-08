@@ -1,0 +1,596 @@
+{
+  "created_at": "2026-06-08T08:54:00.172456+00:00",
+  "environment": {
+    "python": "3.11.3",
+    "platform": "Windows-10-10.0.26200-SP0"
+  },
+  "config": {
+    "experiment_name": "context_compiler_realistic_mock",
+    "backend": "mock",
+    "model": "mock",
+    "output_dir": "experiments\\runs\\context_compiler\\realistic\\mock\\context_compiler_with_observation_compression",
+    "repeat": 1,
+    "concurrency": 1,
+    "sampling": {
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "max_tokens": 64
+    },
+    "workloads": [
+      {
+        "type": "context_compiler_realistic_ablation",
+        "scenario": "function_calling",
+        "count": 1,
+        "turns": 2,
+        "observation_tokens": 64,
+        "output_tokens": 64,
+        "max_observation_words": 40,
+        "variants": [
+          "context_compiler_with_observation_compression"
+        ]
+      },
+      {
+        "type": "context_compiler_realistic_ablation",
+        "scenario": "coding_agent",
+        "count": 1,
+        "turns": 2,
+        "observation_tokens": 96,
+        "output_tokens": 64,
+        "max_observation_words": 50,
+        "variants": [
+          "context_compiler_with_observation_compression"
+        ]
+      }
+    ]
+  },
+  "summary_metrics": {
+    "request_count": 4,
+    "total_output_tokens": 256,
+    "mean_latency_ms": 112.84388362336982,
+    "p50_latency_ms": 114.96014659184559,
+    "p95_latency_ms": 117.41589783852423,
+    "mean_ttft_ms": 20.57092990671191,
+    "p95_ttft_ms": 24.431421476297647,
+    "mean_decode_latency_ms": 92.27295371665791,
+    "p95_decode_latency_ms": 93.8870201732654,
+    "mean_tpot_ms": 1.4417649018227798,
+    "p95_tpot_ms": 1.4669846902072718,
+    "tokens_per_second": 567.1552408955348,
+    "requests_per_second": 8.861800638992731
+  },
+  "requests": [
+    {
+      "request_id": "context_compiler_realistic_ablation_cfg00_000_function_calling_context_compiler_with_observation_compression_turn_00",
+      "input_tokens": 383,
+      "output_tokens": 64,
+      "ttft_ms": 17.455021510445334,
+      "total_latency_ms": 110.20213399228942,
+      "decode_latency_ms": 92.74711248184408,
+      "tpot_ms": 1.4491736325288138,
+      "metadata": {
+        "trace_id": "context_compiler_realistic_ablation_cfg00_000",
+        "scenario": "function_calling",
+        "turn": 0,
+        "workload_type": "context_compiler_realistic_ablation",
+        "variant": "context_compiler_with_observation_compression",
+        "expected_output_tokens": 64,
+        "prefix_overlap_tokens": 0,
+        "prefix_overlap_ratio": 0.0,
+        "observation_tokens": 64,
+        "context_segments": [
+          {
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "user_00",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=0; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:00:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_000\nretry_count=0\ntrace_nonce=context_compiler_realistic_ablation_cfg00_000-00",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
+            "must_preserve": [],
+            "source_pointer": null
+          }
+        ],
+        "compiler_metadata": {
+          "compiler": "context_compiler_mvp",
+          "compress_observations": true,
+          "segments": [
+            {
+              "name": "system",
+              "stability": "static",
+              "segment_type": "system",
+              "reuse_scope": "global",
+              "cache_key": "sha256:d07af5ec2d275acb20d12eeb077acb62604f3f4bb397e9822dc65f7172946578",
+              "source_pointer": null,
+              "word_count": 25
+            },
+            {
+              "name": "tools",
+              "stability": "static",
+              "segment_type": "tool_schema",
+              "reuse_scope": "agent_type",
+              "cache_key": "sha256:c3fd1376c33138763ac484aa5edff20b9fd28a79d20d900c2d8aef074171c036",
+              "source_pointer": null,
+              "word_count": 32
+            },
+            {
+              "name": "user_00",
+              "stability": "turn_dynamic",
+              "segment_type": "current_query",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:9032566902362b30fd2a575119794c53955dbe056468f59094632ba073ad7e2e",
+              "source_pointer": null,
+              "word_count": 27
+            },
+            {
+              "name": "runtime_header",
+              "stability": "ephemeral",
+              "segment_type": "runtime",
+              "reuse_scope": "request",
+              "cache_key": "sha256:707c78a291f996e40e335f2ae06f22b63a447d56016339eab613af8d93491d94",
+              "source_pointer": null,
+              "word_count": 4
+            }
+          ]
+        },
+        "backend": "mock",
+        "simulated_prefill_ms": 17.405,
+        "simulated_decode_ms": 89.6,
+        "batch_index": 0,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "context_compiler_realistic_ablation_cfg00_000_function_calling_context_compiler_with_observation_compression_turn_01",
+      "input_tokens": 571,
+      "output_tokens": 64,
+      "ttft_ms": 24.431421476297647,
+      "total_latency_ms": 114.96014659184559,
+      "decode_latency_ms": 90.52872511554794,
+      "tpot_ms": 1.4145113299304366,
+      "metadata": {
+        "trace_id": "context_compiler_realistic_ablation_cfg00_000",
+        "scenario": "function_calling",
+        "turn": 1,
+        "workload_type": "context_compiler_realistic_ablation",
+        "variant": "context_compiler_with_observation_compression",
+        "expected_output_tokens": 64,
+        "prefix_overlap_tokens": 59,
+        "prefix_overlap_ratio": 0.4338235294117647,
+        "observation_tokens": 64,
+        "context_segments": [
+          {
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_00",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-10\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "user_01",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=1; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_00",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 280 policy_note: business fare must be\n[... observation compressed; recoverable at obs://context_compiler_realistic_ablation_cfg00_000/function_calling/00 ...]\nflight_api_json_turn_0_54 flight_api_json_turn_0_55 flight_api_json_turn_0_56 flight_api_json_turn_0_57 flight_api_json_turn_0_58 flight_api_json_turn_0_59 flight_api_json_turn_0_60 flight_api_json_turn_0_61 flight_api_json_turn_0_62 flight_api_json_turn_0_63",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_000/function_calling/00"
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:01:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_000\nretry_count=1\ntrace_nonce=context_compiler_realistic_ablation_cfg00_000-01",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
+            "must_preserve": [],
+            "source_pointer": null
+          }
+        ],
+        "compiler_metadata": {
+          "compiler": "context_compiler_mvp",
+          "compress_observations": true,
+          "segments": [
+            {
+              "name": "system",
+              "stability": "static",
+              "segment_type": "system",
+              "reuse_scope": "global",
+              "cache_key": "sha256:d07af5ec2d275acb20d12eeb077acb62604f3f4bb397e9822dc65f7172946578",
+              "source_pointer": null,
+              "word_count": 25
+            },
+            {
+              "name": "tools",
+              "stability": "static",
+              "segment_type": "tool_schema",
+              "reuse_scope": "agent_type",
+              "cache_key": "sha256:c3fd1376c33138763ac484aa5edff20b9fd28a79d20d900c2d8aef074171c036",
+              "source_pointer": null,
+              "word_count": 32
+            },
+            {
+              "name": "tool_call_00",
+              "stability": "session_dynamic",
+              "segment_type": "tool_call",
+              "reuse_scope": "session",
+              "cache_key": "sha256:9519957e229a86d22818e76980e3d56625fcfeb0b6317931fa45a0ca62f870db",
+              "source_pointer": null,
+              "word_count": 4
+            },
+            {
+              "name": "user_01",
+              "stability": "turn_dynamic",
+              "segment_type": "current_query",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:059936f5f4ccf151af0e7f922c20a52b4b143d0152a624f7ca6edac23bedbd45",
+              "source_pointer": null,
+              "word_count": 27
+            },
+            {
+              "name": "observation_00",
+              "stability": "turn_dynamic",
+              "segment_type": "observation",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:ded2d903e997bb36a13ded25b4d7c5a7d78095047b876226f50af05519d13ecf",
+              "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_000/function_calling/00",
+              "word_count": 37
+            },
+            {
+              "name": "runtime_header",
+              "stability": "ephemeral",
+              "segment_type": "runtime",
+              "reuse_scope": "request",
+              "cache_key": "sha256:fe47b4e86d12a81edad911e754fdf86892f07667200dc829c7e74192d8c4f7c9",
+              "source_pointer": null,
+              "word_count": 4
+            }
+          ]
+        },
+        "backend": "mock",
+        "simulated_prefill_ms": 23.985000000000003,
+        "simulated_decode_ms": 89.6,
+        "batch_index": 1,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "context_compiler_realistic_ablation_cfg01_000_coding_agent_context_compiler_with_observation_compression_turn_00",
+      "input_tokens": 329,
+      "output_tokens": 64,
+      "ttft_ms": 16.868398974845825,
+      "total_latency_ms": 108.79735607082006,
+      "decode_latency_ms": 91.92895709597423,
+      "tpot_ms": 1.4363899546245973,
+      "metadata": {
+        "trace_id": "context_compiler_realistic_ablation_cfg01_000",
+        "scenario": "coding_agent",
+        "turn": 0,
+        "workload_type": "context_compiler_realistic_ablation",
+        "variant": "context_compiler_with_observation_compression",
+        "expected_output_tokens": 64,
+        "prefix_overlap_tokens": 0,
+        "prefix_overlap_ratio": 0.0,
+        "observation_tokens": 96,
+        "context_segments": [
+          {
+            "name": "system",
+            "text": "You are a careful coding repair agent. Inspect repository evidence, call tools when needed, and propose minimal patches. Preserve file paths, failing tests, line numbers, error messages, and command exit codes.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Read a file from the repository.\",\"name\":\"read_file\",\"parameters\":{\"properties\":{\"path\":{\"type\":\"string\"},\"start_line\":{\"type\":\"integer\"}},\"required\":[\"path\"],\"type\":\"object\"}}\n{\"description\":\"Search repository text for a query.\",\"name\":\"search_repo\",\"parameters\":{\"properties\":{\"query\":{\"type\":\"string\"}},\"required\":[\"query\"],\"type\":\"object\"}}\n{\"description\":\"Run a test command in the sandbox.\",\"name\":\"run_tests\",\"parameters\":{\"properties\":{\"command\":{\"type\":\"string\"},\"cwd\":{\"type\":\"string\"}},\"required\":[\"command\"],\"type\":\"object\"}}\n{\"description\":\"Apply a unified diff patch.\",\"name\":\"apply_patch\",\"parameters\":{\"properties\":{\"diff\":{\"type\":\"string\"}},\"required\":[\"diff\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "user_00",
+            "text": "Issue: pytest fails after recent parser changes. Find the root cause and decide the next tool call. Current focus turn=0.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:00:00Z\nsession_id=context_compiler_realistic_ablation_cfg01_000\nretry_count=0\ntrace_nonce=context_compiler_realistic_ablation_cfg01_000-00",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
+            "must_preserve": [],
+            "source_pointer": null
+          }
+        ],
+        "compiler_metadata": {
+          "compiler": "context_compiler_mvp",
+          "compress_observations": true,
+          "segments": [
+            {
+              "name": "system",
+              "stability": "static",
+              "segment_type": "system",
+              "reuse_scope": "global",
+              "cache_key": "sha256:bf665259e52dfb025370d934495e514caf4e6aa46fdbb8a8e28eccd07e03c670",
+              "source_pointer": null,
+              "word_count": 31
+            },
+            {
+              "name": "tools",
+              "stability": "static",
+              "segment_type": "tool_schema",
+              "reuse_scope": "agent_type",
+              "cache_key": "sha256:5e805d91f16147695339bc9e89a4c234a76a364247166217b22f3f21e98b1d24",
+              "source_pointer": null,
+              "word_count": 25
+            },
+            {
+              "name": "user_00",
+              "stability": "turn_dynamic",
+              "segment_type": "current_query",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:20e020400081982d2e671244ccbadae5cccafd57f1cfb7b6431d5d39887222d0",
+              "source_pointer": null,
+              "word_count": 20
+            },
+            {
+              "name": "runtime_header",
+              "stability": "ephemeral",
+              "segment_type": "runtime",
+              "reuse_scope": "request",
+              "cache_key": "sha256:9cbe74f44a57a3022eda4ab9ddd2a2948882d4de50c03e09e82bef450c796539",
+              "source_pointer": null,
+              "word_count": 4
+            }
+          ]
+        },
+        "backend": "mock",
+        "simulated_prefill_ms": 15.515,
+        "simulated_decode_ms": 89.6,
+        "batch_index": 2,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "context_compiler_realistic_ablation_cfg01_000_coding_agent_context_compiler_with_observation_compression_turn_01",
+      "input_tokens": 553,
+      "output_tokens": 64,
+      "ttft_ms": 23.528877665258833,
+      "total_latency_ms": 117.41589783852423,
+      "decode_latency_ms": 93.8870201732654,
+      "tpot_ms": 1.4669846902072718,
+      "metadata": {
+        "trace_id": "context_compiler_realistic_ablation_cfg01_000",
+        "scenario": "coding_agent",
+        "turn": 1,
+        "workload_type": "context_compiler_realistic_ablation",
+        "variant": "context_compiler_with_observation_compression",
+        "expected_output_tokens": 64,
+        "prefix_overlap_tokens": 58,
+        "prefix_overlap_ratio": 0.4233576642335766,
+        "observation_tokens": 96,
+        "context_segments": [
+          {
+            "name": "system",
+            "text": "You are a careful coding repair agent. Inspect repository evidence, call tools when needed, and propose minimal patches. Preserve file paths, failing tests, line numbers, error messages, and command exit codes.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Read a file from the repository.\",\"name\":\"read_file\",\"parameters\":{\"properties\":{\"path\":{\"type\":\"string\"},\"start_line\":{\"type\":\"integer\"}},\"required\":[\"path\"],\"type\":\"object\"}}\n{\"description\":\"Search repository text for a query.\",\"name\":\"search_repo\",\"parameters\":{\"properties\":{\"query\":{\"type\":\"string\"}},\"required\":[\"query\"],\"type\":\"object\"}}\n{\"description\":\"Run a test command in the sandbox.\",\"name\":\"run_tests\",\"parameters\":{\"properties\":{\"command\":{\"type\":\"string\"},\"cwd\":{\"type\":\"string\"}},\"required\":[\"command\"],\"type\":\"object\"}}\n{\"description\":\"Apply a unified diff patch.\",\"name\":\"apply_patch\",\"parameters\":{\"properties\":{\"diff\":{\"type\":\"string\"}},\"required\":[\"diff\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_00",
+            "text": "Assistant tool call: {\"name\":\"run_tests\",\"arguments\":{\"command\":\"pytest tests/test_parser.py::test_nested_call -q\",\"cwd\":\"/workspace/repo\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "user_01",
+            "text": "Issue: pytest fails after recent parser changes. Find the root cause and decide the next tool call. Current focus turn=1.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_00",
+            "text": "Command: pytest tests/test_parser.py::test_nested_call -q cwd: /workspace/repo exit_code: 1 failing_test: tests/test_parser.py::test_nested_call file_path: src/parser.py line_number: 128 error_type: AssertionError root_cause_hint: parser drops nested function-call arguments after comma token.\n[... observation compressed; recoverable at obs://context_compiler_realistic_ablation_cfg01_000/coding_agent/00 ...]\npytest_stderr_turn_0_84 pytest_stderr_turn_0_85 pytest_stderr_turn_0_86 pytest_stderr_turn_0_87 pytest_stderr_turn_0_88 pytest_stderr_turn_0_89 pytest_stderr_turn_0_90 pytest_stderr_turn_0_91 pytest_stderr_turn_0_92 pytest_stderr_turn_0_93 pytest_stderr_turn_0_94 pytest_stderr_turn_0_95",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "file_path",
+              "line_number",
+              "failing_test",
+              "error_type",
+              "exit_code"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg01_000/coding_agent/00"
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:01:00Z\nsession_id=context_compiler_realistic_ablation_cfg01_000\nretry_count=1\ntrace_nonce=context_compiler_realistic_ablation_cfg01_000-01",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
+            "must_preserve": [],
+            "source_pointer": null
+          }
+        ],
+        "compiler_metadata": {
+          "compiler": "context_compiler_mvp",
+          "compress_observations": true,
+          "segments": [
+            {
+              "name": "system",
+              "stability": "static",
+              "segment_type": "system",
+              "reuse_scope": "global",
+              "cache_key": "sha256:bf665259e52dfb025370d934495e514caf4e6aa46fdbb8a8e28eccd07e03c670",
+              "source_pointer": null,
+              "word_count": 31
+            },
+            {
+              "name": "tools",
+              "stability": "static",
+              "segment_type": "tool_schema",
+              "reuse_scope": "agent_type",
+              "cache_key": "sha256:5e805d91f16147695339bc9e89a4c234a76a364247166217b22f3f21e98b1d24",
+              "source_pointer": null,
+              "word_count": 25
+            },
+            {
+              "name": "tool_call_00",
+              "stability": "session_dynamic",
+              "segment_type": "tool_call",
+              "reuse_scope": "session",
+              "cache_key": "sha256:fa42927a92644f4597a357c3133bae7bcf31a27e8294cabc9cb09e9b3f297f30",
+              "source_pointer": null,
+              "word_count": 6
+            },
+            {
+              "name": "user_01",
+              "stability": "turn_dynamic",
+              "segment_type": "current_query",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:bc63a1de1e3c1bfe5b1954823905fc8c31679323a835a9b7400910a3e5cde825",
+              "source_pointer": null,
+              "word_count": 20
+            },
+            {
+              "name": "observation_00",
+              "stability": "turn_dynamic",
+              "segment_type": "observation",
+              "reuse_scope": "turn",
+              "cache_key": "sha256:4ef24c35de27e2d1e74c15767c77ee4e25384a50925e3165bd2ea78e39b96ef9",
+              "source_pointer": "obs://context_compiler_realistic_ablation_cfg01_000/coding_agent/00",
+              "word_count": 44
+            },
+            {
+              "name": "runtime_header",
+              "stability": "ephemeral",
+              "segment_type": "runtime",
+              "reuse_scope": "request",
+              "cache_key": "sha256:c883ab2a8824ea41396cf16045cda4d426eb6096148f7c410c7ae009e8d7e715",
+              "source_pointer": null,
+              "word_count": 4
+            }
+          ]
+        },
+        "backend": "mock",
+        "simulated_prefill_ms": 23.355,
+        "simulated_decode_ms": 89.6,
+        "batch_index": 3,
+        "configured_concurrency": 1
+      }
+    }
+  ],
+  "extra": {
+    "trace_count": 2,
+    "workload_types": [
+      "context_compiler_realistic_ablation"
+    ],
+    "repeat": 1,
+    "concurrency": 1,
+    "repeat_summary": {
+      "run_count": 1,
+      "mean_latency_ms_by_run": [
+        112.84388362336982
+      ],
+      "mean_ttft_ms_by_run": [
+        20.57092990671191
+      ],
+      "mean_tpot_ms_by_run": [
+        1.4417649018227798
+      ],
+      "mean_output_tokens_by_run": [
+        64.0
+      ],
+      "mean_latency_ms_mean": 112.84388362336982,
+      "mean_latency_ms_std": 0.0
+    },
+    "token_source_summary": {
+      "input": "unknown",
+      "output": "unknown"
+    }
+  }
+}

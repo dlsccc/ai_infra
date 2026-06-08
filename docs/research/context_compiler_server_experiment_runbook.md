@@ -115,6 +115,16 @@ GPU_MEMORY_UTILIZATION=0.85 \
 bash scripts/setup/start_vllm_prefix_cache_off.sh
 ```
 
+注意：
+
+```text
+start_vllm_prefix_cache_on.sh 默认端口是 8000。
+start_vllm_prefix_cache_off.sh 默认端口是 8001。
+realistic_vllm.yaml 默认访问 8000。
+所以做 prefix cache OFF 对照时，建议显式指定 PORT=8000，或者把 config/server.base_url 改成 8001。
+最终论文实验更推荐每次只启动一个 backend，并让 ON/OFF 都使用同一个端口，减少误连风险。
+```
+
 确认 metrics：
 
 ```bash
@@ -401,4 +411,114 @@ actual KV cache hit rate
 ```text
 cache reuse proxy
 backend-reported prefix cache metric
+```
+
+## 15. 服务器跑前 Checklist
+
+进入项目目录：
+
+```bash
+cd /path/to/ai_infra/projects/agent_infer_bench
+```
+
+确认代码结构：
+
+```bash
+ls configs/context_compiler
+ls scripts/benchmark
+ls scripts/setup
+```
+
+确认基础依赖：
+
+```bash
+python -c "import yaml, httpx; print('basic deps ok')"
+python -c "import vllm; print('vllm ok')"
+python -c "import sglang; print('sglang ok')"
+```
+
+确认模型路径：
+
+```bash
+ls /root/autodl-tmp/models/Qwen2.5-7B-Instruct
+```
+
+确认 server 可访问：
+
+```bash
+curl http://127.0.0.1:8000/v1/models
+curl http://127.0.0.1:8000/metrics | head
+```
+
+确认 metrics 字段：
+
+```bash
+curl http://127.0.0.1:8000/metrics | grep -E "prefix_cache|time_to_first|prefill|latency"
+curl http://127.0.0.1:30000/metrics | grep -E "cache_hit|prefix|latency|ttft"
+```
+
+如果没有匹配到字段：
+
+```text
+先不要直接宣称真实 cache hit rate。
+把 metrics_before.prom / metrics_after.prom 保存下来。
+之后根据真实字段名修改 agent_bench/metrics/server_metrics.py 的解析规则。
+```
+
+建议先跑一个 smoke：
+
+```bash
+python scripts/benchmark/run_context_compiler_variant.py \
+  --config configs/context_compiler/realistic_vllm.yaml \
+  --variant context_compiler_with_observation_compression \
+  --metrics-url http://127.0.0.1:8000/metrics \
+  --warmup-requests 1
+```
+
+smoke 成功后再跑完整 variants：
+
+```text
+original_bad_layout
+stable_tool_order
+dynamic_fields_last
+context_compiler_no_compression
+context_compiler_with_observation_compression
+truncation_baseline
+```
+
+每个正式 variant 前：
+
+```text
+1. 停止 backend。
+2. 重新启动 backend。
+3. 等待模型加载完成。
+4. 跑对应 variant。
+5. 保存该 variant 输出目录。
+```
+
+结果不要互相覆盖：
+
+```text
+ON 和 OFF 如果都使用 realistic_vllm.yaml，默认会写到同一批目录。
+建议 OFF 对照显式加 --output-dir，例如：
+experiments/runs/context_compiler/realistic/vllm_prefix_off/<variant>
+```
+
+OFF 对照示例：
+
+```bash
+PORT=8000 \
+MODEL_PATH=/root/autodl-tmp/models/Qwen2.5-7B-Instruct \
+MAX_MODEL_LEN=8192 \
+GPU_MEMORY_UTILIZATION=0.85 \
+bash scripts/setup/start_vllm_prefix_cache_off.sh
+```
+
+```bash
+python scripts/benchmark/run_context_compiler_variant.py \
+  --config configs/context_compiler/realistic_vllm.yaml \
+  --variant original_bad_layout \
+  --metrics-url http://127.0.0.1:8000/metrics \
+  --warmup-requests 4 \
+  --output-dir experiments/runs/context_compiler/realistic/vllm_prefix_off/original_bad_layout
 ```
