@@ -7,6 +7,7 @@ PORT="${PORT:-30000}"
 API_KEY="${API_KEY:-EMPTY}"
 MEM_FRACTION_STATIC="${MEM_FRACTION_STATIC:-0.85}"
 CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0}"
+ENABLE_METRICS="${ENABLE_METRICS:-1}"
 
 echo "[SGLang] model=${MODEL_PATH}"
 echo "[SGLang] endpoint=http://${HOST}:${PORT}"
@@ -18,4 +19,5 @@ exec env CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES}" \
   --port "${PORT}" \
   --api-key "${API_KEY}" \
   --mem-fraction-static "${MEM_FRACTION_STATIC}" \
-  --sampling-defaults openai
+  --sampling-defaults openai \
+  $([ "${ENABLE_METRICS}" = "1" ] && printf '%s' "--enable-metrics")

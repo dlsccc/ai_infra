@@ -47,13 +47,13 @@ def main() -> None:
         warmup_config["output_dir"] = str((output_dir / "warmup").relative_to(ROOT))
         _run_with_temp_config(warmup_config)
 
-    before_raw = _fetch_metrics(args.metrics_url) if args.metrics_url else ""
+    before_raw = _fetch_metrics(args.metrics_url, output_dir, "before") if args.metrics_url else ""
     if before_raw:
         (output_dir / "metrics_before.prom").write_text(before_raw, encoding="utf-8")
 
     _run_with_temp_config(variant_config)
 
-    after_raw = _fetch_metrics(args.metrics_url) if args.metrics_url else ""
+    after_raw = _fetch_metrics(args.metrics_url, output_dir, "after") if args.metrics_url else ""
     if after_raw:
         (output_dir / "metrics_after.prom").write_text(after_raw, encoding="utf-8")
         before = parse_prometheus_metrics(before_raw)
@@ -111,14 +111,23 @@ def _run_with_temp_config(config: dict[str, Any]) -> None:
         temp_path.unlink(missing_ok=True)
 
 
-def _fetch_metrics(metrics_url: str | None) -> str:
+def _fetch_metrics(metrics_url: str | None, output_dir: Path, phase: str) -> str:
     if not metrics_url:
         return ""
-    response = httpx.get(metrics_url, timeout=10.0)
-    response.raise_for_status()
-    return response.text
+    try:
+        response = httpx.get(metrics_url, timeout=10.0)
+        response.raise_for_status()
+        return response.text
+    except httpx.HTTPError as exc:
+        message = (
+            f"Metrics fetch failed during {phase}: {metrics_url}\n"
+            f"{type(exc).__name__}: {exc}\n"
+            "Continuing without backend metrics. Do not report actual cache hit rate for this run.\n"
+        )
+        (output_dir / f"metrics_{phase}_error.txt").write_text(message, encoding="utf-8")
+        print(f"WARNING: {message.strip()}")
+        return ""
 
 
 if __name__ == "__main__":
     main()
-

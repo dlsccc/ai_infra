@@ -252,6 +252,24 @@ python scripts/benchmark/run_context_compiler_variant.py \
   --warmup-requests 4
 ```
 
+如果 SGLang 返回 `/metrics` 404：
+
+```text
+说明当前 SGLang 启动方式或版本没有暴露 Prometheus metrics endpoint。
+这不影响 latency / TTFT / token 统计。
+可以省略 --metrics-url 继续跑，或者使用新版 runner 自动跳过 metrics。
+此时不要报告 SGLang 的真实 cache hit rate，只报告 latency-based cache reuse proxy。
+```
+
+无 metrics 的 SGLang 运行方式：
+
+```bash
+python scripts/benchmark/run_context_compiler_variant.py \
+  --config configs/context_compiler/realistic_sglang.yaml \
+  --variant original_bad_layout \
+  --warmup-requests 4
+```
+
 替换 variant：
 
 ```text
@@ -362,6 +380,14 @@ sglang_cache_hit_rate
 ```text
 说明当前 metrics 输出中没有匹配到这些指标；
 需要查看 metrics_before.prom / metrics_after.prom 的真实字段名。
+```
+
+如果 `/metrics` 返回 404：
+
+```text
+当前 SGLang 服务没有暴露 Prometheus metrics。
+本轮仍可保留 SGLang latency / TTFT / throughput 结果。
+不要把它写成 backend-reported cache hit rate。
 ```
 
 ## 13. 第一轮 Go / No-Go
