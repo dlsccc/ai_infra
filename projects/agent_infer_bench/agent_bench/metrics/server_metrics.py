@@ -38,8 +38,24 @@ def summarize_metric_delta(
         for name in sorted(set(before.values) | set(after.values))
     }
 
-    vllm_hits = _first_present(delta, ["vllm:prefix_cache_hits", "vllm_gpu_prefix_cache_hits"])
-    vllm_queries = _first_present(delta, ["vllm:prefix_cache_queries", "vllm_gpu_prefix_cache_queries"])
+    vllm_hits = _first_present(
+        delta,
+        [
+            "vllm:prefix_cache_hits",
+            "vllm:prefix_cache_hits_total",
+            "vllm_gpu_prefix_cache_hits",
+            "vllm:gpu_prefix_cache_hits_total",
+        ],
+    )
+    vllm_queries = _first_present(
+        delta,
+        [
+            "vllm:prefix_cache_queries",
+            "vllm:prefix_cache_queries_total",
+            "vllm_gpu_prefix_cache_queries",
+            "vllm:gpu_prefix_cache_queries_total",
+        ],
+    )
     vllm_hit_rate = None
     if vllm_hits is not None and vllm_queries is not None and vllm_queries > 0:
         vllm_hit_rate = vllm_hits / vllm_queries
@@ -48,6 +64,15 @@ def summarize_metric_delta(
         after.values,
         ["sglang:cache_hit_rate", "sglang_cache_hit_rate"],
     )
+    sglang_cached_tokens = _first_present(delta, ["sglang:cached_tokens_total"])
+    sglang_prompt_tokens = _first_present(delta, ["sglang:prompt_tokens_total"])
+    sglang_cached_token_ratio = None
+    if (
+        sglang_cached_tokens is not None
+        and sglang_prompt_tokens is not None
+        and sglang_prompt_tokens > 0
+    ):
+        sglang_cached_token_ratio = sglang_cached_tokens / sglang_prompt_tokens
 
     return {
         "delta": delta,
@@ -55,6 +80,9 @@ def summarize_metric_delta(
         "vllm_prefix_cache_queries_delta": vllm_queries,
         "vllm_prefix_cache_hit_rate_delta": vllm_hit_rate,
         "sglang_cache_hit_rate": sglang_cache_hit_rate,
+        "sglang_cached_tokens_delta": sglang_cached_tokens,
+        "sglang_prompt_tokens_delta": sglang_prompt_tokens,
+        "sglang_cached_token_ratio_delta": sglang_cached_token_ratio,
     }
 
 
@@ -63,4 +91,3 @@ def _first_present(values: dict[str, float], names: list[str]) -> float | None:
         if name in values:
             return values[name]
     return None
-
