@@ -1,0 +1,17 @@
+{
+  "run_count": 1,
+  "mean_latency_ms_by_run": [
+    1072.4501993972808
+  ],
+  "mean_ttft_ms_by_run": [
+    253.56916175223887
+  ],
+  "mean_tpot_ms_by_run": [
+    9.83549641603062
+  ],
+  "mean_output_tokens_by_run": [
+    83.25
+  ],
+  "mean_latency_ms_mean": 1072.4501993972808,
+  "mean_latency_ms_std": 0.0
+}

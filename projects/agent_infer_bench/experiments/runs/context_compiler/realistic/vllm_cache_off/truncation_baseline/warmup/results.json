@@ -1,0 +1,1797 @@
+{
+  "created_at": "2026-06-08T12:45:03.624165+00:00",
+  "environment": {
+    "python": "3.11.15",
+    "platform": "Linux-5.15.0-161-generic-x86_64-with-glibc2.35"
+  },
+  "config": {
+    "experiment_name": "context_compiler_realistic_vllm",
+    "backend": "vllm",
+    "model": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+    "output_dir": "experiments/runs/context_compiler/realistic/vllm_cache_off/truncation_baseline/warmup",
+    "repeat": 1,
+    "concurrency": 1,
+    "server": {
+      "base_url": "http://127.0.0.1:8000",
+      "api_key": "EMPTY",
+      "timeout_s": 300
+    },
+    "sampling": {
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "max_tokens": 96
+    },
+    "workloads": [
+      {
+        "type": "context_compiler_realistic_ablation",
+        "scenario": "function_calling",
+        "count": 4,
+        "turns": 4,
+        "observation_tokens": 384,
+        "output_tokens": 96,
+        "max_observation_words": 120,
+        "variants": [
+          "truncation_baseline"
+        ]
+      }
+    ]
+  },
+  "summary_metrics": {
+    "request_count": 16,
+    "total_output_tokens": 720,
+    "mean_latency_ms": 505.47662540338933,
+    "p50_latency_ms": 466.3083590567112,
+    "p95_latency_ms": 558.1731833517551,
+    "mean_ttft_ms": 67.1813078224659,
+    "p95_ttft_ms": 91.09906107187271,
+    "mean_decode_latency_ms": 438.29531758092344,
+    "p95_decode_latency_ms": 538.0678474903107,
+    "mean_tpot_ms": 9.736831223232333,
+    "p95_tpot_ms": 9.783051772551103,
+    "tokens_per_second": 89.02488807289221,
+    "requests_per_second": 1.9783308460642715
+  },
+  "requests": [
+    {
+      "request_id": "context_compiler_realistic_ablation_cfg00_000_function_calling_truncation_baseline_turn_00",
+      "input_tokens": 354,
+      "output_tokens": 55,
+      "ttft_ms": 280.2565060555935,
+      "total_latency_ms": 818.9276419579983,
+      "decode_latency_ms": 538.6711359024048,
+      "tpot_ms": 9.794020652770996,
+      "metadata": {
+        "trace_id": "context_compiler_realistic_ablation_cfg00_000",
+        "scenario": "function_calling",
+        "turn": 0,
+        "workload_type": "context_compiler_realistic_ablation",
+        "variant": "truncation_baseline",
+        "expected_output_tokens": 96,
+        "prefix_overlap_tokens": 0,
+        "prefix_overlap_ratio": 0.0,
+        "observation_tokens": 384,
+        "context_segments": [
+          {
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "user_00",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=0; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:00:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_000\nretry_count=0\ntrace_nonce=context_compiler_realistic_ablation_cfg00_000-00",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
+            "must_preserve": [],
+            "source_pointer": null
+          }
+        ],
+        "compiler_metadata": {
+          "compiler": "none"
+        },
+        "backend": "vllm_server",
+        "base_url": "http://127.0.0.1:8000",
+        "streaming": true,
+        "finish_reason": "stop",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 0,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "context_compiler_realistic_ablation_cfg00_000_function_calling_truncation_baseline_turn_01",
+      "input_tokens": 924,
+      "output_tokens": 44,
+      "ttft_ms": 91.09906107187271,
+      "total_latency_ms": 521.4224010705948,
+      "decode_latency_ms": 430.3233399987221,
+      "tpot_ms": 9.780075909061866,
+      "metadata": {
+        "trace_id": "context_compiler_realistic_ablation_cfg00_000",
+        "scenario": "function_calling",
+        "turn": 1,
+        "workload_type": "context_compiler_realistic_ablation",
+        "variant": "truncation_baseline",
+        "expected_output_tokens": 96,
+        "prefix_overlap_tokens": 59,
+        "prefix_overlap_ratio": 0.33714285714285713,
+        "observation_tokens": 384,
+        "context_segments": [
+          {
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_00",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-10\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_00",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 280 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_0_0 flight_api_json_turn_0_1 flight_api_json_turn_0_2 flight_api_json_turn_0_3 flight_api_json_turn_0_4 flight_api_json_turn_0_5 flight_api_json_turn_0_6 flight_api_json_turn_0_7 flight_api_json_turn_0_8 flight_api_json_turn_0_9 flight_api_json_turn_0_10 flight_api_json_turn_0_11 flight_api_json_turn_0_12 flight_api_json_turn_0_13 flight_api_json_turn_0_14 flight_api_json_turn_0_15 flight_api_json_turn_0_16 flight_api_json_turn_0_17 flight_api_json_turn_0_18 flight_api_json_turn_0_19 flight_api_json_turn_0_20 flight_api_json_turn_0_21 flight_api_json_turn_0_22 flight_api_json_turn_0_23 flight_api_json_turn_0_24 flight_api_json_turn_0_25 flight_api_json_turn_0_26 flight_api_json_turn_0_27 flight_api_json_turn_0_28 flight_api_json_turn_0_29 flight_api_json_turn_0_30 flight_api_json_turn_0_31 flight_api_json_turn_0_32 flight_api_json_turn_0_33 flight_api_json_turn_0_34 flight_api_json_turn_0_35 flight_api_json_turn_0_36 flight_api_json_turn_0_37 flight_api_json_turn_0_38 flight_api_json_turn_0_39 flight_api_json_turn_0_40 flight_api_json_turn_0_41 flight_api_json_turn_0_42 flight_api_json_turn_0_43 flight_api_json_turn_0_44 flight_api_json_turn_0_45 flight_api_json_turn_0_46 flight_api_json_turn_0_47 flight_api_json_turn_0_48 flight_api_json_turn_0_49",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_000/function_calling/00"
+          },
+          {
+            "name": "user_01",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=1; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:01:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_000\nretry_count=1\ntrace_nonce=context_compiler_realistic_ablation_cfg00_000-01",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
+            "must_preserve": [],
+            "source_pointer": null
+          }
+        ],
+        "compiler_metadata": {
+          "compiler": "none"
+        },
+        "backend": "vllm_server",
+        "base_url": "http://127.0.0.1:8000",
+        "streaming": true,
+        "finish_reason": "stop",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 1,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "context_compiler_realistic_ablation_cfg00_000_function_calling_truncation_baseline_turn_02",
+      "input_tokens": 1494,
+      "output_tokens": 40,
+      "ttft_ms": 61.89114600419998,
+      "total_latency_ms": 450.55340602993965,
+      "decode_latency_ms": 388.66226002573967,
+      "tpot_ms": 9.716556500643492,
+      "metadata": {
+        "trace_id": "context_compiler_realistic_ablation_cfg00_000",
+        "scenario": "function_calling",
+        "turn": 2,
+        "workload_type": "context_compiler_realistic_ablation",
+        "variant": "truncation_baseline",
+        "expected_output_tokens": 96,
+        "prefix_overlap_tokens": 141,
+        "prefix_overlap_ratio": 0.5486381322957199,
+        "observation_tokens": 384,
+        "context_segments": [
+          {
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_00",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-10\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_00",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 280 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_0_0 flight_api_json_turn_0_1 flight_api_json_turn_0_2 flight_api_json_turn_0_3 flight_api_json_turn_0_4 flight_api_json_turn_0_5 flight_api_json_turn_0_6 flight_api_json_turn_0_7 flight_api_json_turn_0_8 flight_api_json_turn_0_9 flight_api_json_turn_0_10 flight_api_json_turn_0_11 flight_api_json_turn_0_12 flight_api_json_turn_0_13 flight_api_json_turn_0_14 flight_api_json_turn_0_15 flight_api_json_turn_0_16 flight_api_json_turn_0_17 flight_api_json_turn_0_18 flight_api_json_turn_0_19 flight_api_json_turn_0_20 flight_api_json_turn_0_21 flight_api_json_turn_0_22 flight_api_json_turn_0_23 flight_api_json_turn_0_24 flight_api_json_turn_0_25 flight_api_json_turn_0_26 flight_api_json_turn_0_27 flight_api_json_turn_0_28 flight_api_json_turn_0_29 flight_api_json_turn_0_30 flight_api_json_turn_0_31 flight_api_json_turn_0_32 flight_api_json_turn_0_33 flight_api_json_turn_0_34 flight_api_json_turn_0_35 flight_api_json_turn_0_36 flight_api_json_turn_0_37 flight_api_json_turn_0_38 flight_api_json_turn_0_39 flight_api_json_turn_0_40 flight_api_json_turn_0_41 flight_api_json_turn_0_42 flight_api_json_turn_0_43 flight_api_json_turn_0_44 flight_api_json_turn_0_45 flight_api_json_turn_0_46 flight_api_json_turn_0_47 flight_api_json_turn_0_48 flight_api_json_turn_0_49",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_000/function_calling/00"
+          },
+          {
+            "name": "tool_call_01",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-11\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_01",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 292 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_1_0 flight_api_json_turn_1_1 flight_api_json_turn_1_2 flight_api_json_turn_1_3 flight_api_json_turn_1_4 flight_api_json_turn_1_5 flight_api_json_turn_1_6 flight_api_json_turn_1_7 flight_api_json_turn_1_8 flight_api_json_turn_1_9 flight_api_json_turn_1_10 flight_api_json_turn_1_11 flight_api_json_turn_1_12 flight_api_json_turn_1_13 flight_api_json_turn_1_14 flight_api_json_turn_1_15 flight_api_json_turn_1_16 flight_api_json_turn_1_17 flight_api_json_turn_1_18 flight_api_json_turn_1_19 flight_api_json_turn_1_20 flight_api_json_turn_1_21 flight_api_json_turn_1_22 flight_api_json_turn_1_23 flight_api_json_turn_1_24 flight_api_json_turn_1_25 flight_api_json_turn_1_26 flight_api_json_turn_1_27 flight_api_json_turn_1_28 flight_api_json_turn_1_29 flight_api_json_turn_1_30 flight_api_json_turn_1_31 flight_api_json_turn_1_32 flight_api_json_turn_1_33 flight_api_json_turn_1_34 flight_api_json_turn_1_35 flight_api_json_turn_1_36 flight_api_json_turn_1_37 flight_api_json_turn_1_38 flight_api_json_turn_1_39 flight_api_json_turn_1_40 flight_api_json_turn_1_41 flight_api_json_turn_1_42 flight_api_json_turn_1_43 flight_api_json_turn_1_44 flight_api_json_turn_1_45 flight_api_json_turn_1_46 flight_api_json_turn_1_47 flight_api_json_turn_1_48 flight_api_json_turn_1_49",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_000/function_calling/01"
+          },
+          {
+            "name": "user_02",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=2; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:02:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_000\nretry_count=2\ntrace_nonce=context_compiler_realistic_ablation_cfg00_000-02",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
+            "must_preserve": [],
+            "source_pointer": null
+          }
+        ],
+        "compiler_metadata": {
+          "compiler": "none"
+        },
+        "backend": "vllm_server",
+        "base_url": "http://127.0.0.1:8000",
+        "streaming": true,
+        "finish_reason": "stop",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 2,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "context_compiler_realistic_ablation_cfg00_000_function_calling_truncation_baseline_turn_03",
+      "input_tokens": 2064,
+      "output_tokens": 40,
+      "ttft_ms": 79.59333434700966,
+      "total_latency_ms": 469.2196436226368,
+      "decode_latency_ms": 389.62630927562714,
+      "tpot_ms": 9.740657731890678,
+      "metadata": {
+        "trace_id": "context_compiler_realistic_ablation_cfg00_000",
+        "scenario": "function_calling",
+        "turn": 3,
+        "workload_type": "context_compiler_realistic_ablation",
+        "variant": "truncation_baseline",
+        "expected_output_tokens": 96,
+        "prefix_overlap_tokens": 223,
+        "prefix_overlap_ratio": 0.6578171091445427,
+        "observation_tokens": 384,
+        "context_segments": [
+          {
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_00",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-10\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_00",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 280 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_0_0 flight_api_json_turn_0_1 flight_api_json_turn_0_2 flight_api_json_turn_0_3 flight_api_json_turn_0_4 flight_api_json_turn_0_5 flight_api_json_turn_0_6 flight_api_json_turn_0_7 flight_api_json_turn_0_8 flight_api_json_turn_0_9 flight_api_json_turn_0_10 flight_api_json_turn_0_11 flight_api_json_turn_0_12 flight_api_json_turn_0_13 flight_api_json_turn_0_14 flight_api_json_turn_0_15 flight_api_json_turn_0_16 flight_api_json_turn_0_17 flight_api_json_turn_0_18 flight_api_json_turn_0_19 flight_api_json_turn_0_20 flight_api_json_turn_0_21 flight_api_json_turn_0_22 flight_api_json_turn_0_23 flight_api_json_turn_0_24 flight_api_json_turn_0_25 flight_api_json_turn_0_26 flight_api_json_turn_0_27 flight_api_json_turn_0_28 flight_api_json_turn_0_29 flight_api_json_turn_0_30 flight_api_json_turn_0_31 flight_api_json_turn_0_32 flight_api_json_turn_0_33 flight_api_json_turn_0_34 flight_api_json_turn_0_35 flight_api_json_turn_0_36 flight_api_json_turn_0_37 flight_api_json_turn_0_38 flight_api_json_turn_0_39 flight_api_json_turn_0_40 flight_api_json_turn_0_41 flight_api_json_turn_0_42 flight_api_json_turn_0_43 flight_api_json_turn_0_44 flight_api_json_turn_0_45 flight_api_json_turn_0_46 flight_api_json_turn_0_47 flight_api_json_turn_0_48 flight_api_json_turn_0_49",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_000/function_calling/00"
+          },
+          {
+            "name": "tool_call_01",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-11\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_01",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 292 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_1_0 flight_api_json_turn_1_1 flight_api_json_turn_1_2 flight_api_json_turn_1_3 flight_api_json_turn_1_4 flight_api_json_turn_1_5 flight_api_json_turn_1_6 flight_api_json_turn_1_7 flight_api_json_turn_1_8 flight_api_json_turn_1_9 flight_api_json_turn_1_10 flight_api_json_turn_1_11 flight_api_json_turn_1_12 flight_api_json_turn_1_13 flight_api_json_turn_1_14 flight_api_json_turn_1_15 flight_api_json_turn_1_16 flight_api_json_turn_1_17 flight_api_json_turn_1_18 flight_api_json_turn_1_19 flight_api_json_turn_1_20 flight_api_json_turn_1_21 flight_api_json_turn_1_22 flight_api_json_turn_1_23 flight_api_json_turn_1_24 flight_api_json_turn_1_25 flight_api_json_turn_1_26 flight_api_json_turn_1_27 flight_api_json_turn_1_28 flight_api_json_turn_1_29 flight_api_json_turn_1_30 flight_api_json_turn_1_31 flight_api_json_turn_1_32 flight_api_json_turn_1_33 flight_api_json_turn_1_34 flight_api_json_turn_1_35 flight_api_json_turn_1_36 flight_api_json_turn_1_37 flight_api_json_turn_1_38 flight_api_json_turn_1_39 flight_api_json_turn_1_40 flight_api_json_turn_1_41 flight_api_json_turn_1_42 flight_api_json_turn_1_43 flight_api_json_turn_1_44 flight_api_json_turn_1_45 flight_api_json_turn_1_46 flight_api_json_turn_1_47 flight_api_json_turn_1_48 flight_api_json_turn_1_49",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_000/function_calling/01"
+          },
+          {
+            "name": "tool_call_02",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-12\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_02",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 304 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_2_0 flight_api_json_turn_2_1 flight_api_json_turn_2_2 flight_api_json_turn_2_3 flight_api_json_turn_2_4 flight_api_json_turn_2_5 flight_api_json_turn_2_6 flight_api_json_turn_2_7 flight_api_json_turn_2_8 flight_api_json_turn_2_9 flight_api_json_turn_2_10 flight_api_json_turn_2_11 flight_api_json_turn_2_12 flight_api_json_turn_2_13 flight_api_json_turn_2_14 flight_api_json_turn_2_15 flight_api_json_turn_2_16 flight_api_json_turn_2_17 flight_api_json_turn_2_18 flight_api_json_turn_2_19 flight_api_json_turn_2_20 flight_api_json_turn_2_21 flight_api_json_turn_2_22 flight_api_json_turn_2_23 flight_api_json_turn_2_24 flight_api_json_turn_2_25 flight_api_json_turn_2_26 flight_api_json_turn_2_27 flight_api_json_turn_2_28 flight_api_json_turn_2_29 flight_api_json_turn_2_30 flight_api_json_turn_2_31 flight_api_json_turn_2_32 flight_api_json_turn_2_33 flight_api_json_turn_2_34 flight_api_json_turn_2_35 flight_api_json_turn_2_36 flight_api_json_turn_2_37 flight_api_json_turn_2_38 flight_api_json_turn_2_39 flight_api_json_turn_2_40 flight_api_json_turn_2_41 flight_api_json_turn_2_42 flight_api_json_turn_2_43 flight_api_json_turn_2_44 flight_api_json_turn_2_45 flight_api_json_turn_2_46 flight_api_json_turn_2_47 flight_api_json_turn_2_48 flight_api_json_turn_2_49",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_000/function_calling/02"
+          },
+          {
+            "name": "user_03",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=3; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:03:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_000\nretry_count=3\ntrace_nonce=context_compiler_realistic_ablation_cfg00_000-03",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
+            "must_preserve": [],
+            "source_pointer": null
+          }
+        ],
+        "compiler_metadata": {
+          "compiler": "none"
+        },
+        "backend": "vllm_server",
+        "base_url": "http://127.0.0.1:8000",
+        "streaming": true,
+        "finish_reason": "stop",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 3,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "context_compiler_realistic_ablation_cfg00_001_function_calling_truncation_baseline_turn_00",
+      "input_tokens": 354,
+      "output_tokens": 55,
+      "ttft_ms": 20.31901851296425,
+      "total_latency_ms": 558.0140985548496,
+      "decode_latency_ms": 537.6950800418854,
+      "tpot_ms": 9.776274182579733,
+      "metadata": {
+        "trace_id": "context_compiler_realistic_ablation_cfg00_001",
+        "scenario": "function_calling",
+        "turn": 0,
+        "workload_type": "context_compiler_realistic_ablation",
+        "variant": "truncation_baseline",
+        "expected_output_tokens": 96,
+        "prefix_overlap_tokens": 0,
+        "prefix_overlap_ratio": 0.0,
+        "observation_tokens": 384,
+        "context_segments": [
+          {
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "user_00",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=0; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:00:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_001\nretry_count=0\ntrace_nonce=context_compiler_realistic_ablation_cfg00_001-00",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
+            "must_preserve": [],
+            "source_pointer": null
+          }
+        ],
+        "compiler_metadata": {
+          "compiler": "none"
+        },
+        "backend": "vllm_server",
+        "base_url": "http://127.0.0.1:8000",
+        "streaming": true,
+        "finish_reason": "stop",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 4,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "context_compiler_realistic_ablation_cfg00_001_function_calling_truncation_baseline_turn_01",
+      "input_tokens": 924,
+      "output_tokens": 44,
+      "ttft_ms": 35.98992899060249,
+      "total_latency_ms": 462.3299017548561,
+      "decode_latency_ms": 426.3399727642536,
+      "tpot_ms": 9.689544835551219,
+      "metadata": {
+        "trace_id": "context_compiler_realistic_ablation_cfg00_001",
+        "scenario": "function_calling",
+        "turn": 1,
+        "workload_type": "context_compiler_realistic_ablation",
+        "variant": "truncation_baseline",
+        "expected_output_tokens": 96,
+        "prefix_overlap_tokens": 59,
+        "prefix_overlap_ratio": 0.33714285714285713,
+        "observation_tokens": 384,
+        "context_segments": [
+          {
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_00",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-10\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_00",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 280 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_0_0 flight_api_json_turn_0_1 flight_api_json_turn_0_2 flight_api_json_turn_0_3 flight_api_json_turn_0_4 flight_api_json_turn_0_5 flight_api_json_turn_0_6 flight_api_json_turn_0_7 flight_api_json_turn_0_8 flight_api_json_turn_0_9 flight_api_json_turn_0_10 flight_api_json_turn_0_11 flight_api_json_turn_0_12 flight_api_json_turn_0_13 flight_api_json_turn_0_14 flight_api_json_turn_0_15 flight_api_json_turn_0_16 flight_api_json_turn_0_17 flight_api_json_turn_0_18 flight_api_json_turn_0_19 flight_api_json_turn_0_20 flight_api_json_turn_0_21 flight_api_json_turn_0_22 flight_api_json_turn_0_23 flight_api_json_turn_0_24 flight_api_json_turn_0_25 flight_api_json_turn_0_26 flight_api_json_turn_0_27 flight_api_json_turn_0_28 flight_api_json_turn_0_29 flight_api_json_turn_0_30 flight_api_json_turn_0_31 flight_api_json_turn_0_32 flight_api_json_turn_0_33 flight_api_json_turn_0_34 flight_api_json_turn_0_35 flight_api_json_turn_0_36 flight_api_json_turn_0_37 flight_api_json_turn_0_38 flight_api_json_turn_0_39 flight_api_json_turn_0_40 flight_api_json_turn_0_41 flight_api_json_turn_0_42 flight_api_json_turn_0_43 flight_api_json_turn_0_44 flight_api_json_turn_0_45 flight_api_json_turn_0_46 flight_api_json_turn_0_47 flight_api_json_turn_0_48 flight_api_json_turn_0_49",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_001/function_calling/00"
+          },
+          {
+            "name": "user_01",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=1; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:01:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_001\nretry_count=1\ntrace_nonce=context_compiler_realistic_ablation_cfg00_001-01",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
+            "must_preserve": [],
+            "source_pointer": null
+          }
+        ],
+        "compiler_metadata": {
+          "compiler": "none"
+        },
+        "backend": "vllm_server",
+        "base_url": "http://127.0.0.1:8000",
+        "streaming": true,
+        "finish_reason": "stop",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 5,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "context_compiler_realistic_ablation_cfg00_001_function_calling_truncation_baseline_turn_02",
+      "input_tokens": 1494,
+      "output_tokens": 40,
+      "ttft_ms": 56.366659700870514,
+      "total_latency_ms": 444.67782974243164,
+      "decode_latency_ms": 388.3111700415611,
+      "tpot_ms": 9.707779251039028,
+      "metadata": {
+        "trace_id": "context_compiler_realistic_ablation_cfg00_001",
+        "scenario": "function_calling",
+        "turn": 2,
+        "workload_type": "context_compiler_realistic_ablation",
+        "variant": "truncation_baseline",
+        "expected_output_tokens": 96,
+        "prefix_overlap_tokens": 141,
+        "prefix_overlap_ratio": 0.5486381322957199,
+        "observation_tokens": 384,
+        "context_segments": [
+          {
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_00",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-10\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_00",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 280 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_0_0 flight_api_json_turn_0_1 flight_api_json_turn_0_2 flight_api_json_turn_0_3 flight_api_json_turn_0_4 flight_api_json_turn_0_5 flight_api_json_turn_0_6 flight_api_json_turn_0_7 flight_api_json_turn_0_8 flight_api_json_turn_0_9 flight_api_json_turn_0_10 flight_api_json_turn_0_11 flight_api_json_turn_0_12 flight_api_json_turn_0_13 flight_api_json_turn_0_14 flight_api_json_turn_0_15 flight_api_json_turn_0_16 flight_api_json_turn_0_17 flight_api_json_turn_0_18 flight_api_json_turn_0_19 flight_api_json_turn_0_20 flight_api_json_turn_0_21 flight_api_json_turn_0_22 flight_api_json_turn_0_23 flight_api_json_turn_0_24 flight_api_json_turn_0_25 flight_api_json_turn_0_26 flight_api_json_turn_0_27 flight_api_json_turn_0_28 flight_api_json_turn_0_29 flight_api_json_turn_0_30 flight_api_json_turn_0_31 flight_api_json_turn_0_32 flight_api_json_turn_0_33 flight_api_json_turn_0_34 flight_api_json_turn_0_35 flight_api_json_turn_0_36 flight_api_json_turn_0_37 flight_api_json_turn_0_38 flight_api_json_turn_0_39 flight_api_json_turn_0_40 flight_api_json_turn_0_41 flight_api_json_turn_0_42 flight_api_json_turn_0_43 flight_api_json_turn_0_44 flight_api_json_turn_0_45 flight_api_json_turn_0_46 flight_api_json_turn_0_47 flight_api_json_turn_0_48 flight_api_json_turn_0_49",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_001/function_calling/00"
+          },
+          {
+            "name": "tool_call_01",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-11\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_01",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 292 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_1_0 flight_api_json_turn_1_1 flight_api_json_turn_1_2 flight_api_json_turn_1_3 flight_api_json_turn_1_4 flight_api_json_turn_1_5 flight_api_json_turn_1_6 flight_api_json_turn_1_7 flight_api_json_turn_1_8 flight_api_json_turn_1_9 flight_api_json_turn_1_10 flight_api_json_turn_1_11 flight_api_json_turn_1_12 flight_api_json_turn_1_13 flight_api_json_turn_1_14 flight_api_json_turn_1_15 flight_api_json_turn_1_16 flight_api_json_turn_1_17 flight_api_json_turn_1_18 flight_api_json_turn_1_19 flight_api_json_turn_1_20 flight_api_json_turn_1_21 flight_api_json_turn_1_22 flight_api_json_turn_1_23 flight_api_json_turn_1_24 flight_api_json_turn_1_25 flight_api_json_turn_1_26 flight_api_json_turn_1_27 flight_api_json_turn_1_28 flight_api_json_turn_1_29 flight_api_json_turn_1_30 flight_api_json_turn_1_31 flight_api_json_turn_1_32 flight_api_json_turn_1_33 flight_api_json_turn_1_34 flight_api_json_turn_1_35 flight_api_json_turn_1_36 flight_api_json_turn_1_37 flight_api_json_turn_1_38 flight_api_json_turn_1_39 flight_api_json_turn_1_40 flight_api_json_turn_1_41 flight_api_json_turn_1_42 flight_api_json_turn_1_43 flight_api_json_turn_1_44 flight_api_json_turn_1_45 flight_api_json_turn_1_46 flight_api_json_turn_1_47 flight_api_json_turn_1_48 flight_api_json_turn_1_49",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_001/function_calling/01"
+          },
+          {
+            "name": "user_02",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=2; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:02:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_001\nretry_count=2\ntrace_nonce=context_compiler_realistic_ablation_cfg00_001-02",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
+            "must_preserve": [],
+            "source_pointer": null
+          }
+        ],
+        "compiler_metadata": {
+          "compiler": "none"
+        },
+        "backend": "vllm_server",
+        "base_url": "http://127.0.0.1:8000",
+        "streaming": true,
+        "finish_reason": "stop",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 6,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "context_compiler_realistic_ablation_cfg00_001_function_calling_truncation_baseline_turn_03",
+      "input_tokens": 2064,
+      "output_tokens": 40,
+      "ttft_ms": 76.94270834326744,
+      "total_latency_ms": 466.3083590567112,
+      "decode_latency_ms": 389.36565071344376,
+      "tpot_ms": 9.734141267836094,
+      "metadata": {
+        "trace_id": "context_compiler_realistic_ablation_cfg00_001",
+        "scenario": "function_calling",
+        "turn": 3,
+        "workload_type": "context_compiler_realistic_ablation",
+        "variant": "truncation_baseline",
+        "expected_output_tokens": 96,
+        "prefix_overlap_tokens": 223,
+        "prefix_overlap_ratio": 0.6578171091445427,
+        "observation_tokens": 384,
+        "context_segments": [
+          {
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_00",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-10\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_00",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 280 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_0_0 flight_api_json_turn_0_1 flight_api_json_turn_0_2 flight_api_json_turn_0_3 flight_api_json_turn_0_4 flight_api_json_turn_0_5 flight_api_json_turn_0_6 flight_api_json_turn_0_7 flight_api_json_turn_0_8 flight_api_json_turn_0_9 flight_api_json_turn_0_10 flight_api_json_turn_0_11 flight_api_json_turn_0_12 flight_api_json_turn_0_13 flight_api_json_turn_0_14 flight_api_json_turn_0_15 flight_api_json_turn_0_16 flight_api_json_turn_0_17 flight_api_json_turn_0_18 flight_api_json_turn_0_19 flight_api_json_turn_0_20 flight_api_json_turn_0_21 flight_api_json_turn_0_22 flight_api_json_turn_0_23 flight_api_json_turn_0_24 flight_api_json_turn_0_25 flight_api_json_turn_0_26 flight_api_json_turn_0_27 flight_api_json_turn_0_28 flight_api_json_turn_0_29 flight_api_json_turn_0_30 flight_api_json_turn_0_31 flight_api_json_turn_0_32 flight_api_json_turn_0_33 flight_api_json_turn_0_34 flight_api_json_turn_0_35 flight_api_json_turn_0_36 flight_api_json_turn_0_37 flight_api_json_turn_0_38 flight_api_json_turn_0_39 flight_api_json_turn_0_40 flight_api_json_turn_0_41 flight_api_json_turn_0_42 flight_api_json_turn_0_43 flight_api_json_turn_0_44 flight_api_json_turn_0_45 flight_api_json_turn_0_46 flight_api_json_turn_0_47 flight_api_json_turn_0_48 flight_api_json_turn_0_49",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_001/function_calling/00"
+          },
+          {
+            "name": "tool_call_01",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-11\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_01",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 292 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_1_0 flight_api_json_turn_1_1 flight_api_json_turn_1_2 flight_api_json_turn_1_3 flight_api_json_turn_1_4 flight_api_json_turn_1_5 flight_api_json_turn_1_6 flight_api_json_turn_1_7 flight_api_json_turn_1_8 flight_api_json_turn_1_9 flight_api_json_turn_1_10 flight_api_json_turn_1_11 flight_api_json_turn_1_12 flight_api_json_turn_1_13 flight_api_json_turn_1_14 flight_api_json_turn_1_15 flight_api_json_turn_1_16 flight_api_json_turn_1_17 flight_api_json_turn_1_18 flight_api_json_turn_1_19 flight_api_json_turn_1_20 flight_api_json_turn_1_21 flight_api_json_turn_1_22 flight_api_json_turn_1_23 flight_api_json_turn_1_24 flight_api_json_turn_1_25 flight_api_json_turn_1_26 flight_api_json_turn_1_27 flight_api_json_turn_1_28 flight_api_json_turn_1_29 flight_api_json_turn_1_30 flight_api_json_turn_1_31 flight_api_json_turn_1_32 flight_api_json_turn_1_33 flight_api_json_turn_1_34 flight_api_json_turn_1_35 flight_api_json_turn_1_36 flight_api_json_turn_1_37 flight_api_json_turn_1_38 flight_api_json_turn_1_39 flight_api_json_turn_1_40 flight_api_json_turn_1_41 flight_api_json_turn_1_42 flight_api_json_turn_1_43 flight_api_json_turn_1_44 flight_api_json_turn_1_45 flight_api_json_turn_1_46 flight_api_json_turn_1_47 flight_api_json_turn_1_48 flight_api_json_turn_1_49",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_001/function_calling/01"
+          },
+          {
+            "name": "tool_call_02",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-12\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_02",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 304 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_2_0 flight_api_json_turn_2_1 flight_api_json_turn_2_2 flight_api_json_turn_2_3 flight_api_json_turn_2_4 flight_api_json_turn_2_5 flight_api_json_turn_2_6 flight_api_json_turn_2_7 flight_api_json_turn_2_8 flight_api_json_turn_2_9 flight_api_json_turn_2_10 flight_api_json_turn_2_11 flight_api_json_turn_2_12 flight_api_json_turn_2_13 flight_api_json_turn_2_14 flight_api_json_turn_2_15 flight_api_json_turn_2_16 flight_api_json_turn_2_17 flight_api_json_turn_2_18 flight_api_json_turn_2_19 flight_api_json_turn_2_20 flight_api_json_turn_2_21 flight_api_json_turn_2_22 flight_api_json_turn_2_23 flight_api_json_turn_2_24 flight_api_json_turn_2_25 flight_api_json_turn_2_26 flight_api_json_turn_2_27 flight_api_json_turn_2_28 flight_api_json_turn_2_29 flight_api_json_turn_2_30 flight_api_json_turn_2_31 flight_api_json_turn_2_32 flight_api_json_turn_2_33 flight_api_json_turn_2_34 flight_api_json_turn_2_35 flight_api_json_turn_2_36 flight_api_json_turn_2_37 flight_api_json_turn_2_38 flight_api_json_turn_2_39 flight_api_json_turn_2_40 flight_api_json_turn_2_41 flight_api_json_turn_2_42 flight_api_json_turn_2_43 flight_api_json_turn_2_44 flight_api_json_turn_2_45 flight_api_json_turn_2_46 flight_api_json_turn_2_47 flight_api_json_turn_2_48 flight_api_json_turn_2_49",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_001/function_calling/02"
+          },
+          {
+            "name": "user_03",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=3; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:03:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_001\nretry_count=3\ntrace_nonce=context_compiler_realistic_ablation_cfg00_001-03",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
+            "must_preserve": [],
+            "source_pointer": null
+          }
+        ],
+        "compiler_metadata": {
+          "compiler": "none"
+        },
+        "backend": "vllm_server",
+        "base_url": "http://127.0.0.1:8000",
+        "streaming": true,
+        "finish_reason": "stop",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 7,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "context_compiler_realistic_ablation_cfg00_002_function_calling_truncation_baseline_turn_00",
+      "input_tokens": 354,
+      "output_tokens": 55,
+      "ttft_ms": 20.185600966215134,
+      "total_latency_ms": 557.5538128614426,
+      "decode_latency_ms": 537.3682118952274,
+      "tpot_ms": 9.770331125367772,
+      "metadata": {
+        "trace_id": "context_compiler_realistic_ablation_cfg00_002",
+        "scenario": "function_calling",
+        "turn": 0,
+        "workload_type": "context_compiler_realistic_ablation",
+        "variant": "truncation_baseline",
+        "expected_output_tokens": 96,
+        "prefix_overlap_tokens": 0,
+        "prefix_overlap_ratio": 0.0,
+        "observation_tokens": 384,
+        "context_segments": [
+          {
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "user_00",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=0; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:00:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_002\nretry_count=0\ntrace_nonce=context_compiler_realistic_ablation_cfg00_002-00",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
+            "must_preserve": [],
+            "source_pointer": null
+          }
+        ],
+        "compiler_metadata": {
+          "compiler": "none"
+        },
+        "backend": "vllm_server",
+        "base_url": "http://127.0.0.1:8000",
+        "streaming": true,
+        "finish_reason": "stop",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 8,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "context_compiler_realistic_ablation_cfg00_002_function_calling_truncation_baseline_turn_01",
+      "input_tokens": 924,
+      "output_tokens": 44,
+      "ttft_ms": 35.71612015366554,
+      "total_latency_ms": 461.72215417027473,
+      "decode_latency_ms": 426.0060340166092,
+      "tpot_ms": 9.6819553185593,
+      "metadata": {
+        "trace_id": "context_compiler_realistic_ablation_cfg00_002",
+        "scenario": "function_calling",
+        "turn": 1,
+        "workload_type": "context_compiler_realistic_ablation",
+        "variant": "truncation_baseline",
+        "expected_output_tokens": 96,
+        "prefix_overlap_tokens": 59,
+        "prefix_overlap_ratio": 0.33714285714285713,
+        "observation_tokens": 384,
+        "context_segments": [
+          {
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_00",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-10\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_00",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 280 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_0_0 flight_api_json_turn_0_1 flight_api_json_turn_0_2 flight_api_json_turn_0_3 flight_api_json_turn_0_4 flight_api_json_turn_0_5 flight_api_json_turn_0_6 flight_api_json_turn_0_7 flight_api_json_turn_0_8 flight_api_json_turn_0_9 flight_api_json_turn_0_10 flight_api_json_turn_0_11 flight_api_json_turn_0_12 flight_api_json_turn_0_13 flight_api_json_turn_0_14 flight_api_json_turn_0_15 flight_api_json_turn_0_16 flight_api_json_turn_0_17 flight_api_json_turn_0_18 flight_api_json_turn_0_19 flight_api_json_turn_0_20 flight_api_json_turn_0_21 flight_api_json_turn_0_22 flight_api_json_turn_0_23 flight_api_json_turn_0_24 flight_api_json_turn_0_25 flight_api_json_turn_0_26 flight_api_json_turn_0_27 flight_api_json_turn_0_28 flight_api_json_turn_0_29 flight_api_json_turn_0_30 flight_api_json_turn_0_31 flight_api_json_turn_0_32 flight_api_json_turn_0_33 flight_api_json_turn_0_34 flight_api_json_turn_0_35 flight_api_json_turn_0_36 flight_api_json_turn_0_37 flight_api_json_turn_0_38 flight_api_json_turn_0_39 flight_api_json_turn_0_40 flight_api_json_turn_0_41 flight_api_json_turn_0_42 flight_api_json_turn_0_43 flight_api_json_turn_0_44 flight_api_json_turn_0_45 flight_api_json_turn_0_46 flight_api_json_turn_0_47 flight_api_json_turn_0_48 flight_api_json_turn_0_49",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_002/function_calling/00"
+          },
+          {
+            "name": "user_01",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=1; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:01:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_002\nretry_count=1\ntrace_nonce=context_compiler_realistic_ablation_cfg00_002-01",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
+            "must_preserve": [],
+            "source_pointer": null
+          }
+        ],
+        "compiler_metadata": {
+          "compiler": "none"
+        },
+        "backend": "vllm_server",
+        "base_url": "http://127.0.0.1:8000",
+        "streaming": true,
+        "finish_reason": "stop",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 9,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "context_compiler_realistic_ablation_cfg00_002_function_calling_truncation_baseline_turn_02",
+      "input_tokens": 1494,
+      "output_tokens": 40,
+      "ttft_ms": 55.73651194572449,
+      "total_latency_ms": 444.40610334277153,
+      "decode_latency_ms": 388.66959139704704,
+      "tpot_ms": 9.716739784926176,
+      "metadata": {
+        "trace_id": "context_compiler_realistic_ablation_cfg00_002",
+        "scenario": "function_calling",
+        "turn": 2,
+        "workload_type": "context_compiler_realistic_ablation",
+        "variant": "truncation_baseline",
+        "expected_output_tokens": 96,
+        "prefix_overlap_tokens": 141,
+        "prefix_overlap_ratio": 0.5486381322957199,
+        "observation_tokens": 384,
+        "context_segments": [
+          {
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_00",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-10\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_00",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 280 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_0_0 flight_api_json_turn_0_1 flight_api_json_turn_0_2 flight_api_json_turn_0_3 flight_api_json_turn_0_4 flight_api_json_turn_0_5 flight_api_json_turn_0_6 flight_api_json_turn_0_7 flight_api_json_turn_0_8 flight_api_json_turn_0_9 flight_api_json_turn_0_10 flight_api_json_turn_0_11 flight_api_json_turn_0_12 flight_api_json_turn_0_13 flight_api_json_turn_0_14 flight_api_json_turn_0_15 flight_api_json_turn_0_16 flight_api_json_turn_0_17 flight_api_json_turn_0_18 flight_api_json_turn_0_19 flight_api_json_turn_0_20 flight_api_json_turn_0_21 flight_api_json_turn_0_22 flight_api_json_turn_0_23 flight_api_json_turn_0_24 flight_api_json_turn_0_25 flight_api_json_turn_0_26 flight_api_json_turn_0_27 flight_api_json_turn_0_28 flight_api_json_turn_0_29 flight_api_json_turn_0_30 flight_api_json_turn_0_31 flight_api_json_turn_0_32 flight_api_json_turn_0_33 flight_api_json_turn_0_34 flight_api_json_turn_0_35 flight_api_json_turn_0_36 flight_api_json_turn_0_37 flight_api_json_turn_0_38 flight_api_json_turn_0_39 flight_api_json_turn_0_40 flight_api_json_turn_0_41 flight_api_json_turn_0_42 flight_api_json_turn_0_43 flight_api_json_turn_0_44 flight_api_json_turn_0_45 flight_api_json_turn_0_46 flight_api_json_turn_0_47 flight_api_json_turn_0_48 flight_api_json_turn_0_49",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_002/function_calling/00"
+          },
+          {
+            "name": "tool_call_01",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-11\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_01",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 292 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_1_0 flight_api_json_turn_1_1 flight_api_json_turn_1_2 flight_api_json_turn_1_3 flight_api_json_turn_1_4 flight_api_json_turn_1_5 flight_api_json_turn_1_6 flight_api_json_turn_1_7 flight_api_json_turn_1_8 flight_api_json_turn_1_9 flight_api_json_turn_1_10 flight_api_json_turn_1_11 flight_api_json_turn_1_12 flight_api_json_turn_1_13 flight_api_json_turn_1_14 flight_api_json_turn_1_15 flight_api_json_turn_1_16 flight_api_json_turn_1_17 flight_api_json_turn_1_18 flight_api_json_turn_1_19 flight_api_json_turn_1_20 flight_api_json_turn_1_21 flight_api_json_turn_1_22 flight_api_json_turn_1_23 flight_api_json_turn_1_24 flight_api_json_turn_1_25 flight_api_json_turn_1_26 flight_api_json_turn_1_27 flight_api_json_turn_1_28 flight_api_json_turn_1_29 flight_api_json_turn_1_30 flight_api_json_turn_1_31 flight_api_json_turn_1_32 flight_api_json_turn_1_33 flight_api_json_turn_1_34 flight_api_json_turn_1_35 flight_api_json_turn_1_36 flight_api_json_turn_1_37 flight_api_json_turn_1_38 flight_api_json_turn_1_39 flight_api_json_turn_1_40 flight_api_json_turn_1_41 flight_api_json_turn_1_42 flight_api_json_turn_1_43 flight_api_json_turn_1_44 flight_api_json_turn_1_45 flight_api_json_turn_1_46 flight_api_json_turn_1_47 flight_api_json_turn_1_48 flight_api_json_turn_1_49",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_002/function_calling/01"
+          },
+          {
+            "name": "user_02",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=2; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:02:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_002\nretry_count=2\ntrace_nonce=context_compiler_realistic_ablation_cfg00_002-02",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
+            "must_preserve": [],
+            "source_pointer": null
+          }
+        ],
+        "compiler_metadata": {
+          "compiler": "none"
+        },
+        "backend": "vllm_server",
+        "base_url": "http://127.0.0.1:8000",
+        "streaming": true,
+        "finish_reason": "stop",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 10,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "context_compiler_realistic_ablation_cfg00_002_function_calling_truncation_baseline_turn_03",
+      "input_tokens": 2064,
+      "output_tokens": 44,
+      "ttft_ms": 72.5916437804699,
+      "total_latency_ms": 500.8923187851906,
+      "decode_latency_ms": 428.3006750047207,
+      "tpot_ms": 9.734106250107288,
+      "metadata": {
+        "trace_id": "context_compiler_realistic_ablation_cfg00_002",
+        "scenario": "function_calling",
+        "turn": 3,
+        "workload_type": "context_compiler_realistic_ablation",
+        "variant": "truncation_baseline",
+        "expected_output_tokens": 96,
+        "prefix_overlap_tokens": 223,
+        "prefix_overlap_ratio": 0.6578171091445427,
+        "observation_tokens": 384,
+        "context_segments": [
+          {
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_00",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-10\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_00",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 280 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_0_0 flight_api_json_turn_0_1 flight_api_json_turn_0_2 flight_api_json_turn_0_3 flight_api_json_turn_0_4 flight_api_json_turn_0_5 flight_api_json_turn_0_6 flight_api_json_turn_0_7 flight_api_json_turn_0_8 flight_api_json_turn_0_9 flight_api_json_turn_0_10 flight_api_json_turn_0_11 flight_api_json_turn_0_12 flight_api_json_turn_0_13 flight_api_json_turn_0_14 flight_api_json_turn_0_15 flight_api_json_turn_0_16 flight_api_json_turn_0_17 flight_api_json_turn_0_18 flight_api_json_turn_0_19 flight_api_json_turn_0_20 flight_api_json_turn_0_21 flight_api_json_turn_0_22 flight_api_json_turn_0_23 flight_api_json_turn_0_24 flight_api_json_turn_0_25 flight_api_json_turn_0_26 flight_api_json_turn_0_27 flight_api_json_turn_0_28 flight_api_json_turn_0_29 flight_api_json_turn_0_30 flight_api_json_turn_0_31 flight_api_json_turn_0_32 flight_api_json_turn_0_33 flight_api_json_turn_0_34 flight_api_json_turn_0_35 flight_api_json_turn_0_36 flight_api_json_turn_0_37 flight_api_json_turn_0_38 flight_api_json_turn_0_39 flight_api_json_turn_0_40 flight_api_json_turn_0_41 flight_api_json_turn_0_42 flight_api_json_turn_0_43 flight_api_json_turn_0_44 flight_api_json_turn_0_45 flight_api_json_turn_0_46 flight_api_json_turn_0_47 flight_api_json_turn_0_48 flight_api_json_turn_0_49",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_002/function_calling/00"
+          },
+          {
+            "name": "tool_call_01",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-11\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_01",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 292 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_1_0 flight_api_json_turn_1_1 flight_api_json_turn_1_2 flight_api_json_turn_1_3 flight_api_json_turn_1_4 flight_api_json_turn_1_5 flight_api_json_turn_1_6 flight_api_json_turn_1_7 flight_api_json_turn_1_8 flight_api_json_turn_1_9 flight_api_json_turn_1_10 flight_api_json_turn_1_11 flight_api_json_turn_1_12 flight_api_json_turn_1_13 flight_api_json_turn_1_14 flight_api_json_turn_1_15 flight_api_json_turn_1_16 flight_api_json_turn_1_17 flight_api_json_turn_1_18 flight_api_json_turn_1_19 flight_api_json_turn_1_20 flight_api_json_turn_1_21 flight_api_json_turn_1_22 flight_api_json_turn_1_23 flight_api_json_turn_1_24 flight_api_json_turn_1_25 flight_api_json_turn_1_26 flight_api_json_turn_1_27 flight_api_json_turn_1_28 flight_api_json_turn_1_29 flight_api_json_turn_1_30 flight_api_json_turn_1_31 flight_api_json_turn_1_32 flight_api_json_turn_1_33 flight_api_json_turn_1_34 flight_api_json_turn_1_35 flight_api_json_turn_1_36 flight_api_json_turn_1_37 flight_api_json_turn_1_38 flight_api_json_turn_1_39 flight_api_json_turn_1_40 flight_api_json_turn_1_41 flight_api_json_turn_1_42 flight_api_json_turn_1_43 flight_api_json_turn_1_44 flight_api_json_turn_1_45 flight_api_json_turn_1_46 flight_api_json_turn_1_47 flight_api_json_turn_1_48 flight_api_json_turn_1_49",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_002/function_calling/01"
+          },
+          {
+            "name": "tool_call_02",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-12\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_02",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 304 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_2_0 flight_api_json_turn_2_1 flight_api_json_turn_2_2 flight_api_json_turn_2_3 flight_api_json_turn_2_4 flight_api_json_turn_2_5 flight_api_json_turn_2_6 flight_api_json_turn_2_7 flight_api_json_turn_2_8 flight_api_json_turn_2_9 flight_api_json_turn_2_10 flight_api_json_turn_2_11 flight_api_json_turn_2_12 flight_api_json_turn_2_13 flight_api_json_turn_2_14 flight_api_json_turn_2_15 flight_api_json_turn_2_16 flight_api_json_turn_2_17 flight_api_json_turn_2_18 flight_api_json_turn_2_19 flight_api_json_turn_2_20 flight_api_json_turn_2_21 flight_api_json_turn_2_22 flight_api_json_turn_2_23 flight_api_json_turn_2_24 flight_api_json_turn_2_25 flight_api_json_turn_2_26 flight_api_json_turn_2_27 flight_api_json_turn_2_28 flight_api_json_turn_2_29 flight_api_json_turn_2_30 flight_api_json_turn_2_31 flight_api_json_turn_2_32 flight_api_json_turn_2_33 flight_api_json_turn_2_34 flight_api_json_turn_2_35 flight_api_json_turn_2_36 flight_api_json_turn_2_37 flight_api_json_turn_2_38 flight_api_json_turn_2_39 flight_api_json_turn_2_40 flight_api_json_turn_2_41 flight_api_json_turn_2_42 flight_api_json_turn_2_43 flight_api_json_turn_2_44 flight_api_json_turn_2_45 flight_api_json_turn_2_46 flight_api_json_turn_2_47 flight_api_json_turn_2_48 flight_api_json_turn_2_49",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_002/function_calling/02"
+          },
+          {
+            "name": "user_03",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=3; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:03:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_002\nretry_count=3\ntrace_nonce=context_compiler_realistic_ablation_cfg00_002-03",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
+            "must_preserve": [],
+            "source_pointer": null
+          }
+        ],
+        "compiler_metadata": {
+          "compiler": "none"
+        },
+        "backend": "vllm_server",
+        "base_url": "http://127.0.0.1:8000",
+        "streaming": true,
+        "finish_reason": "stop",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 11,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "context_compiler_realistic_ablation_cfg00_003_function_calling_truncation_baseline_turn_00",
+      "input_tokens": 354,
+      "output_tokens": 55,
+      "ttft_ms": 20.105335861444473,
+      "total_latency_ms": 558.1731833517551,
+      "decode_latency_ms": 538.0678474903107,
+      "tpot_ms": 9.783051772551103,
+      "metadata": {
+        "trace_id": "context_compiler_realistic_ablation_cfg00_003",
+        "scenario": "function_calling",
+        "turn": 0,
+        "workload_type": "context_compiler_realistic_ablation",
+        "variant": "truncation_baseline",
+        "expected_output_tokens": 96,
+        "prefix_overlap_tokens": 0,
+        "prefix_overlap_ratio": 0.0,
+        "observation_tokens": 384,
+        "context_segments": [
+          {
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "user_00",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=0; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:00:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_003\nretry_count=0\ntrace_nonce=context_compiler_realistic_ablation_cfg00_003-00",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
+            "must_preserve": [],
+            "source_pointer": null
+          }
+        ],
+        "compiler_metadata": {
+          "compiler": "none"
+        },
+        "backend": "vllm_server",
+        "base_url": "http://127.0.0.1:8000",
+        "streaming": true,
+        "finish_reason": "stop",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 12,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "context_compiler_realistic_ablation_cfg00_003_function_calling_truncation_baseline_turn_01",
+      "input_tokens": 924,
+      "output_tokens": 44,
+      "ttft_ms": 35.8520932495594,
+      "total_latency_ms": 462.15932816267014,
+      "decode_latency_ms": 426.30723491311073,
+      "tpot_ms": 9.688800793479789,
+      "metadata": {
+        "trace_id": "context_compiler_realistic_ablation_cfg00_003",
+        "scenario": "function_calling",
+        "turn": 1,
+        "workload_type": "context_compiler_realistic_ablation",
+        "variant": "truncation_baseline",
+        "expected_output_tokens": 96,
+        "prefix_overlap_tokens": 59,
+        "prefix_overlap_ratio": 0.33714285714285713,
+        "observation_tokens": 384,
+        "context_segments": [
+          {
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_00",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-10\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_00",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 280 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_0_0 flight_api_json_turn_0_1 flight_api_json_turn_0_2 flight_api_json_turn_0_3 flight_api_json_turn_0_4 flight_api_json_turn_0_5 flight_api_json_turn_0_6 flight_api_json_turn_0_7 flight_api_json_turn_0_8 flight_api_json_turn_0_9 flight_api_json_turn_0_10 flight_api_json_turn_0_11 flight_api_json_turn_0_12 flight_api_json_turn_0_13 flight_api_json_turn_0_14 flight_api_json_turn_0_15 flight_api_json_turn_0_16 flight_api_json_turn_0_17 flight_api_json_turn_0_18 flight_api_json_turn_0_19 flight_api_json_turn_0_20 flight_api_json_turn_0_21 flight_api_json_turn_0_22 flight_api_json_turn_0_23 flight_api_json_turn_0_24 flight_api_json_turn_0_25 flight_api_json_turn_0_26 flight_api_json_turn_0_27 flight_api_json_turn_0_28 flight_api_json_turn_0_29 flight_api_json_turn_0_30 flight_api_json_turn_0_31 flight_api_json_turn_0_32 flight_api_json_turn_0_33 flight_api_json_turn_0_34 flight_api_json_turn_0_35 flight_api_json_turn_0_36 flight_api_json_turn_0_37 flight_api_json_turn_0_38 flight_api_json_turn_0_39 flight_api_json_turn_0_40 flight_api_json_turn_0_41 flight_api_json_turn_0_42 flight_api_json_turn_0_43 flight_api_json_turn_0_44 flight_api_json_turn_0_45 flight_api_json_turn_0_46 flight_api_json_turn_0_47 flight_api_json_turn_0_48 flight_api_json_turn_0_49",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_003/function_calling/00"
+          },
+          {
+            "name": "user_01",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=1; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:01:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_003\nretry_count=1\ntrace_nonce=context_compiler_realistic_ablation_cfg00_003-01",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
+            "must_preserve": [],
+            "source_pointer": null
+          }
+        ],
+        "compiler_metadata": {
+          "compiler": "none"
+        },
+        "backend": "vllm_server",
+        "base_url": "http://127.0.0.1:8000",
+        "streaming": true,
+        "finish_reason": "stop",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 13,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "context_compiler_realistic_ablation_cfg00_003_function_calling_truncation_baseline_turn_02",
+      "input_tokens": 1494,
+      "output_tokens": 40,
+      "ttft_ms": 60.084834694862366,
+      "total_latency_ms": 449.0422308444977,
+      "decode_latency_ms": 388.9573961496353,
+      "tpot_ms": 9.723934903740883,
+      "metadata": {
+        "trace_id": "context_compiler_realistic_ablation_cfg00_003",
+        "scenario": "function_calling",
+        "turn": 2,
+        "workload_type": "context_compiler_realistic_ablation",
+        "variant": "truncation_baseline",
+        "expected_output_tokens": 96,
+        "prefix_overlap_tokens": 141,
+        "prefix_overlap_ratio": 0.5486381322957199,
+        "observation_tokens": 384,
+        "context_segments": [
+          {
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_00",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-10\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_00",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 280 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_0_0 flight_api_json_turn_0_1 flight_api_json_turn_0_2 flight_api_json_turn_0_3 flight_api_json_turn_0_4 flight_api_json_turn_0_5 flight_api_json_turn_0_6 flight_api_json_turn_0_7 flight_api_json_turn_0_8 flight_api_json_turn_0_9 flight_api_json_turn_0_10 flight_api_json_turn_0_11 flight_api_json_turn_0_12 flight_api_json_turn_0_13 flight_api_json_turn_0_14 flight_api_json_turn_0_15 flight_api_json_turn_0_16 flight_api_json_turn_0_17 flight_api_json_turn_0_18 flight_api_json_turn_0_19 flight_api_json_turn_0_20 flight_api_json_turn_0_21 flight_api_json_turn_0_22 flight_api_json_turn_0_23 flight_api_json_turn_0_24 flight_api_json_turn_0_25 flight_api_json_turn_0_26 flight_api_json_turn_0_27 flight_api_json_turn_0_28 flight_api_json_turn_0_29 flight_api_json_turn_0_30 flight_api_json_turn_0_31 flight_api_json_turn_0_32 flight_api_json_turn_0_33 flight_api_json_turn_0_34 flight_api_json_turn_0_35 flight_api_json_turn_0_36 flight_api_json_turn_0_37 flight_api_json_turn_0_38 flight_api_json_turn_0_39 flight_api_json_turn_0_40 flight_api_json_turn_0_41 flight_api_json_turn_0_42 flight_api_json_turn_0_43 flight_api_json_turn_0_44 flight_api_json_turn_0_45 flight_api_json_turn_0_46 flight_api_json_turn_0_47 flight_api_json_turn_0_48 flight_api_json_turn_0_49",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_003/function_calling/00"
+          },
+          {
+            "name": "tool_call_01",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-11\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_01",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 292 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_1_0 flight_api_json_turn_1_1 flight_api_json_turn_1_2 flight_api_json_turn_1_3 flight_api_json_turn_1_4 flight_api_json_turn_1_5 flight_api_json_turn_1_6 flight_api_json_turn_1_7 flight_api_json_turn_1_8 flight_api_json_turn_1_9 flight_api_json_turn_1_10 flight_api_json_turn_1_11 flight_api_json_turn_1_12 flight_api_json_turn_1_13 flight_api_json_turn_1_14 flight_api_json_turn_1_15 flight_api_json_turn_1_16 flight_api_json_turn_1_17 flight_api_json_turn_1_18 flight_api_json_turn_1_19 flight_api_json_turn_1_20 flight_api_json_turn_1_21 flight_api_json_turn_1_22 flight_api_json_turn_1_23 flight_api_json_turn_1_24 flight_api_json_turn_1_25 flight_api_json_turn_1_26 flight_api_json_turn_1_27 flight_api_json_turn_1_28 flight_api_json_turn_1_29 flight_api_json_turn_1_30 flight_api_json_turn_1_31 flight_api_json_turn_1_32 flight_api_json_turn_1_33 flight_api_json_turn_1_34 flight_api_json_turn_1_35 flight_api_json_turn_1_36 flight_api_json_turn_1_37 flight_api_json_turn_1_38 flight_api_json_turn_1_39 flight_api_json_turn_1_40 flight_api_json_turn_1_41 flight_api_json_turn_1_42 flight_api_json_turn_1_43 flight_api_json_turn_1_44 flight_api_json_turn_1_45 flight_api_json_turn_1_46 flight_api_json_turn_1_47 flight_api_json_turn_1_48 flight_api_json_turn_1_49",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_003/function_calling/01"
+          },
+          {
+            "name": "user_02",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=2; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:02:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_003\nretry_count=2\ntrace_nonce=context_compiler_realistic_ablation_cfg00_003-02",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
+            "must_preserve": [],
+            "source_pointer": null
+          }
+        ],
+        "compiler_metadata": {
+          "compiler": "none"
+        },
+        "backend": "vllm_server",
+        "base_url": "http://127.0.0.1:8000",
+        "streaming": true,
+        "finish_reason": "stop",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 14,
+        "configured_concurrency": 1
+      }
+    },
+    {
+      "request_id": "context_compiler_realistic_ablation_cfg00_003_function_calling_truncation_baseline_turn_03",
+      "input_tokens": 2064,
+      "output_tokens": 40,
+      "ttft_ms": 72.17042148113251,
+      "total_latency_ms": 462.2235931456089,
+      "decode_latency_ms": 390.0531716644764,
+      "tpot_ms": 9.75132929161191,
+      "metadata": {
+        "trace_id": "context_compiler_realistic_ablation_cfg00_003",
+        "scenario": "function_calling",
+        "turn": 3,
+        "workload_type": "context_compiler_realistic_ablation",
+        "variant": "truncation_baseline",
+        "expected_output_tokens": 96,
+        "prefix_overlap_tokens": 223,
+        "prefix_overlap_ratio": 0.6578171091445427,
+        "observation_tokens": 384,
+        "context_segments": [
+          {
+            "name": "system",
+            "text": "You are a reliable function-calling assistant. Choose exactly one tool and return valid JSON with required arguments. Never invent tool names or omit required fields.",
+            "stability": "static",
+            "segment_type": "system",
+            "reuse_scope": "global",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tools",
+            "text": "Tools:\n{\"description\":\"Find available flights for a route and date.\",\"name\":\"search_flights\",\"parameters\":{\"properties\":{\"date\":{\"type\":\"string\"},\"destination\":{\"type\":\"string\"},\"origin\":{\"type\":\"string\"}},\"required\":[\"origin\",\"destination\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Retrieve weather forecast for a city and date.\",\"name\":\"get_weather\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"date\":{\"type\":\"string\"}},\"required\":[\"city\",\"date\"],\"type\":\"object\"}}\n{\"description\":\"Estimate hotel budget for a city and number of nights.\",\"name\":\"estimate_hotel_budget\",\"parameters\":{\"properties\":{\"city\":{\"type\":\"string\"},\"nights\":{\"type\":\"integer\"}},\"required\":[\"city\",\"nights\"],\"type\":\"object\"}}\n{\"description\":\"Persist a travel itinerary record.\",\"name\":\"save_itinerary\",\"parameters\":{\"properties\":{\"summary\":{\"type\":\"string\"},\"traveler\":{\"type\":\"string\"}},\"required\":[\"traveler\",\"summary\"],\"type\":\"object\"}}",
+            "stability": "static",
+            "segment_type": "tool_schema",
+            "reuse_scope": "agent_type",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "tool_call_00",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-10\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_00",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 280 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_0_0 flight_api_json_turn_0_1 flight_api_json_turn_0_2 flight_api_json_turn_0_3 flight_api_json_turn_0_4 flight_api_json_turn_0_5 flight_api_json_turn_0_6 flight_api_json_turn_0_7 flight_api_json_turn_0_8 flight_api_json_turn_0_9 flight_api_json_turn_0_10 flight_api_json_turn_0_11 flight_api_json_turn_0_12 flight_api_json_turn_0_13 flight_api_json_turn_0_14 flight_api_json_turn_0_15 flight_api_json_turn_0_16 flight_api_json_turn_0_17 flight_api_json_turn_0_18 flight_api_json_turn_0_19 flight_api_json_turn_0_20 flight_api_json_turn_0_21 flight_api_json_turn_0_22 flight_api_json_turn_0_23 flight_api_json_turn_0_24 flight_api_json_turn_0_25 flight_api_json_turn_0_26 flight_api_json_turn_0_27 flight_api_json_turn_0_28 flight_api_json_turn_0_29 flight_api_json_turn_0_30 flight_api_json_turn_0_31 flight_api_json_turn_0_32 flight_api_json_turn_0_33 flight_api_json_turn_0_34 flight_api_json_turn_0_35 flight_api_json_turn_0_36 flight_api_json_turn_0_37 flight_api_json_turn_0_38 flight_api_json_turn_0_39 flight_api_json_turn_0_40 flight_api_json_turn_0_41 flight_api_json_turn_0_42 flight_api_json_turn_0_43 flight_api_json_turn_0_44 flight_api_json_turn_0_45 flight_api_json_turn_0_46 flight_api_json_turn_0_47 flight_api_json_turn_0_48 flight_api_json_turn_0_49",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_003/function_calling/00"
+          },
+          {
+            "name": "tool_call_01",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-11\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_01",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 292 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_1_0 flight_api_json_turn_1_1 flight_api_json_turn_1_2 flight_api_json_turn_1_3 flight_api_json_turn_1_4 flight_api_json_turn_1_5 flight_api_json_turn_1_6 flight_api_json_turn_1_7 flight_api_json_turn_1_8 flight_api_json_turn_1_9 flight_api_json_turn_1_10 flight_api_json_turn_1_11 flight_api_json_turn_1_12 flight_api_json_turn_1_13 flight_api_json_turn_1_14 flight_api_json_turn_1_15 flight_api_json_turn_1_16 flight_api_json_turn_1_17 flight_api_json_turn_1_18 flight_api_json_turn_1_19 flight_api_json_turn_1_20 flight_api_json_turn_1_21 flight_api_json_turn_1_22 flight_api_json_turn_1_23 flight_api_json_turn_1_24 flight_api_json_turn_1_25 flight_api_json_turn_1_26 flight_api_json_turn_1_27 flight_api_json_turn_1_28 flight_api_json_turn_1_29 flight_api_json_turn_1_30 flight_api_json_turn_1_31 flight_api_json_turn_1_32 flight_api_json_turn_1_33 flight_api_json_turn_1_34 flight_api_json_turn_1_35 flight_api_json_turn_1_36 flight_api_json_turn_1_37 flight_api_json_turn_1_38 flight_api_json_turn_1_39 flight_api_json_turn_1_40 flight_api_json_turn_1_41 flight_api_json_turn_1_42 flight_api_json_turn_1_43 flight_api_json_turn_1_44 flight_api_json_turn_1_45 flight_api_json_turn_1_46 flight_api_json_turn_1_47 flight_api_json_turn_1_48 flight_api_json_turn_1_49",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_003/function_calling/01"
+          },
+          {
+            "name": "tool_call_02",
+            "text": "Assistant tool call: {\"name\":\"search_flights\",\"arguments\":{\"origin\":\"SHA\",\"destination\":\"SIN\",\"date\":\"2026-07-12\"}}",
+            "stability": "session_dynamic",
+            "segment_type": "tool_call",
+            "reuse_scope": "session",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "observation_02",
+            "text": "tool_result: search_flights status: success required_fields_seen: origin,destination,date candidate_flight: MU543 SHA->SIN departs 09:20 arrives 14:55 fare_usd: 304 policy_note: business fare must be below 500 USD unless approved. api_json_tail: flight_api_json_turn_2_0 flight_api_json_turn_2_1 flight_api_json_turn_2_2 flight_api_json_turn_2_3 flight_api_json_turn_2_4 flight_api_json_turn_2_5 flight_api_json_turn_2_6 flight_api_json_turn_2_7 flight_api_json_turn_2_8 flight_api_json_turn_2_9 flight_api_json_turn_2_10 flight_api_json_turn_2_11 flight_api_json_turn_2_12 flight_api_json_turn_2_13 flight_api_json_turn_2_14 flight_api_json_turn_2_15 flight_api_json_turn_2_16 flight_api_json_turn_2_17 flight_api_json_turn_2_18 flight_api_json_turn_2_19 flight_api_json_turn_2_20 flight_api_json_turn_2_21 flight_api_json_turn_2_22 flight_api_json_turn_2_23 flight_api_json_turn_2_24 flight_api_json_turn_2_25 flight_api_json_turn_2_26 flight_api_json_turn_2_27 flight_api_json_turn_2_28 flight_api_json_turn_2_29 flight_api_json_turn_2_30 flight_api_json_turn_2_31 flight_api_json_turn_2_32 flight_api_json_turn_2_33 flight_api_json_turn_2_34 flight_api_json_turn_2_35 flight_api_json_turn_2_36 flight_api_json_turn_2_37 flight_api_json_turn_2_38 flight_api_json_turn_2_39 flight_api_json_turn_2_40 flight_api_json_turn_2_41 flight_api_json_turn_2_42 flight_api_json_turn_2_43 flight_api_json_turn_2_44 flight_api_json_turn_2_45 flight_api_json_turn_2_46 flight_api_json_turn_2_47 flight_api_json_turn_2_48 flight_api_json_turn_2_49",
+            "stability": "turn_dynamic",
+            "segment_type": "observation",
+            "reuse_scope": "turn",
+            "must_preserve": [
+              "tool_result",
+              "status",
+              "required_fields_seen",
+              "candidate_flight",
+              "fare_usd"
+            ],
+            "source_pointer": "obs://context_compiler_realistic_ablation_cfg00_003/function_calling/02"
+          },
+          {
+            "name": "user_03",
+            "text": "User request: coordinate a business trip from Shanghai to Singapore, check weather, estimate hotel budget, and store the itinerary. Current turn=3; choose the next valid tool call.",
+            "stability": "turn_dynamic",
+            "segment_type": "current_query",
+            "reuse_scope": "turn",
+            "must_preserve": [],
+            "source_pointer": null
+          },
+          {
+            "name": "runtime_header",
+            "text": "request_time=2026-06-08T09:03:00Z\nsession_id=context_compiler_realistic_ablation_cfg00_003\nretry_count=3\ntrace_nonce=context_compiler_realistic_ablation_cfg00_003-03",
+            "stability": "ephemeral",
+            "segment_type": "runtime",
+            "reuse_scope": "request",
+            "must_preserve": [],
+            "source_pointer": null
+          }
+        ],
+        "compiler_metadata": {
+          "compiler": "none"
+        },
+        "backend": "vllm_server",
+        "base_url": "http://127.0.0.1:8000",
+        "streaming": true,
+        "finish_reason": "stop",
+        "input_token_source": "tokenizer_fallback",
+        "output_token_source": "tokenizer_fallback",
+        "tokenizer_name_or_path": "/root/autodl-tmp/models/Qwen2.5-7B-Instruct",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "batch_index": 15,
+        "configured_concurrency": 1
+      }
+    }
+  ],
+  "extra": {
+    "trace_count": 4,
+    "workload_types": [
+      "context_compiler_realistic_ablation"
+    ],
+    "repeat": 1,
+    "concurrency": 1,
+    "repeat_summary": {
+      "run_count": 1,
+      "mean_latency_ms_by_run": [
+        505.47662540338933
+      ],
+      "mean_ttft_ms_by_run": [
+        67.1813078224659
+      ],
+      "mean_tpot_ms_by_run": [
+        9.736831223232333
+      ],
+      "mean_output_tokens_by_run": [
+        45.0
+      ],
+      "mean_latency_ms_mean": 505.47662540338933,
+      "mean_latency_ms_std": 0.0
+    },
+    "token_source_summary": {
+      "input": "tokenizer_fallback",
+      "output": "tokenizer_fallback"
+    }
+  }
+}
